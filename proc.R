@@ -15,7 +15,8 @@ IMPORTS <- c("dplyr"
              , "ptw"
              , "purrr"
              , "stringr"
-             , "tibble")
+             , "tibble"
+             , "rlang")
 
 
 purrr::walk(IMPORTS, usethis::use_package)
