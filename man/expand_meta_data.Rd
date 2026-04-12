@@ -9,4 +9,7 @@ expand_meta_data(lst, fac = 1e+05)
 \description{
 Computes some descriptive parameters of a trace
 }
+\keyword{.data}
+\keyword{importFrom}
 \keyword{internal}
+\keyword{rlang}

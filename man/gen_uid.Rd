@@ -2,12 +2,15 @@
 % Please edit documentation in R/new_trace_proc.R
 \name{gen_uid}
 \alias{gen_uid}
-\title{An ID generator that produces an ID code composed of
+\title{An ID generator that produces a single ID code composed of
 lower case letters and 10 digits with prefix 'w'}
 \usage{
 gen_uid(len)
 }
+\arguments{
+\item{len}{the length or the number of symbols in UID}
+}
 \description{
-An ID generator that produces an ID code composed of
+An ID generator that produces a single ID code composed of
 lower case letters and 10 digits with prefix 'w'
 }

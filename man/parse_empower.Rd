@@ -9,4 +9,7 @@ parse_empower(fls, skip, sep)
 \description{
 Empower parser, imports .csv, .txt, .arw files
 }
+\keyword{.data}
+\keyword{importFrom}
 \keyword{internal}
+\keyword{rlang}

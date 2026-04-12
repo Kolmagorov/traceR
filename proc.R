@@ -9,6 +9,17 @@ usethis::use_readme_rmd()
 
 devtools::build_readme()
 
+IMPORTS <- c("dplyr"
+             ,"lubridate"
+             , "prospectr"
+             , "ptw"
+             , "purrr"
+             , "stringr"
+             , "tibble")
+
+
+purrr::walk(IMPORTS, usethis::use_package)
+
 roxygen2::roxygenise(clean = TRUE)
 
 devtools::document()

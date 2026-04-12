@@ -3,7 +3,7 @@
 #' @param path_dir a string specifying path to a directory with trace files to load
 #' @param fls a vector of strings as an alternative to provide file path, overrides
 #' 'path_dir'
-#' @param pattern allows select files by custom regex pattern. NOTE it overrides
+#' @param pattern allows to select files by custom regex pattern. NOTE it overrides
 #' selection by file extension pattern
 #' @param uid_len an integer that specifies the length of unique ID that will
 #' indexing rows.
@@ -179,6 +179,7 @@ parser_selector <- function(fls){
 
 #' Empower parser, imports .csv, .txt, .arw files
 #' @keywords internal
+#' importFrom rlang .data
 parse_empower <- function(fls, skip, sep){
 
   # Getting trace data
@@ -207,6 +208,7 @@ parse_empower <- function(fls, skip, sep){
 
 #' Chromeleon parser, imports .csv and .txt files
 #' @keywords internal
+#' importFrom rlang .data
 parse_chromeleon <- function(fls, sep){
 
   # Getting trace data
@@ -256,6 +258,7 @@ parse_chromeleon <- function(fls, sep){
 
 #' Computes some descriptive parameters of a trace
 #' @keywords internal
+#' importFrom rlang .data
 expand_meta_data <- function(lst, fac = 1e5){
 
   if(!is.list(lst)){ stop("Expand_meta_data accepts list as an input\n")}
@@ -304,8 +307,9 @@ record_log <- function(what, on_disc = FALSE, f_names = NULL){
 
 }
 
-#' An ID generator that produces an ID code composed of
+#' An ID generator that produces a single ID code composed of
 #' lower case letters and 10 digits with prefix 'w'
+#' @param len the length or the number of symbols in UID
 #' @export
 gen_uid <- function(len){
 
@@ -321,6 +325,9 @@ gen_uid <- function(len){
 }
 
 #' ID pool generator. Generates a pool of unique ID's
+#' @param n a number of UID to generate
+#' @param len the length or the number of symbols in UID
+#' @param pool a vector filed with unique ID's - optional.
 #' @export
 gen_uid_pool <- function(n, len = 6, pool = NULL){
 

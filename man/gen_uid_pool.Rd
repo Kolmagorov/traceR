@@ -6,6 +6,13 @@
 \usage{
 gen_uid_pool(n, len = 6, pool = NULL)
 }
+\arguments{
+\item{n}{a number of UID to generate}
+
+\item{len}{the length or the number of symbols in UID}
+
+\item{pool}{a vector filed with unique ID's - optional.}
+}
 \description{
 ID pool generator. Generates a pool of unique ID's
 }

@@ -12,7 +12,7 @@ load_trace(path_dir = NULL, fls = NULL, pattern = NULL, uid_len = 6L)
 \item{fls}{a vector of strings as an alternative to provide file path, overrides
 'path_dir'}
 
-\item{pattern}{allows select files by custom regex pattern. NOTE it overrides
+\item{pattern}{allows to select files by custom regex pattern. NOTE it overrides
 selection by file extension pattern}
 
 \item{uid_len}{an integer that specifies the length of unique ID that will

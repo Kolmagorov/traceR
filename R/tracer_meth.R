@@ -22,7 +22,14 @@ print.tracer <- function(x,...){
 
 }
 
-# Trace info
+#' Gets trace info
+#' @description Provides a compact table with descriptive information
+#' about traces
+#' @param x object of class tracer
+#' @param force_raw logical if TRUE returns info for 
+#' the Unprocessed data
+#' @param ... an argument to pass to 'expand_meta_data' function
+#' @returns a list with descriptive parameters of traces
 #' @export
 trace_info <- function(x, force_raw = FALSE, ...){
 
@@ -47,7 +54,8 @@ trace_info <- function(x, force_raw = FALSE, ...){
   return(common)
 }
 
-# Re-scale Helper
+#' Re-scale Helper
+#' @description re-scales response variable
 #' @keywords internal
 minmax_scale <- function(x, bound = c(0, 1), rt_range = NULL){
 
@@ -80,7 +88,15 @@ maxnorm_scale <- function(x, rt_range = NULL){
   return(x)
 }
 
-# Re-scale Response
+#' Re-scale Response of a trace
+#' @description Transforms Response to a new designated scale.
+#' @param x object of class tracer
+#' @param new_obj logical, if TRUE returns a modified object, 
+#' otherwise - processed data
+#' @param type a string defining re-scaling algorithm. Can be 
+#' either minmax with arbitrary limits, or maxnorm that normalizes data to the 
+#' greatest value.
+#' @param ... an additional argument to specify range for minmax rescale.
 #' @export
 tr_rescale <- function(x, type = "minmax", new_obj = FALSE, ...){
 
@@ -110,7 +126,14 @@ tr_rescale <- function(x, type = "minmax", new_obj = FALSE, ...){
 
 }
 
-# Cropping
+#' Cropping a trace
+#' @description Trims the profile to the set RT range 
+#' @param x object of class tracer
+#' @param crop_to sets the limits defining a cropping segment, 
+#' if it is a single positive number,  will be treated as an upper limit 
+#' starting from zero.
+#' @param new_obj logical, if TRUE returns a modified object, 
+#' otherwise - processed data
 #' @export
 tr_crop <- function(x, crop_to, new_obj = FALSE){
 
@@ -153,7 +176,13 @@ tr_crop <- function(x, crop_to, new_obj = FALSE){
 
 }
 
-# Resampling traces
+#' Resamples traces
+#' @description Re-sample data to new retention times 
+#'  using spline or linear interpolation, using 'prospectr::resample()'
+#' @param x object of class tracer
+#' @param pts an integer setting the number of points to re-sample
+#' @param new_obj logical, if TRUE returns a modified object, 
+#' otherwise - processed data
 #' @export
 tr_resample <- function(x, pts, new_obj = FALSE){
 
@@ -212,8 +241,16 @@ tr_resample <- function(x, pts, new_obj = FALSE){
 
 }
 
-# Aligner
-#' @export
+#' a Trace Aligner
+#' @description Aligns traces to a reference provided
+#' @param x object of class tracer
+#' @param ref an index of a trace that will be used as a reference
+#' @param rm_na logical, if TRUE will replace all NA's that may be introduced after
+#' ptw alignment algorithm, with the lowest value in the traces.
+#' @param new_obj logical, if TRUE returns a modified object, 
+#' otherwise - processed data. Also overides 'return_mat'.
+#' @param return_mat if TRUE, instead of a list returns a matrix of aligned data.
+#' @export 
 tr_align <- function(x
                      , new_obj = FALSE
                      , ref = 1L
@@ -308,6 +345,9 @@ tr_align <- function(x
 
 
 # Base Line correction
+
+# Base Line correction
+# plot.tracer <- function(x,...){}
 
 
 

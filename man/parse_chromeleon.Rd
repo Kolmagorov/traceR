@@ -9,4 +9,7 @@ parse_chromeleon(fls, sep)
 \description{
 Chromeleon parser, imports .csv and .txt files
 }
+\keyword{.data}
+\keyword{importFrom}
 \keyword{internal}
+\keyword{rlang}
