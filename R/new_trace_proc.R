@@ -179,7 +179,7 @@ parser_selector <- function(fls){
 
 #' Empower parser, imports .csv, .txt, .arw files
 #' @keywords internal
-#' importFrom rlang .data
+#' @importFrom rlang .data
 parse_empower <- function(fls, skip, sep){
 
   # Getting trace data
@@ -197,7 +197,7 @@ parse_empower <- function(fls, skip, sep){
                           , sep = sep
                           , nrow = 1)|>
     dplyr::mutate(ID = NA
-                  , dateAcquired = time_scan(Date.Acquired))|>
+                  , dateAcquired = time_scan(.data$Date.Acquired))|>
     dplyr::select(!Date.Acquired)}
 
   # Add file name
@@ -208,7 +208,7 @@ parse_empower <- function(fls, skip, sep){
 
 #' Chromeleon parser, imports .csv and .txt files
 #' @keywords internal
-#' importFrom rlang .data
+#' @importFrom rlang .data
 parse_chromeleon <- function(fls, sep){
 
   # Getting trace data
@@ -238,8 +238,8 @@ parse_chromeleon <- function(fls, sep){
   # Removing redudant rows
   meta <- meta[-c(3, 18, 30, 36),]
   meta <- meta|>
-    dplyr::mutate(Attribute = gsub(Attribute, pattern = "\\s|\\(.*\\)|\\.", replacement = "")
-                  , Value = gsub(Value, pattern = ",", replacement = ""))
+    dplyr::mutate(Attribute = gsub(.data$Attribute, pattern = "\\s|\\(.*\\)|\\.", replacement = "")
+                  , Value = gsub(.data$Value, pattern = ",", replacement = ""))
 
 
   tmp <- meta$Value |> t()
@@ -248,7 +248,7 @@ parse_chromeleon <- function(fls, sep){
   # Expand Meta data
    meta <- data.frame(tmp)|>
     dplyr::mutate(ID = NA
-                  , InjectTime = time_scan(InjectTime)
+                  , InjectTime = time_scan(.data$InjectTime)
                   , file = basename(fls) )|>
      dplyr::rename(SampleName = Name, dateAcquired = InjectTime)
 
@@ -258,7 +258,7 @@ parse_chromeleon <- function(fls, sep){
 
 #' Computes some descriptive parameters of a trace
 #' @keywords internal
-#' importFrom rlang .data
+#' @importFrom rlang .data
 expand_meta_data <- function(lst, fac = 1e5){
 
   if(!is.list(lst)){ stop("Expand_meta_data accepts list as an input\n")}
@@ -271,8 +271,8 @@ expand_meta_data <- function(lst, fac = 1e5){
 
       maxSig = max(dt[["Response"]]),
       dataPoints = nrow(dt),
-      apexRT = dplyr::filter(Response == max(Response), .data = dt)|>
-        dplyr::pull(RT)|> mean()
+      apexRT = dplyr::filter(Response == max(.data$Response), .data = dt)|>
+        dplyr::pull(.data$RT)|> mean()
 
       )|>
       dplyr::mutate(samplingRate = round(dataPoints/(max(dt[["RT"]] - min(dt[["RT"]])))/60, digits = 1),

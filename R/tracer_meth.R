@@ -178,7 +178,7 @@ tr_crop <- function(x, crop_to, new_obj = FALSE){
 
 #' Resamples traces
 #' @description Re-sample data to new retention times 
-#'  using spline or linear interpolation, using 'prospectr::resample()'
+#'  using spline or linear interpolation, using 'prospectr::resample'
 #' @param x object of class tracer
 #' @param pts an integer setting the number of points to re-sample
 #' @param new_obj logical, if TRUE returns a modified object, 
@@ -250,7 +250,8 @@ tr_resample <- function(x, pts, new_obj = FALSE){
 #' @param new_obj logical, if TRUE returns a modified object, 
 #' otherwise - processed data. Also overides 'return_mat'.
 #' @param return_mat if TRUE, instead of a list returns a matrix of aligned data.
-#' @export 
+#' @param ... an additional argument to to be passed 'ptw::ptw'.
+#' @export
 tr_align <- function(x
                      , new_obj = FALSE
                      , ref = 1L
