@@ -15,7 +15,7 @@ roxygen2::roxygenise(clean = TRUE)
 
 devtools::document()
 
-use_this::load
+devtools::load_all()
 
 # TEST AREA
 df <- load_trace(path_dir = "I:/Angular_Sim_Exp/TEST_AREA")
