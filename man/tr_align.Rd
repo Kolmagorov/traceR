@@ -18,6 +18,8 @@ otherwise - processed data. Also overides 'return_mat'.}
 ptw alignment algorithm, with the lowest value in the traces.}
 
 \item{return_mat}{if TRUE, instead of a list returns a matrix of aligned data.}
+
+\item{...}{an additional argument to to be passed 'ptw::ptw'.}
 }
 \description{
 Aligns traces to a reference provided

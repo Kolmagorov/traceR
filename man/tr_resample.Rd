@@ -16,5 +16,5 @@ otherwise - processed data}
 }
 \description{
 Re-sample data to new retention times 
- using spline or linear interpolation, using 'prospectr::resample()'
+ using spline or linear interpolation, using 'prospectr::resample'
 }
