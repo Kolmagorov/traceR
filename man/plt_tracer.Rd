@@ -6,6 +6,7 @@
 \usage{
 plt_tracer(
   x,
+  what = NULL,
   x_lab = "Retention Time [min]",
   force_raw = FALSE,
   facet_lab = "SampleName",
@@ -18,6 +19,9 @@ plt_tracer(
 }
 \arguments{
 \item{x}{an object of class tracer}
+
+\item{what}{either numeric indexes or string of UID. If some Numeric indexes out of range
+an error will be thrown. Unmatched UID's will be ignored with warning.}
 
 \item{x_lab}{a string passing x-axis name to the plot}
 
