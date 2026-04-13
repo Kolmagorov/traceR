@@ -41,3 +41,12 @@ expand_meta_data(lst = df$DATA$RAW)
 
 a <- tr_align(x = df, new_obj = T, rm_na = F)
 str(a)
+
+
+plt_tracer(x = df)
+
+
+
+
+
+
