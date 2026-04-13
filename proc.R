@@ -29,6 +29,7 @@ devtools::load_all()
 
 # TEST AREA
 df <- load_trace(path_dir = "I:/Angular_Sim_Exp/TEST_AREA")
+df <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/GNR_045_COSIM/TRACES")
 
 df$LOG
 
