@@ -374,28 +374,8 @@ plt_tracer <- function(x
     if(is.null(x$DATA$PROCESSED)){ data_ <- "RAW"}
   }else{ data_ <- "RAW" }
   
-  n_smp <- length(x$DATA[[data_]])
-  
-  # Validate what
-  if(is.null(what)){ what <- 1:n_smp}
-  else if(is.numeric(what)){
-    
-    if(max(what) > n_smp | any(what < 0)){
-      stop("Supplied indexes are out of range: \nmax(ID) is ", max(what)
-           , " but number of samples is ", n_smp
-           , call. = FALSE)}
-    
-  }else if(is.character(what)){ 
-    
-    gacha <- what %in% names(x$DATA[[data_]])
-    
-    if(!any(gacha)){stop("The supplied indexes are missing in the data", call. = FALSE)}
-    else{ 
-
-      warning("The following item are missing:\n", what[!gacha], call. = FALSE)
-      what <- what[gacha]
-    }
-  }
+  # VALIDATOR
+  what <- what_validator(lst = x$DATA[[data_]], what = what)
   
   df <- x$DATA[[data_]][what] |> 
     do.call("rbind", args=_)
@@ -439,7 +419,35 @@ plt_tracer <- function(x
 }
 
 
-
+#' @description validates what arg supplied to plt_tracer and setters
+#' @keywords internal
+what_validator <- function(lst, what){
+  
+  n_smp <- length(lst)
+  
+  # Validate what tryCatch Maybe
+  if(is.null(what)){ what <- 1:n_smp}
+  else if(is.numeric(what)){
+    
+    if(max(what) > n_smp | any(what < 0)){
+      stop("Supplied indexes are out of range: \nmax(ID) is ", max(what)
+           , " but number of samples is ", n_smp
+           , call. = FALSE)}
+    
+  }else if(is.character(what)){ 
+    
+    gacha <- what %in% names(lst)
+    
+    if(!any(gacha)){stop("The supplied indexes are missing in the data", call. = FALSE)}
+    else{ 
+      
+      warning("The following item are missing:\n", what[!gacha], call. = FALSE)
+      what <- what[gacha]
+    }
+  }
+  
+  return(what)
+}
 
 
 
