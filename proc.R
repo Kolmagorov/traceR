@@ -50,10 +50,15 @@ devtools::load_all()
 tr_crop(df, crop_to = c(5, 120), new_obj = T) |>
   tr_resample(pts = 2000, new_obj = T) |> 
   tr_rescale(type = "minmax", new_obj = T)|>
-  plt_tracer(what = c("wpuar5q","gooo"))
+  plt_tracer(what = c(1,4,8))
 
+devtools::load_all()
+set_field_value(x = df,  
+                what = c("w7y55nd",  "df", "foo"),
+                record = c("ZAD", "ZAD2","XZ"),
+                field = "SRC") |> 
+  trace_info()
 
-
-
+zad <-add_field(x = df, new_field = "ZAD5")
 
 

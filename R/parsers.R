@@ -28,7 +28,10 @@ parse_empower <- function(fls, skip, sep){
                          , col.names = c("RT", "Response"))
   
   # Initialize Meta
-  if(skip == 0){ meta <- data.frame(ID = NA, SampleName = NA, dateAcquired = NA)}
+  if(skip == 0){ meta <- data.frame(ID = NA
+                                    , SampleName = NA
+                                    , dateAcquired = NA
+                                    , Comments = NA)}
   
   else{ meta <- utils::read.csv(file = fls
                          , header = TRUE
@@ -88,7 +91,9 @@ parse_chromeleon <- function(fls, sep){
     dplyr::mutate(ID = NA
                   , InjectTime = time_scan(.data$InjectTime)
                   , file = basename(fls) )|>
-    dplyr::rename(SampleName = .data$Name, dateAcquired = .data$InjectTime)
+    dplyr::rename(SampleName = .data$Name
+                  , dateAcquired = .data$InjectTime
+                  , Comments = .data$Comment)
   
   rm(tmp)
   return(list(TRACE = trace_data, META = meta))

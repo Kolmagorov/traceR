@@ -33,7 +33,8 @@ print.tracer <- function(x,...){
 #' @export
 trace_info <- function(x, force_raw = FALSE, ...){
 
-  if(methods::is(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
+  if(methods::is(x) != "tracer"){ 
+    stop("\n x must be a an object of type tracer", call. = FALSE)}
 
   d_type <- "PROCESSED"
 
@@ -426,10 +427,15 @@ what_validator <- function(lst, what){
   n_smp <- length(lst)
   
   # Validate what tryCatch Maybe
+  
+  if(any(duplicated(what))){
+    stop("Supplied indexes must be unique", call. = FALSE)
+  }
+  
   if(is.null(what)){ what <- 1:n_smp}
   else if(is.numeric(what)){
     
-    if(max(what) > n_smp | any(what < 0)){
+    if(max(what) > n_smp | any(what <= 0)){
       stop("Supplied indexes are out of range: \nmax(ID) is ", max(what)
            , " but number of samples is ", n_smp
            , call. = FALSE)}
@@ -438,10 +444,14 @@ what_validator <- function(lst, what){
     
     gacha <- what %in% names(lst)
     
-    if(!any(gacha)){stop("The supplied indexes are missing in the data", call. = FALSE)}
-    else{ 
+    if(!any(gacha)){
+      stop("The supplied indexes are missing in the data", call. = FALSE)}
+    else if(all(gacha)){ return(what) }
+    else{
       
-      warning("The following item are missing:\n", what[!gacha], call. = FALSE)
+      warning("The following item are missing:\n"
+              , paste0(what[!gacha], collapse = ", ")
+              , call. = FALSE)
       what <- what[gacha]
     }
   }
