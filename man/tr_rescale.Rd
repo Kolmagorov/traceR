@@ -7,7 +7,7 @@
 tr_rescale(x, type = "minmax", new_obj = FALSE, ...)
 }
 \arguments{
-\item{x}{object of class tracer}
+\item{x}{an object of class tracer}
 
 \item{type}{a string defining re-scaling algorithm. Can be 
 either minmax with arbitrary limits, or maxnorm that normalizes data to the 

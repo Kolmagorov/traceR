@@ -18,7 +18,10 @@ IMPORTS <- c("utils"
              , "purrr"
              , "stringr"
              , "tibble"
-             , "rlang")
+             , "rlang"
+             , "ggplot2"
+             , "scales"
+             , "stats")
 
 
 purrr::walk(IMPORTS, usethis::use_package)
@@ -31,6 +34,7 @@ devtools::load_all()
 
 # TEST AREA
 df <- load_trace(path_dir = "I:/Angular_Sim_Exp/TEST_AREA")
+
 df <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/GNR_045_COSIM/TRACES")
 
 df$LOG
@@ -42,8 +46,11 @@ expand_meta_data(lst = df$DATA$RAW)
 a <- tr_align(x = df, new_obj = T, rm_na = F)
 str(a)
 
-
-plt_tracer(x = df)
+devtools::load_all()
+tr_crop(df, crop_to = c(5, 120), new_obj = T) |>
+  tr_resample(pts = 2000, new_obj = T) |> 
+  tr_rescale(type = "minmax", new_obj = T)|>
+  plt_tracer(what = c("wpuar5q","gooo"))
 
 
 

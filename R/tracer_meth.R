@@ -25,7 +25,7 @@ print.tracer <- function(x,...){
 #' Gets trace info
 #' @description Provides a compact table with descriptive information
 #' about traces
-#' @param x object of class tracer
+#' @param x an object of class tracer
 #' @param force_raw logical if TRUE returns info for 
 #' the Unprocessed data
 #' @param ... an argument to pass to 'expand_meta_data' function
@@ -90,7 +90,7 @@ maxnorm_scale <- function(x, rt_range = NULL){
 
 #' Re-scale Response of a trace
 #' @description Transforms Response to a new designated scale.
-#' @param x object of class tracer
+#' @param x an object of class tracer
 #' @param new_obj logical, if TRUE returns a modified object, 
 #' otherwise - processed data
 #' @param type a string defining re-scaling algorithm. Can be 
@@ -128,7 +128,7 @@ tr_rescale <- function(x, type = "minmax", new_obj = FALSE, ...){
 
 #' Cropping a trace
 #' @description Trims the profile to the set RT range 
-#' @param x object of class tracer
+#' @param x an object of class tracer
 #' @param crop_to sets the limits defining a cropping segment, 
 #' if it is a single positive number,  will be treated as an upper limit 
 #' starting from zero.
@@ -174,7 +174,7 @@ tr_crop <- function(x, crop_to, new_obj = FALSE){
 #' Trace re-sampling
 #' @description Re-samples data to new retention time points 
 #'  using spline or linear interpolation, applying 'prospectr::resample'
-#' @param x object of class tracer
+#' @param x an object of class tracer
 #' @param pts an integer setting the number of points to re-sample
 #' @param new_obj logical, if TRUE returns a modified object, 
 #' otherwise - processed data
@@ -189,7 +189,7 @@ tr_resample <- function(x, pts, new_obj = FALSE){
   blw_pts <- suppressMessages(trace_info(x = x), classes = "message")|>
 
     dplyr::select(.data$file, .data$dataPoints, .data$SRC)|>
-    dplyr::filter(.data$dataPoints < .data$pts)
+    dplyr::filter(.data$dataPoints < pts)
 
   if(nrow(blw_pts) > 0){
 
@@ -238,7 +238,7 @@ tr_resample <- function(x, pts, new_obj = FALSE){
 
 #' a Trace Aligner
 #' @description Aligns traces to a reference provided
-#' @param x object of class tracer
+#' @param x an object of class tracer
 #' @param ref an index of a trace that will be used as a reference
 #' @param rm_na logical, if TRUE will replace all NA's that may be introduced after
 #' ptw alignment algorithm, with the lowest value in the traces.
@@ -343,19 +343,99 @@ tr_align <- function(x
 # Base Line correction
 
 #' Plot traces
-#' @description plotting traces 
-plt_tracer <- function(x, force_raw = TRUE, ...){
+#' @description plotting traces - under development -
+#' @param x an object of class tracer
+#' @param x_lab a string passing x-axis name to the plot
+#' @param force_raw If TRUE will plot RAW data
+#' @param facet_lab trace grouping factors, default available options are names of
+#' a table returning by trace_info.
+#' @param xlim,ylim numeric vectors defining limits for x and y axis respectively
+#' @param breaks an integer controlling major breaks on the x-axis
+#' @param minor_breaks an integer controlling minor breaks on the x-axis
+#' @param expd expands plot beyond limits set on x-axis
+#' @param what either numeric indexes or string of UID. If some Numeric indexes out of range
+#' an error will be thrown. Unmatched UID's will be ignored with warning.
+plt_tracer <- function(x
+                       , what = NULL
+                       #, stack = TRUE
+                       , x_lab = "Retention Time [min]"
+                       , force_raw = FALSE
+                       , facet_lab = "SampleName"
+                       , xlim = c(5, 120)
+                       , ylim = c(-0.05, 1.0)
+                       , breaks = 5
+                       , minor_breaks = 1
+                       , expd = 2){
   
   data_ <- "PROCESSED"
+  
   
   if(isFALSE(force_raw)){
     if(is.null(x$DATA$PROCESSED)){ data_ <- "RAW"}
   }else{ data_ <- "RAW" }
   
+  n_smp <- length(x$DATA[[data_]])
   
-  out <- x$DATA[[data_]] |>
+  # Validate what
+  if(is.null(what)){ what <- 1:n_smp}
+  else if(is.numeric(what)){
+    
+    if(max(what) > n_smp | any(what < 0)){
+      stop("Supplied indexes are out of range: \nmax(ID) is ", max(what)
+           , " but number of samples is ", n_smp
+           , call. = FALSE)}
+    
+  }else if(is.character(what)){ 
+    
+    gacha <- what %in% names(x$DATA[[data_]])
+    
+    if(!any(gacha)){stop("The supplied indexes are missing in the data", call. = FALSE)}
+    else{ 
+
+      warning("The following item are missing:\n", what[!gacha], call. = FALSE)
+      what <- what[gacha]
+    }
+  }
+  
+  df <- x$DATA[[data_]][what] |> 
     do.call("rbind", args=_)
-  out
+  
+  df$ID <- row.names(df)|> gsub(pattern = "\\..*", replacement ="")
+  row.names(df) <- NULL
+  
+  df <- trace_info(x, force_raw = force_raw) |>
+    merge(x = df, y=_, by = "ID")
+  
+  fmla <- stats::as.formula(paste(".", facet_lab, sep = " ~ "))
+  
+  ggplot2::ggplot(data = df) +
+    ggplot2::geom_line(ggplot2::aes(x = RT, y = Response, colour = SampleName)) +
+    ggplot2::ylim(ylim) + 
+    ggplot2::guides(x = ggplot2::guide_axis(minor.ticks = TRUE
+                                            , cap = "both")) +
+    ggplot2::scale_x_continuous(limits = xlim
+                       , expand = ggplot2::expansion(add = expd)
+                       , breaks = seq(0,xlim[2], breaks)
+                       , name = x_lab
+                       , minor_breaks = scales::breaks_width(minor_breaks)
+    ) +
+    ggplot2::facet_wrap(fmla
+               , ncol = 1
+               , scales = "free_y"
+               , strip.position = "left") +
+    ggplot2::theme_bw() +
+    
+    ggplot2::theme(legend.position = "none"
+                   , panel.border = ggplot2::element_blank()
+                   , panel.grid = ggplot2::element_blank()
+                   , axis.text.y = ggplot2::element_blank()
+                   , axis.title.y = ggplot2::element_blank()
+                   , axis.ticks.y = ggplot2::element_blank()
+                   , strip.background = ggplot2::element_rect(fill = "grey88", linetype = 0)
+                   , axis.line.x = ggplot2::element_line()
+                   , axis.ticks.length = ggplot2::unit(5, "pt")
+                   , axis.minor.ticks.length = ggplot2::rel(0.5))
+  
 }
 
 

@@ -7,7 +7,7 @@
 tr_resample(x, pts, new_obj = FALSE)
 }
 \arguments{
-\item{x}{object of class tracer}
+\item{x}{an object of class tracer}
 
 \item{pts}{an integer setting the number of points to re-sample}
 

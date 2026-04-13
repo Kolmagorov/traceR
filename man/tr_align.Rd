@@ -7,7 +7,7 @@
 tr_align(x, new_obj = FALSE, ref = 1L, rm_na = TRUE, return_mat = FALSE, ...)
 }
 \arguments{
-\item{x}{object of class tracer}
+\item{x}{an object of class tracer}
 
 \item{new_obj}{logical, if TRUE returns a modified object, 
 otherwise - processed data. Also overrides 'return_mat'.}

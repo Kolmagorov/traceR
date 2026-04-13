@@ -7,7 +7,7 @@
 tr_crop(x, crop_to, new_obj = FALSE)
 }
 \arguments{
-\item{x}{object of class tracer}
+\item{x}{an object of class tracer}
 
 \item{crop_to}{sets the limits defining a cropping segment, 
 if it is a single positive number,  will be treated as an upper limit 

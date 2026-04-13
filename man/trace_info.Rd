@@ -7,7 +7,7 @@
 trace_info(x, force_raw = FALSE, ...)
 }
 \arguments{
-\item{x}{object of class tracer}
+\item{x}{an object of class tracer}
 
 \item{force_raw}{logical if TRUE returns info for 
 the Unprocessed data}
