@@ -42,8 +42,7 @@ load_trace <- function(path_dir = NULL
   raw_data <- list()
   meta <- list()
   id_pool <- NULL
-  #reg <- NULL
-
+  
   # Initialize a log record
   log_tmp <- record_log(what = list(ID = NA, SOURCE = NA, LOADED = NA, FILE = NA))
 
@@ -58,6 +57,7 @@ load_trace <- function(path_dir = NULL
        dt_log <- log_tmp(list(ID = NA, SOURCE = NA, LOADED = FALSE, FILE = fls[i]))
 
       next}
+    
     # if tmp not empty generate new ID
     idx <- gen_uid_pool(n = 1, len = uid_len, pool = id_pool)
 
@@ -160,102 +160,6 @@ time_scan <- function(dt, tz = Sys.timezone()){
   out
 }
 
-#' Selects parser
-#' @keywords internal
-parser_selector <- function(fls){
-
-  read_par <- file_scan(fls)
-
-  if(isFALSE(read_par)){ return(read_par) }
-  else{
-    out <- switch(EXPR = read_par$SYS,
-           EMPOWER = parse_empower(fls = fls, sep = read_par$SEP , skip = read_par$SKIP),
-           CHROMELEON = parse_chromeleon(fls = fls, sep = read_par$SEP),
-           Undefined = parse_empower(fls = fls, sep = read_par$SEP , skip = read_par$SKIP))
-    out$META$SRC <- read_par$SYS } # Assigning source info to the meta data row
-
-  return(out)
-}
-
-#' Empower parser, imports .csv, .txt, .arw files
-#' @keywords internal
-#' @importFrom rlang .data
-parse_empower <- function(fls, skip, sep){
-
-  # Getting trace data
-  trace_data <- read.csv(file = fls
-                           , header = FALSE
-                           , sep = sep
-                           , skip = skip
-                           , col.names = c("RT", "Response"))
-
-  # Initialize Meta
-  if(skip == 0){ meta <- data.frame(ID = NA, SampleName = NA, dateAcquired = NA)}
-
-  else{ meta <- read.csv(file = fls
-                          , header = TRUE
-                          , sep = sep
-                          , nrow = 1)|>
-    dplyr::mutate(ID = NA
-                  , dateAcquired = time_scan(.data$Date.Acquired))|>
-    dplyr::select(!Date.Acquired)}
-
-  # Add file name
-  meta <- meta |> dplyr::mutate(file = basename(fls))
-
-  return(list(TRACE = trace_data, META = meta))
-}
-
-#' Chromeleon parser, imports .csv and .txt files
-#' @keywords internal
-#' @importFrom rlang .data
-parse_chromeleon <- function(fls, sep){
-
-  # Getting trace data
-  trace_data <- read.csv(file = fls
-                           , header = FALSE
-                           , sep = sep
-                           , skip = 43
-                           , blank.lines.skip = FALSE
-                           , col.names = c("RT", "Step", "Response")
-                           , colClasses = c("character", "NULL", "character"))|>
-    # Fixing ugly numbers
-    lapply(X =_, function(x){
-
-      gsub(x, pattern = ",", replacement ="")|>
-      as.numeric()
-      }) |>
-    do.call("cbind", args=_)|>
-    data.frame()
-
-  meta <- read.csv(file = fls
-                   , header = FALSE
-                   , sep = sep
-                   , nrow = 37
-                   , blank.lines.skip = TRUE
-                   , col.names = c("Attribute", "Value")
-                   )
-  # Removing redudant rows
-  meta <- meta[-c(3, 18, 30, 36),]
-  meta <- meta|>
-    dplyr::mutate(Attribute = gsub(.data$Attribute, pattern = "\\s|\\(.*\\)|\\.", replacement = "")
-                  , Value = gsub(.data$Value, pattern = ",", replacement = ""))
-
-
-  tmp <- meta$Value |> t()
-  colnames(tmp) <- meta$Attribute
-
-  # Expand Meta data
-   meta <- data.frame(tmp)|>
-    dplyr::mutate(ID = NA
-                  , InjectTime = time_scan(.data$InjectTime)
-                  , file = basename(fls) )|>
-     dplyr::rename(SampleName = Name, dateAcquired = InjectTime)
-
-  rm(tmp)
-  return(list(TRACE = trace_data, META = meta))
-}
-
 #' Computes some descriptive parameters of a trace
 #' @keywords internal
 #' @importFrom rlang .data
@@ -287,7 +191,7 @@ expand_meta_data <- function(lst, fac = 1e5){
   return(exp_meta)
 }
 
-#' Keeps track of processing steps records them into a data.frame
+#' Keeps track of processing steps taken and records them into a data.frame
 #' @keywords internal
 record_log <- function(what, on_disc = FALSE, f_names = NULL){
 
@@ -307,7 +211,8 @@ record_log <- function(what, on_disc = FALSE, f_names = NULL){
 
 }
 
-#' An ID generator that produces a single ID code composed of
+#' Generates unique ID
+#' @description An ID generator that produces a single ID code composed of
 #' lower case letters and 10 digits with prefix 'w'
 #' @param len the length or the number of symbols in UID
 #' @export
@@ -324,7 +229,8 @@ gen_uid <- function(len){
   return(idx)
 }
 
-#' ID pool generator. Generates a pool of unique ID's
+#' ID pool generator
+#' @description Generates a pool of unique ID's
 #' @param n a number of UID to generate
 #' @param len the length or the number of symbols in UID
 #' @param pool a vector filed with unique ID's - optional.

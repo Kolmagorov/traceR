@@ -54,7 +54,7 @@ trace_info <- function(x, force_raw = FALSE, ...){
   return(common)
 }
 
-#' Re-scale Helper
+#' a Re-scaling Helper
 #' @description re-scales response variable
 #' @keywords internal
 minmax_scale <- function(x, bound = c(0, 1), rt_range = NULL){
@@ -96,7 +96,7 @@ maxnorm_scale <- function(x, rt_range = NULL){
 #' @param type a string defining re-scaling algorithm. Can be 
 #' either minmax with arbitrary limits, or maxnorm that normalizes data to the 
 #' greatest value.
-#' @param ... an additional argument to specify range for minmax rescale.
+#' @param ... an additional argument to specify range for minmax_scale rescale.
 #' @export
 tr_rescale <- function(x, type = "minmax", new_obj = FALSE, ...){
 
@@ -176,9 +176,9 @@ tr_crop <- function(x, crop_to, new_obj = FALSE){
 
 }
 
-#' Resamples traces
-#' @description Re-sample data to new retention times 
-#'  using spline or linear interpolation, using 'prospectr::resample'
+#' Trace re-sampling
+#' @description Re-samples data to new retention time points 
+#'  using spline or linear interpolation, applying 'prospectr::resample'
 #' @param x object of class tracer
 #' @param pts an integer setting the number of points to re-sample
 #' @param new_obj logical, if TRUE returns a modified object, 
@@ -193,8 +193,8 @@ tr_resample <- function(x, pts, new_obj = FALSE){
 
   blw_pts <- suppressMessages(trace_info(x = x), classes = "message")|>
 
-    dplyr::select(file, dataPoints, SRC)|>
-    dplyr::filter(dataPoints < pts)
+    dplyr::select(.data$file, .data$dataPoints, .data$SRC)|>
+    dplyr::filter(.data$dataPoints < .data$pts)
 
   if(nrow(blw_pts) > 0){
 
@@ -248,7 +248,7 @@ tr_resample <- function(x, pts, new_obj = FALSE){
 #' @param rm_na logical, if TRUE will replace all NA's that may be introduced after
 #' ptw alignment algorithm, with the lowest value in the traces.
 #' @param new_obj logical, if TRUE returns a modified object, 
-#' otherwise - processed data. Also overides 'return_mat'.
+#' otherwise - processed data. Also overrides 'return_mat'.
 #' @param return_mat if TRUE, instead of a list returns a matrix of aligned data.
 #' @param ... an additional argument to to be passed 'ptw::ptw'.
 #' @export
@@ -265,7 +265,7 @@ tr_align <- function(x
   else{data_ <- "PROCESSED"}
 
   blw_pts <- suppressMessages(trace_info(x = x), classes = "message")|>
-    dplyr::select(file, dataPoints, SRC)
+    dplyr::select(.data$file, .data$dataPoints, .data$SRC)
 
   incomp <- unique(blw_pts$dataPoints)
 
