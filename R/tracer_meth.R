@@ -7,7 +7,7 @@ print.tracer <- function(x,...){
 
   sys <- names(x$META)
 
-  raw_qty <- table(df$LOG$SOURCE)|> data.frame()
+  raw_qty <- table(x$LOG$SOURCE)|> data.frame()
   names(raw_qty) <- c("SOURCE", "QTY")
 
 
@@ -33,7 +33,7 @@ print.tracer <- function(x,...){
 #' @export
 trace_info <- function(x, force_raw = FALSE, ...){
 
-  if(class(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
+  if(methods::is(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
 
   d_type <- "PROCESSED"
 
@@ -41,7 +41,7 @@ trace_info <- function(x, force_raw = FALSE, ...){
     if(is.null(x$DATA$PROCESSED)){ d_type <- "RAW"}
   }else{ d_type <- "RAW" }
 
-  hdr <- lapply(df$META, names) |> purrr::reduce(intersect)
+  hdr <- lapply(x$META, names) |> purrr::reduce(intersect)
 
   message("Returning info for ", d_type, " data")
 
@@ -100,7 +100,7 @@ maxnorm_scale <- function(x, rt_range = NULL){
 #' @export
 tr_rescale <- function(x, type = "minmax", new_obj = FALSE, ...){
 
-  if(class(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
+  if(methods::is(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
 
   if(!grepl(type, pattern = "minmax|maxnorm")){
     stop("Scaling type must be either minmax or maxnorm")}
@@ -137,7 +137,7 @@ tr_rescale <- function(x, type = "minmax", new_obj = FALSE, ...){
 #' @export
 tr_crop <- function(x, crop_to, new_obj = FALSE){
 
-  if(class(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
+  if(methods::is(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
 
   if(!is.numeric(crop_to)){stop("The cropping range must be positive numeric\n")}
 
@@ -147,11 +147,6 @@ tr_crop <- function(x, crop_to, new_obj = FALSE){
     stop("The lower bound of the crooping segment is greater than th Upper one\n")
   }
 
-  # FIX the X is an object of trace not a data frame!!!!
-
-  # Maybe it is wise checking RT against the meta data
-
-
   if(is.null(x$HISTORY)){data_ <- "RAW"}
   else{data_ <- "PROCESSED"}
 
@@ -160,7 +155,7 @@ tr_crop <- function(x, crop_to, new_obj = FALSE){
     if(crop_to[1] <= min(dt$RT)){ crop_to[1] <- min(dt$RT) }
     if(crop_to[2] >= max(dt$RT)){ crop_to[2] <- max(dt$RT) }
 
-    dplyr::filter(.data = dt, RT >= crop_to[1] & RT <= crop_to[2])
+    dplyr::filter(.data = dt, .data$RT >= crop_to[1] & .data$RT <= crop_to[2])
   })
 
   if(new_obj){
@@ -186,7 +181,7 @@ tr_crop <- function(x, crop_to, new_obj = FALSE){
 #' @export
 tr_resample <- function(x, pts, new_obj = FALSE){
 
-  if(class(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
+  if(methods::is(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
 
   if(is.null(x$HISTORY)){data_ <- "RAW"}
   else{data_ <- "PROCESSED"}
@@ -259,7 +254,7 @@ tr_align <- function(x
                      , return_mat = FALSE
                      , ...){
 
-  if(class(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
+  if(methods::is(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
 
   if(is.null(x$HISTORY)){data_ <- "RAW"}
   else{data_ <- "PROCESSED"}

@@ -10,7 +10,7 @@ tr_align(x, new_obj = FALSE, ref = 1L, rm_na = TRUE, return_mat = FALSE, ...)
 \item{x}{object of class tracer}
 
 \item{new_obj}{logical, if TRUE returns a modified object, 
-otherwise - processed data. Also overides 'return_mat'.}
+otherwise - processed data. Also overrides 'return_mat'.}
 
 \item{ref}{an index of a trace that will be used as a reference}
 

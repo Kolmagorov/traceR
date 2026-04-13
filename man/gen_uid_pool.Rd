@@ -2,7 +2,7 @@
 % Please edit documentation in R/new_trace_proc.R
 \name{gen_uid_pool}
 \alias{gen_uid_pool}
-\title{ID pool generator. Generates a pool of unique ID's}
+\title{ID pool generator}
 \usage{
 gen_uid_pool(n, len = 6, pool = NULL)
 }
@@ -14,5 +14,5 @@ gen_uid_pool(n, len = 6, pool = NULL)
 \item{pool}{a vector filed with unique ID's - optional.}
 }
 \description{
-ID pool generator. Generates a pool of unique ID's
+Generates a pool of unique ID's
 }

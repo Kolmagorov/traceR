@@ -116,7 +116,7 @@ file_scan <- function(fls, delim = NULL){
 
   for(item in delim){
 
-    tmp <- read.table(file = fls, header = F, sep = item, nrows = 1) |>
+    tmp <- utils::read.table(file = fls, header = F, sep = item, nrows = 1) |>
       unlist()
 
     if (any(REF$FIELD %in% tmp)){
@@ -175,12 +175,12 @@ expand_meta_data <- function(lst, fac = 1e5){
 
       maxSig = max(dt[["Response"]]),
       dataPoints = nrow(dt),
-      apexRT = dplyr::filter(Response == max(.data$Response), .data = dt)|>
+      apexRT = dplyr::filter(.data$Response == max(.data$Response), .data = dt)|>
         dplyr::pull(.data$RT)|> mean()
 
       )|>
-      dplyr::mutate(samplingRate = round(dataPoints/(max(dt[["RT"]] - min(dt[["RT"]])))/60, digits = 1),
-                    score = round(energy/dataPoints, digits = 1))
+      dplyr::mutate(samplingRate = round(.data$dataPoints/(max(dt[["RT"]] - min(dt[["RT"]])))/60, digits = 1),
+                    score = round(energy/.data$dataPoints, digits = 1))
 
   })|>
     do.call("rbind", args=_)|>

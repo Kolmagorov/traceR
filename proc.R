@@ -9,8 +9,10 @@ usethis::use_readme_rmd()
 
 devtools::build_readme()
 
-IMPORTS <- c("dplyr"
-             ,"lubridate"
+IMPORTS <- c("utils"
+             , "methods"
+             , "dplyr"
+             , "lubridate"
              , "prospectr"
              , "ptw"
              , "purrr"

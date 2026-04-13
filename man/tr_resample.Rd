@@ -2,7 +2,7 @@
 % Please edit documentation in R/tracer_meth.R
 \name{tr_resample}
 \alias{tr_resample}
-\title{Resamples traces}
+\title{Trace re-sampling}
 \usage{
 tr_resample(x, pts, new_obj = FALSE)
 }
@@ -15,6 +15,6 @@ tr_resample(x, pts, new_obj = FALSE)
 otherwise - processed data}
 }
 \description{
-Re-sample data to new retention times 
- using spline or linear interpolation, using 'prospectr::resample'
+Re-samples data to new retention time points 
+ using spline or linear interpolation, applying 'prospectr::resample'
 }

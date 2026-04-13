@@ -21,7 +21,7 @@ parser_selector <- function(fls){
 parse_empower <- function(fls, skip, sep){
   
   # Getting trace data
-  trace_data <- read.csv(file = fls
+  trace_data <- utils::read.csv(file = fls
                          , header = FALSE
                          , sep = sep
                          , skip = skip
@@ -30,7 +30,7 @@ parse_empower <- function(fls, skip, sep){
   # Initialize Meta
   if(skip == 0){ meta <- data.frame(ID = NA, SampleName = NA, dateAcquired = NA)}
   
-  else{ meta <- read.csv(file = fls
+  else{ meta <- utils::read.csv(file = fls
                          , header = TRUE
                          , sep = sep
                          , nrow = 1)|>
@@ -88,7 +88,7 @@ parse_chromeleon <- function(fls, sep){
     dplyr::mutate(ID = NA
                   , InjectTime = time_scan(.data$InjectTime)
                   , file = basename(fls) )|>
-    dplyr::rename(SampleName = Name, dateAcquired = InjectTime)
+    dplyr::rename(SampleName = .data$Name, dateAcquired = .data$InjectTime)
   
   rm(tmp)
   return(list(TRACE = trace_data, META = meta))

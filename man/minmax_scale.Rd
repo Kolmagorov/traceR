@@ -2,7 +2,7 @@
 % Please edit documentation in R/tracer_meth.R
 \name{minmax_scale}
 \alias{minmax_scale}
-\title{Re-scale Helper}
+\title{a Re-scaling Helper}
 \usage{
 minmax_scale(x, bound = c(0, 1), rt_range = NULL)
 }

@@ -2,11 +2,11 @@
 % Please edit documentation in R/new_trace_proc.R
 \name{record_log}
 \alias{record_log}
-\title{Keeps track of processing steps records them into a data.frame}
+\title{Keeps track of processing steps taken and records them into a data.frame}
 \usage{
 record_log(what, on_disc = FALSE, f_names = NULL)
 }
 \description{
-Keeps track of processing steps records them into a data.frame
+Keeps track of processing steps taken and records them into a data.frame
 }
 \keyword{internal}

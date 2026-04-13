@@ -16,7 +16,7 @@ greatest value.}
 \item{new_obj}{logical, if TRUE returns a modified object, 
 otherwise - processed data}
 
-\item{...}{an additional argument to specify range for minmax rescale.}
+\item{...}{an additional argument to specify range for minmax_scale rescale.}
 }
 \description{
 Transforms Response to a new designated scale.
