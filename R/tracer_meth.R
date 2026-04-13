@@ -342,8 +342,21 @@ tr_align <- function(x
 
 # Base Line correction
 
-# Base Line correction
-# plot.tracer <- function(x,...){}
+#' Plot traces
+#' @description plotting traces 
+plt_tracer <- function(x, force_raw = TRUE, ...){
+  
+  data_ <- "PROCESSED"
+  
+  if(isFALSE(force_raw)){
+    if(is.null(x$DATA$PROCESSED)){ data_ <- "RAW"}
+  }else{ data_ <- "RAW" }
+  
+  
+  out <- x$DATA[[data_]] |>
+    do.call("rbind", args=_)
+  out
+}
 
 
 
