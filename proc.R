@@ -56,4 +56,4 @@ devtools::load_all()
 zad <- del_trace(x = df, what = c(1,3,6))
 
 trace_info(zad)
-
+merge_trace(df, zad)

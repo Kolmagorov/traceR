@@ -76,7 +76,7 @@ add_field <- function(x, new_field, init = NA){
 #' All Unmatched UID's will be ignored with warning.
 #' @returns object of type tracer with selected traces removed.
 #' @export
-del_trace <- function(x, what){
+del_trace <- function(x, what, keep_history = FALSE){
   
   if(methods::is(x) != "tracer"){ 
     stop("\n x must be a an object of type tracer", call. = FALSE)
@@ -108,18 +108,28 @@ del_trace <- function(x, what){
 #' @param a,b an objects of class tracer
 #' @param what an optional argument either numeric indexes or vector string of UID, 
 #' that allows selecting traces from object 'b' to be merged with object 'a'.
+#' @details
+#' If both arguments 'what'  and 'rehash' are NULL than all identical UIDs found 
+#' in objects 'a' and 'b' will be ignored and not copied into object a. If
+#' argument 'rehash' is TRUE all data will be merged, but all UID's will be recomputed
+#' to ensure uniqueness.
 #' @returns object of type tracer.
 #' @export
-merge_trace <- function(a, b, what){
+merge_trace <- function(a, b, what = NULL){
   
   if(methods::is(a) != "tracer" | methods::is(b) != "tracer"){ 
     stop("\n The merging objects must be a type of tracer", call. = FALSE)
   }
+  
+  what <- what_validator(b$META, what = what)
+  
+  # Combining lists
 
-  
-  
-  
-  
+  a$META <- append(a$META, b$META[what])
+  a$DATA$RAW <- append(a$DATA$RAW, b$RAW[what])
+  a$DATA$PROCESSED <- append(a$DATA$PROCESSED, b$PROCESSED[what])
+  a$LOG <- rbind(a$LOG, b$LOG) # A new field is needed + record
+  return(a)
 }
 
 

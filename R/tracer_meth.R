@@ -55,40 +55,6 @@ trace_info <- function(x, force_raw = FALSE, ...){
   return(common)
 }
 
-#' a Re-scaling Helper
-#' @description re-scales response variable
-#' @keywords internal
-minmax_scale <- function(x, bound = c(0, 1), rt_range = NULL){
-
-  stopifnot("Input must be a data.frame with at least 2 columns" = is.data.frame(x) )
-
-  if(!is.null(rt_range)){
-
-    rt_filter <- x$RT >= rt_range[1] & x$RT <= rt_range[2]
-    lims <- range(x[rt_filter, "Response"])
-
-  }else{ lims <- range(x$Response) }
-
-  x$Response <- bound[1] + (x$Response - lims[1])*(bound[2]-bound[1])/(diff(lims))
-  return(x)
-}
-
-#' @keywords internal
-maxnorm_scale <- function(x, rt_range = NULL){
-
-  stopifnot("Input must be a data.frame with at least 2 columns" = is.data.frame(x) )
-
-  if(!is.null(rt_range)){
-
-    rt_filter <- x$RT >= rt_range[1] & x$RT <= rt_range[2]
-    max_val <- max(x[rt_filter, "Response"])
-
-  }else{ max_val <- max(x$Response) }
-
-  x$Response <- x$Response/max_val
-  return(x)
-}
-
 #' Re-scale Response of a trace
 #' @description Transforms Response to a new designated scale.
 #' @param x an object of class tracer
@@ -330,7 +296,8 @@ tr_align <- function(x
 # Base Line correction
 
 #' Plot traces
-#' @description plotting traces - under development -
+#' @description this function is - under development -
+#' currently 'ggplot2' is only supported graphic system. 'base' and 'plotly' are coming next.
 #' @param x an object of class tracer
 #' @param x_lab a string passing x-axis name to the plot
 #' @param force_raw If TRUE will plot RAW data
@@ -406,56 +373,6 @@ plt_tracer <- function(x
 }
 
 
-#' @description validates what arg supplied to plt_tracer and setters
-#' @keywords internal
-what_validator <- function(lst, what){
-  
-  n_smp <- length(lst)
-  
-  # Validate what tryCatch Maybe
-  
-  if(any(duplicated(what))){
-    stop("Supplied indexes must be unique", call. = FALSE)
-  }
-  
-  if(is.null(what)){ what <- 1:n_smp}
-  else if(is.numeric(what)){
-    
-    if(max(what) > n_smp | any(what <= 0)){
-      stop("Supplied indexes are out of range: \nmax(ID) is ", max(what)
-           , " but number of samples is ", n_smp
-           , call. = FALSE)}
-    
-  }else if(is.character(what)){ 
-    
-    gacha <- what %in% names(lst)
-    
-    if(!any(gacha)){
-      stop("The supplied indexes are missing in the data", call. = FALSE)}
-    else if(all(gacha)){ return(what) }
-    else{
-      
-      warning("The following item are missing:\n"
-              , paste0(what[!gacha], collapse = ", ")
-              , call. = FALSE)
-      what <- what[gacha]
-    }
-  }
-  
-  return(what)
-}
-
-#' @keywords internal
-history_upd <- function(x, event){
-  
-  if(!is.character(event)){stop("History event must be a type of character", call. = FALSE)}
-  
-  his_proc <- data.frame(type = event
-                         , proc_time = format(Sys.time(), "%d-%b-%Y %H:%M:%OS3"))
-  
-  x$HISTORY <- rbind(x$HISTORY, his_proc)
-  return(x)
-}
 
 
 

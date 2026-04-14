@@ -98,3 +98,6 @@ parse_chromeleon <- function(fls, sep){
   rm(tmp)
   return(list(TRACE = trace_data, META = meta))
 }
+
+# netcdf parser ....
+# parse_cdf <- function(){}
