@@ -43,26 +43,17 @@ df <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/GNR_045_COSIM/TRACES")
 
 df$LOG
 
-str(df$META)
-
-expand_meta_data(lst = df$DATA$RAW)
-
-a <- tr_align(x = df, new_obj = T, rm_na = F)
-str(a)
 
 devtools::load_all()
-tr_crop(df, crop_to = c(5, 120), new_obj = T) |>
+zad <- tr_crop(df, crop_to = c(5, 120), new_obj = T) |>
   tr_resample(pts = 2000, new_obj = T) |> 
   tr_rescale(type = "minmax", new_obj = T)|>
-  plt_tracer(what = c(1,4,8))
+  del_trace(what = c(1,3,59))
+trace_info(zad)
+zad$LOG
 
 devtools::load_all()
-set_field_value(x = df,  
-                what = c("w7y55nd",  "df", "foo"),
-                record = c("ZAD", "ZAD2","XZ"),
-                field = "SRC") |> 
-  trace_info()
+zad <- del_trace(x = df, what = c(1,3,6))
 
-zad <-add_field(x = df, new_field = "ZAD5")
-
+trace_info(zad)
 

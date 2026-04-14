@@ -116,11 +116,8 @@ tr_rescale <- function(x, type = "minmax", new_obj = FALSE, ...){
 
   if(new_obj){
 
-    his_proc <- data.frame(type = type
-                           , proc_time = format(Sys.time(), "%d-%b-%Y %H:%M:%OS3"))
-
     x$DATA$PROCESSED <- out
-    x$HISTORY <- rbind(x$HISTORY, his_proc)
+    x <- history_upd(x = x, event = "re-scaled")
     return(x)
 
   }else{ return(out) }
@@ -161,11 +158,8 @@ tr_crop <- function(x, crop_to, new_obj = FALSE){
 
   if(new_obj){
 
-    his_proc <- data.frame(type = "cropping"
-                           , proc_time = format(Sys.time(), "%d-%b-%Y %H:%M:%OS3"))
-
     x$DATA$PROCESSED <- out
-    x$HISTORY <- rbind(x$HISTORY, his_proc)
+    x <- history_upd(x = x, event = "cropped")
     return(x)
 
   }else{ return(out) }
@@ -218,22 +212,16 @@ tr_resample <- function(x, pts, new_obj = FALSE){
                           , wav = dt[["RT"]]
                           , new.wav = new_RT)
     )
-
-
   })
 
 
   if(new_obj){
-
-    his_proc <- data.frame(type = "resampling"
-                           , proc_time = format(Sys.time(), "%d-%b-%Y %H:%M:%OS3"))
-
+    
     x$DATA$PROCESSED <- out
-    x$HISTORY <- rbind(x$HISTORY, his_proc)
-    return(x)
-
-  }else{ return(out) }
-
+    x <- history_upd(x = x, event = "re-sampled")
+    return(x) }
+  
+  else{ return(out) }
 
 }
 
@@ -320,10 +308,8 @@ tr_align <- function(x
   })
 
   if(new_obj){
-
-    his_proc <- data.frame(type = "alignment"
-                           , proc_time = format(Sys.time(), "%d-%b-%Y %H:%M:%OS3"))
-    x$HISTORY <- rbind(x$HISTORY, his_proc)
+    
+    x <- history_upd(x = x, event = "alignment")
     return(x) }
 
   else if(return_mat){
@@ -459,7 +445,17 @@ what_validator <- function(lst, what){
   return(what)
 }
 
-
+#' @keywords internal
+history_upd <- function(x, event){
+  
+  if(!is.character(event)){stop("History event must be a type of character", call. = FALSE)}
+  
+  his_proc <- data.frame(type = event
+                         , proc_time = format(Sys.time(), "%d-%b-%Y %H:%M:%OS3"))
+  
+  x$HISTORY <- rbind(x$HISTORY, his_proc)
+  return(x)
+}
 
 
 
