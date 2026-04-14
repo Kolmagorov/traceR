@@ -5,9 +5,13 @@ usethis::use_build_ignore(c("proc.R"))
 # licensing
 usethis::use_mit_license()
 
+# READ ME
 usethis::use_readme_rmd()
 
 devtools::build_readme()
+
+
+# Imports, dependencies, etc.
 
 IMPORTS <- c("utils"
              , "methods"
