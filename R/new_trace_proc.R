@@ -85,7 +85,9 @@ load_trace <- function(path_dir = NULL
   rm(list = c("log_tmp", "tmp"))
 
   dt_log$FILE_NAME <- basename(dt_log$FILE)
-
+  
+  # NOTE an isolated Class constructor is needed
+  # NOTE meta helper function as well
   obj <- structure(
 
     list( DATA = list(RAW = raw_data, PROCESSED = NULL),

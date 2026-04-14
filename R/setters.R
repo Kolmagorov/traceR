@@ -40,7 +40,7 @@ set_field_value <- function(x
 #' Add a new custom field
 #' @description adding a field to the meta data
 #' @param x an object of class tracer
-#' @param field a string, a name of the new field
+#' @param new_field a string, i.e. a name of the new field
 #' @param init a value to fill a new field with
 #' @returns object of type tracer with a new field added into the meta data
 #' @export
@@ -76,7 +76,7 @@ add_field <- function(x, new_field, init = NA){
 #' All Unmatched UID's will be ignored with warning.
 #' @returns object of type tracer with selected traces removed.
 #' @export
-del_trace <- function(x, what, keep_history = FALSE){
+del_trace <- function(x, what){
   
   if(methods::is(x) != "tracer"){ 
     stop("\n x must be a an object of type tracer", call. = FALSE)
@@ -92,7 +92,8 @@ del_trace <- function(x, what, keep_history = FALSE){
 
   x$META[what] <- NULL
   
-  # Cleaning LOG
+  # Cleaning LOG NOTE Make what_vlaidator return always UID's
+  ############################################################
   if(is.character(what)){
     x$LOG <- x$LOG |>
       dplyr::filter(!(ID %in% what))
@@ -104,24 +105,44 @@ del_trace <- function(x, what, keep_history = FALSE){
 }
 
 #' Merge objects
-#' @description merge two trace objects into one
-#' @param a,b an objects of class tracer
+#' @description merges two trace objects into one
+#' @param a,b objects of class tracer
 #' @param what an optional argument either numeric indexes or vector string of UID, 
-#' that allows selecting traces from object 'b' to be merged with object 'a'.
+#' that allows selecting traces from object 'b' to be merged into object 'a'. Default is NULL.
+#' @param keep_history logical, whether processing history of object 'b' should be kept 
+#' in the new object or not.
 #' @details
-#' If both arguments 'what'  and 'rehash' are NULL than all identical UIDs found 
-#' in objects 'a' and 'b' will be ignored and not copied into object a. If
-#' argument 'rehash' is TRUE all data will be merged, but all UID's will be recomputed
+#' If  argument 'what' is NULL  and 'rehash' is FALSE than all identical UIDs found 
+#' in objects 'a' and 'b' will be ignored and not merged into object a. If
+#' argument 'rehash' is TRUE selected data will be merged, but all UID's will be recomputed
 #' to ensure uniqueness.
 #' @returns object of type tracer.
 #' @export
-merge_trace <- function(a, b, what = NULL){
+merge_trace <- function(a, b, what = NULL, rehash = FALSE, keep_history = FALSE){
   
   if(methods::is(a) != "tracer" | methods::is(b) != "tracer"){ 
     stop("\n The merging objects must be a type of tracer", call. = FALSE)
   }
   
-  what <- what_validator(b$META, what = what)
+  clashed_id <- intersect(a$LOG$ID, b$LOG$ID)
+  
+  # Ignore duplicates
+  if(is.null(what) & rehash == FALSE){
+    
+    # Update what and ignore duplicates
+    if(length(clashed_id) != 0 ){ 
+      
+      what <-  b$LOG$ID[!(b$LOG$ID %in% clashed_id)]}
+    
+  }else if(!is.null(what)){
+    
+    what <- what_validator(b$META, what = what)
+    rehash_id(a = a$LOG$ID, b$LOG$ID)
+    
+  }
+
+  
+  
   
   # Combining lists
 
@@ -129,8 +150,26 @@ merge_trace <- function(a, b, what = NULL){
   a$DATA$RAW <- append(a$DATA$RAW, b$RAW[what])
   a$DATA$PROCESSED <- append(a$DATA$PROCESSED, b$PROCESSED[what])
   a$LOG <- rbind(a$LOG, b$LOG) # A new field is needed + record
+  
   return(a)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

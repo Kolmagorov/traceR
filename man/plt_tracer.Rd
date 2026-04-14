@@ -39,5 +39,6 @@ a table returning by trace_info.}
 \item{expd}{expands plot beyond limits set on x-axis}
 }
 \description{
-plotting traces - under development -
+this function is - under development -
+currently 'ggplot2' is only supported graphic system. 'base' and 'plotly' are coming next.
 }

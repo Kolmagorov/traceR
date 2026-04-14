@@ -5,13 +5,11 @@ what_validator <- function(lst, what){
   
   n_smp <- length(lst)
   
-  # Validate what tryCatch Maybe
-  
-  if(any(duplicated(what))){
+ if(any(duplicated(what))){
     stop("Supplied indexes must be unique", call. = FALSE)
   }
   
-  if(is.null(what)){ return(1:n_smp) }
+  if(is.null(what)){ return( names(lst) )}
   else if(is.numeric(what)){
     
     if(max(what) > n_smp | any(what <= 0)){
@@ -205,5 +203,16 @@ record_log <- function(what, on_disc = FALSE, f_names = NULL){
   
 }
 
-
+#' Rehashing indexes - a helper for merging objects
+#' @keywords internal
+rehash_id <- function(a, b){
+  
+  n_id <- length(a) + length(b)
+  
+  rhs <- data.frame(ID = c(a, b)
+                    , newID = gen_uid_pool(n = n_id, len = 6)
+  )
+  
+  return(rhs)
+}
 
