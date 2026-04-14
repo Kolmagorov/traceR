@@ -91,13 +91,8 @@ del_trace <- function(x, what){
     }
 
   x$META[what] <- NULL
-  
-  # Cleaning LOG NOTE Make what_vlaidator return always UID's
-  ############################################################
-  if(is.character(what)){
-    x$LOG <- x$LOG |>
-      dplyr::filter(!(ID %in% what))
-  }else{ x$LOG <- x$LOG[-what,] }
+  x$LOG <- x$LOG |>
+    dplyr::filter(!(ID %in% what))
   
   x <- history_upd(x = x, event = "item('s) deleted")
 
@@ -118,30 +113,26 @@ del_trace <- function(x, what){
 #' to ensure uniqueness.
 #' @returns object of type tracer.
 #' @export
-merge_trace <- function(a, b, what = NULL, rehash = FALSE, keep_history = FALSE){
+merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALSE){
   
   if(methods::is(a) != "tracer" | methods::is(b) != "tracer"){ 
     stop("\n The merging objects must be a type of tracer", call. = FALSE)
   }
   
+  
   clashed_id <- intersect(a$LOG$ID, b$LOG$ID)
+  what <- what_validator(b$META, what = what)
   
-  # Ignore duplicates
-  if(is.null(what) & rehash == FALSE){
+  if(!active_re){
     
-    # Update what and ignore duplicates
-    if(length(clashed_id) != 0 ){ 
-      
-      what <-  b$LOG$ID[!(b$LOG$ID %in% clashed_id)]}
+    if(length(clashed_id) != 0){
+      # Update what and ignore duplicates
+      what <- what[!(what %in% clashed_id)]
+    }
     
-  }else if(!is.null(what)){
-    
-    what <- what_validator(b$META, what = what)
-    rehash_id(a = a$LOG$ID, b$LOG$ID)
-    
+  }else{
+    rhs <- rehash_id(a = a$LOG$ID, b = what)
   }
-
-  
   
   
   # Combining lists

@@ -4,7 +4,7 @@
 \alias{del_trace}
 \title{Delete an item field}
 \usage{
-del_trace(x, what, keep_history = FALSE)
+del_trace(x, what)
 }
 \arguments{
 \item{x}{an object of class tracer}

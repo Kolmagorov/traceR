@@ -372,7 +372,12 @@ plt_tracer <- function(x
   
 }
 
-
+#' Operator sum overloading
+#' @param a,b objects of class tracer
+#' @export
+`+.tracer` <- function(a, b,...){
+  print("HA-HA")
+}
 
 
 

@@ -16,6 +16,8 @@ what_validator <- function(lst, what){
       stop("Supplied indexes are out of range: \nmax(ID) is ", max(what)
            , " but number of samples is ", n_smp
            , call. = FALSE)}
+    else{ return(names(lst)[what]) }
+    
     
   }else if(is.character(what)){ 
     
