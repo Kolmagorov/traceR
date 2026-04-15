@@ -209,12 +209,21 @@ record_log <- function(what, on_disc = FALSE, f_names = NULL){
 #' @keywords internal
 rehash_id <- function(a, b){
   
-  n_id <- length(a) + length(b)
+  new_a <- gen_uid_pool(n = nrow(a$LOG), len = 6)
+  new_b <- gen_uid_pool(n = nrow(b$LOG), len = 6, pool = new_a)
   
-  rhs <- data.frame(ID = c(a, b)
-                    , newID = gen_uid_pool(n = n_id, len = 6)
-  )
-  
-  return(rhs)
+  purrr::map2(list(a = a, b = b), list(new_a, new_b), function(obj, x_name){
+    
+    names(obj$META) <- x_name
+    names(obj$DATA$RAW) <- x_name
+    
+    if(!is.null(obj$DATA$PROCESSED)){ names(obj$DATA$PROCESSED) <- x_name } 
+    
+    obj$LOG <- obj$LOG |> 
+      dplyr::rename(ID_old = .data$ID) |> 
+      dplyr::mutate(ID = x_name)
+    
+    obj
+  })
 }
 

@@ -114,6 +114,9 @@ del_trace <- function(x, what){
 #' @export
 merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALSE){
   
+  a$LOG$Object <- deparse(substitute(a))
+  b$LOG$Object <- deparse(substitute(b))
+  
   if(methods::is(a) != "tracer" | methods::is(b) != "tracer"){ 
     stop("\n The merging objects must be a type of tracer", call. = FALSE)
   }
@@ -121,6 +124,7 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
   
   clashed_id <- intersect(a$LOG$ID, b$LOG$ID)
   what <- what_validator(b$META, what = what)
+  
   
   if(!active_re){
     
@@ -130,17 +134,36 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
     }
     
   }else{
-    rhs <- rehash_id(a = a$LOG$ID, b = what)
+    rhs <- rehash_id(a = a, b = b)
+    a <- rhs$a
+    b <- rhs$b
+    rm(rhs)
+    
   }
   
-  # Apply rehashing
-  # Combining lists
-
+  what <- b$LOG|> dplyr::filter(.data$ID_old %in% what)|> dplyr::pull(.data$ID)
+  
+  print(what)
+  print("==================")
+  print(names(b$META[what]))
+  
+  
+  
   a$META <- append(a$META, b$META[what])
   a$DATA$RAW <- append(a$DATA$RAW, b$RAW[what])
-  a$DATA$PROCESSED <- append(a$DATA$PROCESSED, b$PROCESSED[what])
-  a$LOG <- rbind(a$LOG, b$LOG) # A new field is needed + record
   
+  if(any(!is.null(a$DATA$PROCESSED), !is.null(b$DATA$PROCESSED))){
+    
+    a$DATA$PROCESSED <- append(a$DATA$PROCESSED, b$PROCESSED[what])
+    
+  }
+  
+  a$LOG <- b$LOG|> 
+    dplyr::filter(.data$ID %in% what)|>
+    rbind(a$LOG, make.row.names = FALSE)|>
+    dplyr::arrange(.data$Object)
+  
+  print(what)
   return(a)
 }
 
