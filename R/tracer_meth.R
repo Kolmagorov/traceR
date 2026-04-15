@@ -309,6 +309,8 @@ tr_align <- function(x
 #' @param expd expands plot beyond limits set on x-axis
 #' @param what either numeric indexes or string of UID. If some Numeric indexes out of range
 #' an error will be thrown. Unmatched UID's will be ignored with warning.
+#' @export
+#' @importFrom rlang .data
 plt_tracer <- function(x
                        , what = NULL
                        #, stack = TRUE
@@ -343,7 +345,7 @@ plt_tracer <- function(x
   fmla <- stats::as.formula(paste(".", facet_lab, sep = " ~ "))
   
   ggplot2::ggplot(data = df) +
-    ggplot2::geom_line(ggplot2::aes(x = RT, y = Response, colour = SampleName)) +
+    ggplot2::geom_line(ggplot2::aes(x = .data$RT, y = .data$Response, colour = .data$SampleName)) +
     ggplot2::ylim(ylim) + 
     ggplot2::guides(x = ggplot2::guide_axis(minor.ticks = TRUE
                                             , cap = "both")) +
@@ -375,9 +377,16 @@ plt_tracer <- function(x
 #' Operator sum overloading
 #' @param a,b objects of class tracer
 #' @export
-`+.tracer` <- function(a, b,...){
+`+.tracer` <- function(a, b){
   print("HA-HA")
 }
+
+
+# PERSPECTIVE -- `trace_info` change to `get_meta` to show output 
+# either by group or all, or selected items
+
+# add_trace and object trace constructor
+# add multiple fields using list argument
 
 
 

@@ -4,15 +4,17 @@
 \alias{merge_trace}
 \title{Merge objects}
 \usage{
-merge_trace(a, b, what = NULL, rehash = FALSE, keep_history = FALSE)
+merge_trace(a, b, what = NULL, active_re = TRUE, keep_history = FALSE)
 }
 \arguments{
 \item{a, b}{objects of class tracer}
 
 \item{what}{an optional argument either numeric indexes or vector string of UID, 
-that allows selecting traces from object 'b' to be merged into object 'a'. Default is NULL.}
+that allows selecting traces from object `b` to be merged into object `a`. Default is NULL.}
 
-\item{keep_history}{logical, whether processing history of object 'b' should be kept 
+\item{active_re}{logical. If TRUE recomputes UID's to avoid duplicates.}
+
+\item{keep_history}{logical, whether processing history of object `b` should be kept 
 in the new object or not.}
 }
 \value{
@@ -22,8 +24,6 @@ object of type tracer.
 merges two trace objects into one
 }
 \details{
-If  argument 'what' is NULL  and 'rehash' is FALSE than all identical UIDs found 
-in objects 'a' and 'b' will be ignored and not merged into object a. If
-argument 'rehash' is TRUE selected data will be merged, but all UID's will be recomputed
-to ensure uniqueness.
+If  argument `active_re` is FALSE than all identical UIDs found 
+in objects `a` and `b` will be ignored and not merged into object `a`.
 }

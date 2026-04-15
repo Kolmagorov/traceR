@@ -7,7 +7,7 @@
 file_scan(fls, delim = NULL)
 }
 \description{
-Tries different separators and determines a file Template to pass to
+Tries different delimiters and determines a file Template to pass to
 the parser selector
 }
 \keyword{internal}

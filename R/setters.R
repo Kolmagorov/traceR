@@ -92,7 +92,7 @@ del_trace <- function(x, what){
 
   x$META[what] <- NULL
   x$LOG <- x$LOG |>
-    dplyr::filter(!(ID %in% what))
+    dplyr::filter(!(.data$ID %in% what))
   
   x <- history_upd(x = x, event = "item('s) deleted")
 
@@ -103,14 +103,13 @@ del_trace <- function(x, what){
 #' @description merges two trace objects into one
 #' @param a,b objects of class tracer
 #' @param what an optional argument either numeric indexes or vector string of UID, 
-#' that allows selecting traces from object 'b' to be merged into object 'a'. Default is NULL.
-#' @param keep_history logical, whether processing history of object 'b' should be kept 
+#' that allows selecting traces from object `b` to be merged into object `a`. Default is NULL.
+#' @param keep_history logical, whether processing history of object `b` should be kept 
 #' in the new object or not.
+#' @param active_re logical. If TRUE recomputes UID's to avoid duplicates.
 #' @details
-#' If  argument 'what' is NULL  and 'rehash' is FALSE than all identical UIDs found 
-#' in objects 'a' and 'b' will be ignored and not merged into object a. If
-#' argument 'rehash' is TRUE selected data will be merged, but all UID's will be recomputed
-#' to ensure uniqueness.
+#' If  argument `active_re` is FALSE than all identical UIDs found 
+#' in objects `a` and `b` will be ignored and not merged into object `a`.
 #' @returns object of type tracer.
 #' @export
 merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALSE){
@@ -134,7 +133,7 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
     rhs <- rehash_id(a = a$LOG$ID, b = what)
   }
   
-  
+  # Apply rehashing
   # Combining lists
 
   a$META <- append(a$META, b$META[what])

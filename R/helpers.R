@@ -89,7 +89,7 @@ maxnorm_scale <- function(x, rt_range = NULL){
 
 #' a Parser helper
 #' @description
-#' Tries different separators and determines a file Template to pass to
+#' Tries different delimiters and determines a file Template to pass to
 #' the parser selector
 #' @keywords internal
 file_scan <- function(fls, delim = NULL){
