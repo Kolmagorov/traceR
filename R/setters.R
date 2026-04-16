@@ -51,7 +51,7 @@ add_field <- function(x, new_field, init = NA){
   }
   
   if(grepl(new_field, pattern = "^[^A-Za-z]")){
-    stop("Field name must start with a letter", call. = FALSE)
+    stop("A field name must start with a letter", call. = FALSE)
   }
   
   hdr <- lapply(x$META, names) |> purrr::reduce(union)
@@ -121,53 +121,90 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
     stop("\n The merging objects must be a type of tracer", call. = FALSE)
   }
   
+  # Update HISTORY
+  if(keep_history){
+    
+    a$HISTORY$Object <-  deparse(substitute(a))
+    b$HISTORY$Object <-  deparse(substitute(b))
+    
+    a$HISTORY <- rbind(a$HISTORY, b$HISTORY)
+    
+  }else{a <- history_upd(x = a, event = "merged")}
   
+  # Checkin on UID's
   clashed_id <- intersect(a$LOG$ID, b$LOG$ID)
   what <- what_validator(b$META, what = what)
   
-  
+  # Checking whether the rehash option is ENABLED
   if(!active_re){
+    
+    id_filed <- "ID"
+    
     
     if(length(clashed_id) != 0){
       # Update what and ignore duplicates
       what <- what[!(what %in% clashed_id)]
+      
+      
+      warning("\nDUPLICATED traces have been detected and not merged: \n"
+              , call. = FALSE
+              , immediate. = TRUE)
+      b$LOG |> 
+        dplyr::filter(ID %in% clashed_id) |> 
+        dplyr::select(.data$ID, .data$FILE_NAME)|>
+        print()
+      
     }
     
   }else{
+    id_filed <- "ID_old"
     rhs <- rehash_id(a = a, b = b)
     a <- rhs$a
     b <- rhs$b
     rm(rhs)
-    
   }
   
-  what <- b$LOG|> dplyr::filter(.data$ID_old %in% what)|> dplyr::pull(.data$ID)
   
-  print(what)
-  print("==================")
-  print(names(b$META[what]))
+  what <- b$LOG|> dplyr::filter(.data[[id_filed]] %in% what)|> dplyr::pull(.data$ID)
   
-  
-  
+  # APPEND content of the object b to object a
   a$META <- append(a$META, b$META[what])
-  a$DATA$RAW <- append(a$DATA$RAW, b$RAW[what])
+  a$DATA$RAW <- append(a$DATA$RAW, b$DATA$RAW[what])
   
   if(any(!is.null(a$DATA$PROCESSED), !is.null(b$DATA$PROCESSED))){
     
-    a$DATA$PROCESSED <- append(a$DATA$PROCESSED, b$PROCESSED[what])
+    a$DATA$PROCESSED <- append(a$DATA$PROCESSED, b$DATA$PROCESSED[what])
     
   }
-  
+  # Combine LOG data
   a$LOG <- b$LOG|> 
     dplyr::filter(.data$ID %in% what)|>
     rbind(a$LOG, make.row.names = FALSE)|>
     dplyr::arrange(.data$Object)
   
-  print(what)
+  
   return(a)
 }
 
 
+#' Get meta data field description
+#' @description returns fields of mete data across all traces
+#' @param x objects of class tracer
+#' @export
+get_meta_fields <- function(x){
+  
+  if(methods::is(x) != "tracer"){ 
+    stop("\n x must be a an object of type tracer", call. = FALSE)
+  }
+  
+  hdr <- lapply(x$META, names)|>
+    purrr::reduce(union)|>
+    data.frame(FIELD =_)|>
+    merge(y=_, x= fiel_desc, by = "FIELD", all.x = TRUE, all.y=TRUE)
+
+  
+  return(hdr)
+}
 
 
 

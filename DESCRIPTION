@@ -29,3 +29,5 @@ Imports:
     stringr,
     tibble,
     utils
+Depends: 
+    R (>= 3.5)

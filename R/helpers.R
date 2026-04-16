@@ -181,7 +181,6 @@ expand_meta_data <- function(lst, fac = 1e5){
     dplyr::mutate(ID = names(lst))
   
   row.names(exp_meta) <- NULL
-  
   return(exp_meta)
 }
 
@@ -211,8 +210,8 @@ rehash_id <- function(a, b){
   
   new_a <- gen_uid_pool(n = nrow(a$LOG), len = 6)
   new_b <- gen_uid_pool(n = nrow(b$LOG), len = 6, pool = new_a)
-  
-  purrr::map2(list(a = a, b = b), list(new_a, new_b), function(obj, x_name){
+
+  out <- purrr::map2(list(a = a, b = b), list(new_a, new_b), function(obj, x_name){
     
     names(obj$META) <- x_name
     names(obj$DATA$RAW) <- x_name
@@ -223,7 +222,16 @@ rehash_id <- function(a, b){
       dplyr::rename(ID_old = .data$ID) |> 
       dplyr::mutate(ID = x_name)
     
+    obj$META <- purrr::map2(obj$META, names(obj$META), function(dt, idx){
+      
+      dt$ID <- idx
+      dt
+    })
+    
     obj
+    
   })
+  
+  return(out)
 }
 

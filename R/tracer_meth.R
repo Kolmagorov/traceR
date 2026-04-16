@@ -43,12 +43,13 @@ trace_info <- function(x, force_raw = FALSE, ...){
   }else{ d_type <- "RAW" }
 
   hdr <- lapply(x$META, names) |> purrr::reduce(intersect)
+  
 
   message("Returning info for ", d_type, " data")
 
   common <- lapply(x$META, function(dt) dt[hdr] )|>
     do.call("rbind", args =_)
-
+  
   common <- expand_meta_data(lst = x$DATA[[d_type]],...)|>
     merge(y = common, by = "ID")
 
@@ -176,7 +177,8 @@ tr_resample <- function(x, pts, new_obj = FALSE){
       RT = new_RT,
       Response = prospectr::resample(X = dt[["Response"]]
                           , wav = dt[["RT"]]
-                          , new.wav = new_RT)
+                          , new.wav = new_RT), 
+      row.names = NULL
     )
   })
 
