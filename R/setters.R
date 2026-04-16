@@ -44,18 +44,32 @@ set_field_value <- function(x
 #' @param init a value to fill a new field with
 #' @returns object of type tracer with a new field added into the meta data
 #' @export
-add_field <- function(x, new_field, init = NA){
+add_field <- function(x, new_field){
   
   if(methods::is(x) != "tracer"){ 
     stop("\n x must be a an object of type tracer", call. = FALSE)
   }
   
-  if(grepl(new_field, pattern = "^[^A-Za-z]")){
+  hdr <- lapply(x$META, names) |> purrr::reduce(union)
+  
+  
+  if(is.list(new_field)){
+    
+    chk_names <- any(grepl(names(new_field), pattern = "^[^A-Za-z]"))
+    
+    }else{
+      
+    chk_names <- any(grepl(new_field, pattern = "^[^A-Za-z]")) 
+    init <- NA}
+  
+  if(chk_names){
     stop("A field name must start with a letter", call. = FALSE)
   }
   
-  hdr <- lapply(x$META, names) |> purrr::reduce(union)
+  h
+  
   in_tab <- any(grepl(hdr, pattern = new_field, ignore.case = TRUE))
+  
   if(in_tab){stop("Filed name", new_field, " is alredy taken", call. = FALSE)}
   
   x$META <- lapply(x$META, function(dt){

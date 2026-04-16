@@ -11,6 +11,13 @@ usethis::use_readme_rmd()
 devtools::build_readme()
 
 
+fiel_desc <- read.csv("//dc3/OAM/Сотрудники/Podkolzin_IV/PROJECTS_ALL/2026/field_description.csv" ,
+         sep = ";" , header = T , fileEncoding = "CP1251")
+
+
+usethis::use_data(fiel_desc, internal = TRUE, overwrite = TRUE)
+
+
 # Imports, dependencies, etc.
 
 IMPORTS <- c("utils"
@@ -53,13 +60,44 @@ trace_info(zad)
 zad$LOG
 
 devtools::load_all()
-zad <- del_trace(x = df, what = c(1,3,6))
+zad <- del_trace(x = df, what = c(1,3,6,8:14))
 
 trace_info(zad)
-merge_trace(df, zad)
 
 devtools::load_all()
-d <-merge_trace(a = zad, b = df, active_re = T)
+d <-merge_trace(a = zad, b = df, active_re = F)
+
+# TEST MERGE ==========================================
+devtools::load_all()
+df_a <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/A")|>
+  tr_resample(pts = 2000, new_obj = T)
+
+df_b <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/B")|>
+  tr_rescale(type = "minmax", new_obj = T)
+
+d <- merge_trace(df_a, df_b)
+
+
+d$LOG
+
+names(d$META)
+length(d$META)
+
+names(d$DATA$RAW)
+length(d$DATA$RAW)
+
+names(d$DATA$PROCESSED)
+length(d$DATA$PROCESSED)
+
+trace_info(d)
+
+
+
+
+
+
+
+
 
 
 
