@@ -9,8 +9,8 @@ del_trace(x, what)
 \arguments{
 \item{x}{an object of class tracer}
 
-\item{what}{either numeric indexes or vector string of UID. 
-If some Numeric indexes out of range an error will be thrown. 
+\item{what}{either numeric indexes or a vector string of UID. 
+If some numeric indexes out of range an error will be thrown. 
 All Unmatched UID's will be ignored with warning.}
 }
 \value{

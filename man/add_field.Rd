@@ -4,7 +4,7 @@
 \alias{add_field}
 \title{Add a new custom field}
 \usage{
-add_field(x, new_field, init = NA)
+add_field(x, new_field)
 }
 \arguments{
 \item{x}{an object of class tracer}

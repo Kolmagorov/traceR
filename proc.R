@@ -70,36 +70,26 @@ d <-merge_trace(a = zad, b = df, active_re = F)
 # TEST MERGE ==========================================
 devtools::load_all()
 df_a <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/A")|>
-  tr_resample(pts = 2000, new_obj = T)
+  tr_crop(crop_to = c(3, 110) ,new_obj = T) |> 
+  tr_resample(pts = 2000, new_obj = T) |> 
+  tr_rescale(type = "minmax", new_obj = T)
 
 df_b <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/B")|>
   tr_rescale(type = "minmax", new_obj = T)
 
 d <- merge_trace(df_a, df_b)
 
-
-d$LOG
-
-names(d$META)
-length(d$META)
-
-names(d$DATA$RAW)
-length(d$DATA$RAW)
-
-names(d$DATA$PROCESSED)
-length(d$DATA$PROCESSED)
-
-trace_info(d)
+plt_tracer(x = df_a
+           , stacked = F
+           , xlim = c(5, 110)
+           , facet_lab = "SampleName + Channel.Description"
+           , gr_col = "Channel.Description")
 
 
-
-
-
-
-
-
-
-
+plot(df_a
+     , stacked = T
+     , facet_lab = "SampleName + Channel.Description"
+     , gr_col = "Channel.Description")
 
 
 

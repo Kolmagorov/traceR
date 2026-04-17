@@ -301,80 +301,15 @@ tr_align <- function(x
 #' @description this function is - under development -
 #' currently 'ggplot2' is only supported graphic system. 'base' and 'plotly' are coming next.
 #' @param x an object of class tracer
-#' @param x_lab a string passing x-axis name to the plot
-#' @param force_raw If TRUE will plot RAW data
-#' @param facet_lab trace grouping factors, default available options are names of
-#' a table returning by trace_info.
-#' @param xlim,ylim numeric vectors defining limits for x and y axis respectively
-#' @param breaks an integer controlling major breaks on the x-axis
-#' @param minor_breaks an integer controlling minor breaks on the x-axis
-#' @param expd expands plot beyond limits set on x-axis
-#' @param what either numeric indexes or string of UID. If some Numeric indexes out of range
-#' an error will be thrown. Unmatched UID's will be ignored with warning.
+#' @param ... additional arguments to pass to plt_gg, see ?plt_gg
 #' @export
 #' @importFrom rlang .data
-plt_tracer <- function(x
-                       , what = NULL
-                       #, stack = TRUE
-                       , x_lab = "Retention Time [min]"
-                       , force_raw = FALSE
-                       , facet_lab = "SampleName"
-                       , xlim = c(5, 120)
-                       , ylim = c(-0.05, 1.0)
-                       , breaks = 5
-                       , minor_breaks = 1
-                       , expd = 2){
+plot.tracer <- function(x, ...){
   
-  data_ <- "PROCESSED"
-  
-  
-  if(isFALSE(force_raw)){
-    if(is.null(x$DATA$PROCESSED)){ data_ <- "RAW"}
-  }else{ data_ <- "RAW" }
-  
-  # VALIDATOR
-  what <- what_validator(lst = x$DATA[[data_]], what = what)
-  
-  df <- x$DATA[[data_]][what] |> 
-    do.call("rbind", args=_)
-  
-  df$ID <- row.names(df)|> gsub(pattern = "\\..*", replacement ="")
-  row.names(df) <- NULL
-  
-  df <- trace_info(x, force_raw = force_raw) |>
-    merge(x = df, y=_, by = "ID")
-  
-  fmla <- stats::as.formula(paste(".", facet_lab, sep = " ~ "))
-  
-  ggplot2::ggplot(data = df) +
-    ggplot2::geom_line(ggplot2::aes(x = .data$RT, y = .data$Response, colour = .data$SampleName)) +
-    ggplot2::ylim(ylim) + 
-    ggplot2::guides(x = ggplot2::guide_axis(minor.ticks = TRUE
-                                            , cap = "both")) +
-    ggplot2::scale_x_continuous(limits = xlim
-                       , expand = ggplot2::expansion(add = expd)
-                       , breaks = seq(0,xlim[2], breaks)
-                       , name = x_lab
-                       , minor_breaks = scales::breaks_width(minor_breaks)
-    ) +
-    ggplot2::facet_wrap(fmla
-               , ncol = 1
-               , scales = "free_y"
-               , strip.position = "left") +
-    ggplot2::theme_bw() +
-    
-    ggplot2::theme(legend.position = "none"
-                   , panel.border = ggplot2::element_blank()
-                   , panel.grid = ggplot2::element_blank()
-                   , axis.text.y = ggplot2::element_blank()
-                   , axis.title.y = ggplot2::element_blank()
-                   , axis.ticks.y = ggplot2::element_blank()
-                   , strip.background = ggplot2::element_rect(fill = "grey88", linetype = 0)
-                   , axis.line.x = ggplot2::element_line()
-                   , axis.ticks.length = ggplot2::unit(5, "pt")
-                   , axis.minor.ticks.length = ggplot2::rel(0.5))
-  
+  plt_gg(x = x, ...)
+
 }
+
 
 #' Operator sum overloading
 #' @param a,b objects of class tracer
@@ -388,8 +323,98 @@ plt_tracer <- function(x
 # either by group or all, or selected items
 
 # add_trace and object trace constructor
-# add multiple fields using list argument
 
 
+#' Plot traces with ggplot2
+#' @description plots traces using ggplot2 graphics
+#' @param lst a list of data to plot, assumed to originate from a trace object
+#' @param x_lab a string passing x-axis name to the plot
+#' @param force_raw If TRUE will plot RAW data
+#' @param facet_lab trace grouping factors, default available options are names of
+#' a table returning by trace_info.
+#' @param xlim,ylim numeric vectors defining limits for x and y axis respectively
+#' @param breaks an integer controlling major breaks on the x-axis
+#' @param minor_breaks an integer controlling minor breaks on the x-axis
+#' @param expd expands plot beyond limits set on x-axis
+#' @param what either numeric indexes or string of UID. If some Numeric indexes out of range
+#' an error will be thrown. Unmatched UID's will be ignored with warning.
+#' @export
+#' @importFrom rlang .data
+plt_gg <- function(x
+                   , what = NULL
+                   , stacked = TRUE
+                   , force_raw = FALSE
+                   , x_lab = "Retention Time [min]"
+                   , facet_lab = "SampleName"
+                   , xlim = c(5, 120)
+                   , ylim = c(-0.05, 1.0)
+                   , gr_col = "SampleName"
+                   , breaks = 5
+                   , minor_breaks = 1
+                   , expd = 2){
+  
+  
+  if(methods::is(x) != "tracer"){stop("The argument `x` must be a type of tracer")}
+  
+  data_ <- "PROCESSED"
+  
+  if(isFALSE(force_raw)){
+    if(is.null(x$DATA$PROCESSED)){ data_ <- "RAW"}
+  }else{ data_ <- "RAW" }
+  
+  
+  # VALIDATOR
+  what <- what_validator(lst = x$DATA[[data_]], what = what)
+  
+  # Create a table to plot
+  df <- x$DATA[[data_]] |> 
+    do.call("rbind", args=_)
+  
+  df$ID <- row.names(df)|> gsub(pattern = "\\..*", replacement ="")
+  row.names(df) <- NULL
+  
+  df <- trace_info(x, force_raw = force_raw) |>
+    merge(x = df, y=_, by = "ID")
+  
+  # Construct plot
+  plt <- 
+    ggplot2::ggplot(data = df) +
+    ggplot2::geom_line(ggplot2::aes(x = .data$RT, y = .data$Response, colour = .data[[gr_col]])) +
+    ggplot2::ylim(ylim) + 
+    ggplot2::guides(x = ggplot2::guide_axis(minor.ticks = TRUE
+                                            , cap = "both")) +
+    ggplot2::scale_x_continuous(limits = xlim
+                                , expand = ggplot2::expansion(add = expd)
+                                , breaks = seq(0, xlim[2], breaks)
+                                , name = x_lab
+                                , minor_breaks = scales::breaks_width(minor_breaks)
+    ) +
+    ggplot2::theme_bw() +
+    
+    ggplot2::theme(legend.position = "none"
+                   , panel.border = ggplot2::element_blank()
+                   , panel.grid = ggplot2::element_blank()
+                   , axis.text.y = ggplot2::element_blank()
+                   , axis.title.y = ggplot2::element_blank()
+                   , axis.ticks.y = ggplot2::element_blank()
+                   , strip.background = ggplot2::element_rect(fill = "grey88", linetype = 0)
+                   , axis.line.x = ggplot2::element_line()
+                   , axis.ticks.length = ggplot2::unit(5, "pt")
+                   , axis.minor.ticks.length = ggplot2::rel(0.5))
+  
+  # Plot config
+  if(stacked){
+    
+    fmla <- stats::as.formula(paste(".", facet_lab, sep = " ~ "))
+    
+    plt <- plt + ggplot2::facet_wrap(fmla
+                                     , ncol = 1
+                                     , scales = "free_y"
+                                     , strip.position = "left")
+  }
+  
+  suppressWarnings(print(plt), classes = "warning") # or use coord_cartesian
+  
+}
 
 

@@ -23,9 +23,10 @@ set_field_value <- function(x
   what <- what_validator(x$META, what = what)
   
   if(length(what) != length(record)){
-    stop("Length of arguments must be equal", call. = FALSE) }
+    stop("Length of arguments must be equal", call. = FALSE)
+    }
   
-  x$META[what]
+  #x$META[what]
   
   purrr::walk2(.x = what, .y = record, .f = function(idx, rec){
     
@@ -55,27 +56,33 @@ add_field <- function(x, new_field){
   
   if(is.list(new_field)){
     
-    chk_names <- any(grepl(names(new_field), pattern = "^[^A-Za-z]"))
+    init <- new_field
+    new_field <- names(new_field)
     
-    }else{
-      
-    chk_names <- any(grepl(new_field, pattern = "^[^A-Za-z]")) 
-    init <- NA}
+  }else{
+    
+    init <- replicate(length(new_field), NA, simplify = FALSE)
+    names(init) <- new_field
+
+    }
+  
+  chk_names <- any(grepl(new_field, pattern = "^[^A-Za-z]"))
   
   if(chk_names){
+    
     stop("A field name must start with a letter", call. = FALSE)
   }
   
-  h
+  in_tab <- hdr %in% new_field
   
-  in_tab <- any(grepl(hdr, pattern = new_field, ignore.case = TRUE))
+  if(any(in_tab)){stop("Fieled name", hdr[in_tab], " is alredy taken", call. = FALSE)}
   
-  if(in_tab){stop("Filed name", new_field, " is alredy taken", call. = FALSE)}
-  
-  x$META <- lapply(x$META, function(dt){
-    dt[new_field] <- init
-    dt })
-  
+    x$META <- lapply(x$META, function(dt){
+      
+      for(item in new_field){ dt[item] <- init[[item]] }
+      
+      dt})
+    
   # Updating history records
    x <- history_upd(x = x, event = "field added")
   
@@ -85,8 +92,8 @@ add_field <- function(x, new_field){
 #' Delete an item field
 #' @description delete selected traces from the trace object
 #' @param x an object of class tracer
-#' @param what either numeric indexes or vector string of UID. 
-#' If some Numeric indexes out of range an error will be thrown. 
+#' @param what either numeric indexes or a vector string of UID. 
+#' If some numeric indexes out of range an error will be thrown. 
 #' All Unmatched UID's will be ignored with warning.
 #' @returns object of type tracer with selected traces removed.
 #' @export
@@ -203,21 +210,24 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
 
 #' Get meta data field description
 #' @description returns fields of mete data across all traces
-#' @param x objects of class tracer
+#' @param x objects of class tracer, optional
 #' @export
-get_meta_fields <- function(x){
+get_meta_fields <- function(x = NULL){
   
-  if(methods::is(x) != "tracer"){ 
+  if(is.null(x)){ return(fiel_desc) }
+  
+  else if(methods::is(x) != "tracer"){ 
     stop("\n x must be a an object of type tracer", call. = FALSE)
+  }else{
+    
+    hdr <- lapply(x$META, names)|>
+      purrr::reduce(union)|>
+      data.frame(FIELD =_)|>
+      merge(y=_, x= fiel_desc, by = "FIELD", all.x = TRUE, all.y=TRUE)
+    
+    return(hdr)
   }
-  
-  hdr <- lapply(x$META, names)|>
-    purrr::reduce(union)|>
-    data.frame(FIELD =_)|>
-    merge(y=_, x= fiel_desc, by = "FIELD", all.x = TRUE, all.y=TRUE)
 
-  
-  return(hdr)
 }
 
 

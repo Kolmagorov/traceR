@@ -4,10 +4,10 @@
 \alias{get_meta_fields}
 \title{Get meta data field description}
 \usage{
-get_meta_fields(x)
+get_meta_fields(x = NULL)
 }
 \arguments{
-\item{x}{objects of class tracer}
+\item{x}{objects of class tracer, optional}
 }
 \description{
 returns fields of mete data across all traces
