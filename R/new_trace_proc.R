@@ -44,7 +44,7 @@ load_trace <- function(path_dir = NULL
   id_pool <- NULL
   
   # Initialize a log record
-  log_tmp <- record_log(what = list(ID = NA, SOURCE = NA, LOADED = NA, FILE = NA))
+  log_tmp <- record_log(what = list(ID = NA, SOURCE = NA, LOADED = NA, FILE = NA))# default tab 
 
   # Scanning and loading files
   for(i in seq_along(fls)){
@@ -54,7 +54,7 @@ load_trace <- function(path_dir = NULL
 
      if(isFALSE(tmp)){
        # Update log
-       dt_log <- log_tmp(list(ID = NA, SOURCE = NA, LOADED = FALSE, FILE = fls[i]))
+       dt_log <- log_tmp(list(ID = NA, SOURCE = NA, LOADED = FALSE, FILE = fls[i]))# default tab 
 
       next}
     
@@ -68,7 +68,7 @@ load_trace <- function(path_dir = NULL
     dt_log <- log_tmp(list(ID = idx
                            , SOURCE = tmp$META$SRC
                            , LOADED = TRUE
-                           , FILE = fls[i]))
+                           , FILE = fls[i]))# default tab 
 
 
     # Place data into RAW list
