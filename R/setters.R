@@ -247,10 +247,10 @@ get_meta_fields <- function(x = NULL){
 #' an object with multiple traces, a list of data.frames must be provided.
 #' 
 #' @export
-new_trace <- function(x, use_column = NULL, len = 6, use_names = FALSE){
+new_trace <- function(x, meta = NULL, use_column = NULL, len = 6){
   
   # Validate use_column
-  if(is.null(use_column = NULL)){
+  if(is.null(use_column)){
     use_column <- 1:2
   }else if(length(use_column) != 2){
     stop("The argument use_column must be either numeric or character vector of length 2")
@@ -258,34 +258,36 @@ new_trace <- function(x, use_column = NULL, len = 6, use_names = FALSE){
   
   # check and convert to list
   if(is.data.frame(x)){
-    
-    name_tr <- x|> substitute() |> deparse()
     x <- list(x)
-    names(x) <- name_tr
-
   }
   
   # Iterate over the list
   if(is.list(x)){
     
+    meta_d <- vector(mode = "list", length = length(x))
     idx <- gen_uid_pool(n = length(x), len = len, pool = NULL)
     
-    if(use_names){ sam_names <- names(x)}
     names(x) <- idx
+    names(meta_d) <- idx
     
     for(i in seq_along(x)){
       
-      if(!all(sapply(item, is.numeric, simplify = TRUE))){
+      if(!all(sapply(x[[i]], is.numeric, simplify = TRUE))){
         stop("All input data must be of type numeric", call. = FALSE)
         }
      
-     x[[i]] <- x[[i]][idx]
-     nmaes(x[[i]]) <- c("RT", "Response")
+     x[[i]] <- x[[i]][use_column]
+     names(x[[i]]) <- c("RT", "Response")
+     
+     # Select which ID to use, ignore if already supplied
+     if(!("ID" %in% names(meta))){
+       
+       meta <- append(list(ID = idx[i]), meta)
+     }
+     
+     meta_d[[i]] <- meta_default(x = meta)
      
    }
-
-    names(x) <- idx
-
   }
   
   
@@ -293,10 +295,10 @@ new_trace <- function(x, use_column = NULL, len = 6, use_names = FALSE){
   obj <- structure(
     
     list( DATA = list(RAW = x, PROCESSED = NULL),
-          LOG = tibble::as_tibble(dt_log),
+          LOG = NULL, #tibble::as_tibble(dt_log),
           HISTORY = data.frame(type = "created"
                                , proc_time = format(Sys.time(), "%d-%b-%Y %H:%M:%OS3")),
-          META = meta),
+          META = meta_d),
     class = "tracer"
   )
   
