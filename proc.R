@@ -88,5 +88,15 @@ plot(d
      , gr_col = "ID"
      , what = NULL)
 
+dt <- data.frame(A = 1:50, B = cos(rnorm(50, mean = 9, sd = 2)))
+plot(dt, type = 'l')
+
+devtools::load_all()
+a <- new_trace(x = dt)
+
+
+
+
+
 
 
