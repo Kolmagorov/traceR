@@ -236,3 +236,35 @@ rehash_id <- function(a, b){
   return(out)
 }
 
+#' Construct Default field for meta data
+#' @keywords internal
+ meta_default <- function(x = NULL){
+   
+   out <- data.frame(ID = NA,
+              SampleName = NA,
+              dateAcquired = NA,
+              SRC = "Undefined",
+              file = NA,
+              Comments = NA)
+   
+   if(is.null(x)){return(out)}
+   if(!is.list(x)){stop("In helper: meta_default() x must be a list")}
+   
+   fld <- names(x)
+   
+   for(i in fld){ 
+     
+     if(i %in% fld){out[[i]] <- x[[i]]}
+     else{
+         out <- out|>
+           dplyr::mutate("{i}" := x[[i]])
+       }
+   }
+   return(out)
+ }
+
+
+
+
+
+
