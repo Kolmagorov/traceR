@@ -26,4 +26,5 @@ merges two trace objects into one
 \details{
 If  argument `active_re` is FALSE than all identical UIDs found 
 in objects `a` and `b` will be ignored and not merged into object `a`.
+In case `a` and `b` are identical an object `a` will be returned.
 }
