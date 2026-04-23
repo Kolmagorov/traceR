@@ -7,7 +7,8 @@
 get_meta_fields(x = NULL)
 }
 \arguments{
-\item{x}{objects of class tracer, optional}
+\item{x}{objects of class tracer. If an object of class tracer is not supplied, 
+a default list of fields and description will be returned.}
 }
 \description{
 returns fields of mete data across all traces
