@@ -2,7 +2,7 @@
 % Please edit documentation in R/tracer_meth.R
 \name{+.tracer}
 \alias{+.tracer}
-\title{Operator sum overloading}
+\title{Operator `+` overloading}
 \usage{
 \method{+}{tracer}(a, b)
 }
@@ -10,5 +10,8 @@
 \item{a, b}{objects of class tracer}
 }
 \description{
-Operator sum overloading
+Operator `+` overloading
+}
+\details{
+a wrapper for `merge_trace`, where keep_history and re_active are TRUE.
 }
