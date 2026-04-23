@@ -4,7 +4,7 @@
 \alias{tr_align}
 \title{a Trace Aligner}
 \usage{
-tr_align(x, new_obj = FALSE, ref = 1L, rm_na = TRUE, return_mat = FALSE, ...)
+tr_align(x, new_obj = TRUE, ref = 1L, rm_na = TRUE, return_mat = FALSE, ...)
 }
 \arguments{
 \item{x}{an object of class tracer}

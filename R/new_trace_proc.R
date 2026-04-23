@@ -92,7 +92,9 @@ load_trace <- function(path_dir = NULL
 
     list( DATA = list(RAW = raw_data, PROCESSED = NULL),
           LOG = tibble::as_tibble(dt_log),
-          HISTORY = NULL,
+          
+          HISTORY = data.frame(type = "created"
+                               , proc_time = format(Sys.time(), "%d-%b-%Y %H:%M:%OS3")),
           META = meta),
     class = "tracer"
     )

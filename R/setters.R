@@ -84,7 +84,7 @@ add_field <- function(x, new_field){
       dt})
     
   # Updating history records
-   x <- history_upd(x = x, event = "field added")
+   x <- history_upd(x = x, event = "field(s) added")
   
   return(x)
 }
@@ -131,9 +131,14 @@ del_trace <- function(x, what){
 #' @details
 #' If  argument `active_re` is FALSE than all identical UIDs found 
 #' in objects `a` and `b` will be ignored and not merged into object `a`.
+#' In case `a` and `b` are identical an object `a` will be returned.
 #' @returns object of type tracer.
 #' @export
 merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALSE){
+  
+  if(identical(a,b)){
+    return(a)
+  }
   
   a$LOG$Object <- deparse(substitute(a))
   b$LOG$Object <- deparse(substitute(b))
@@ -144,9 +149,9 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
   
   # Update HISTORY
   if(keep_history){
-    
-    a$HISTORY$Object <-  deparse(substitute(a))
-    b$HISTORY$Object <-  deparse(substitute(b))
+
+    a$HISTORY$Object <-  unique(a$LOG$Object)
+    b$HISTORY$Object <-  unique(b$LOG$Object)
     
     a$HISTORY <- rbind(a$HISTORY, b$HISTORY)
     
@@ -210,7 +215,8 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
 
 #' Get meta data field description
 #' @description returns fields of mete data across all traces
-#' @param x objects of class tracer, optional
+#' @param x objects of class tracer. If an object of class tracer is not supplied, 
+#' a default list of fields and description will be returned.
 #' @export
 get_meta_fields <- function(x = NULL){
   
@@ -223,7 +229,7 @@ get_meta_fields <- function(x = NULL){
     hdr <- lapply(x$META, names)|>
       purrr::reduce(union)|>
       data.frame(FIELD =_)|>
-      merge(y=_, x= fiel_desc, by = "FIELD", all.x = TRUE, all.y=TRUE)
+      merge(y=_, x= fiel_desc, by = "FIELD", all.x = TRUE, all.y = TRUE)
     
     return(hdr)
   }
@@ -231,6 +237,72 @@ get_meta_fields <- function(x = NULL){
 }
 
 
+#' object constructor
+#' @description create an obect of type tracer
+#' @param x a data.frame or a list of data.frames
+#' @param len s numeric that defines UID length
+#' @param use_names if TRUE the names of list items wil be used to fill 
+#' SampleName fieled in the meta data table
+#' @details an input data.frame must contain two columns of type numeric. To construct
+#' an object with multiple traces, a list of data.frames must be provided.
+#' 
+#' @export
+new_trace <- function(x, use_column = NULL, len = 6, use_names = FALSE){
+  
+  # Validate use_column
+  if(is.null(use_column = NULL)){
+    use_column <- 1:2
+  }else if(length(use_column) != 2){
+    stop("The argument use_column must be either numeric or character vector of length 2")
+    }
+  
+  # check and convert to list
+  if(is.data.frame(x)){
+    
+    name_tr <- x|> substitute() |> deparse()
+    x <- list(x)
+    names(x) <- name_tr
+
+  }
+  
+  # Iterate over the list
+  if(is.list(x)){
+    
+    idx <- gen_uid_pool(n = length(x), len = len, pool = NULL)
+    
+    if(use_names){ sam_names <- names(x)}
+    names(x) <- idx
+    
+    for(i in seq_along(x)){
+      
+      if(!all(sapply(item, is.numeric, simplify = TRUE))){
+        stop("All input data must be of type numeric", call. = FALSE)
+        }
+     
+     x[[i]] <- x[[i]][idx]
+     nmaes(x[[i]]) <- c("RT", "Response")
+     
+   }
+
+    names(x) <- idx
+
+  }
+  
+  
+  
+  obj <- structure(
+    
+    list( DATA = list(RAW = x, PROCESSED = NULL),
+          LOG = tibble::as_tibble(dt_log),
+          HISTORY = data.frame(type = "created"
+                               , proc_time = format(Sys.time(), "%d-%b-%Y %H:%M:%OS3")),
+          META = meta),
+    class = "tracer"
+  )
+  
+  return(obj)
+  
+}
 
 
 

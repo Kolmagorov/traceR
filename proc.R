@@ -77,19 +77,16 @@ df_a <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/A")|>
 df_b <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/B")|>
   tr_rescale(type = "minmax", new_obj = T)
 
-d <- merge_trace(df_a, df_b)
-
-plt_tracer(x = df_a
-           , stacked = F
-           , xlim = c(5, 110)
-           , facet_lab = "SampleName + Channel.Description"
-           , gr_col = "Channel.Description")
+devtools::load_all()
+d <- merge_trace(df_a, df_a, keep_history = T)
 
 
-plot(df_a
-     , stacked = T
+plot(d
+     , ylim = NULL
+     , stacked = F
      , facet_lab = "SampleName + Channel.Description"
-     , gr_col = "Channel.Description")
+     , gr_col = "ID"
+     , what = NULL)
 
 
 

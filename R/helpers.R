@@ -166,14 +166,15 @@ expand_meta_data <- function(lst, fac = 1e5){
     energy <- fac*sum((dt[["Response"]])**2)**0.5
     
     data.frame(
-      
+      minSig = min(dt[["Response"]]),
       maxSig = max(dt[["Response"]]),
       dataPoints = nrow(dt),
       apexRT = dplyr::filter(.data$Response == max(.data$Response), .data = dt)|>
-        dplyr::pull(.data$RT)|> mean()
-      
+        dplyr::pull(.data$RT)|> mean(),
+      minRT = min(dt[["RT"]]),
+      maxRT = max(dt[["RT"]])
     )|>
-      dplyr::mutate(samplingRate = round(.data$dataPoints/(max(dt[["RT"]] - min(dt[["RT"]])))/60, digits = 1),
+      dplyr::mutate(samplingRate = round(.data$dataPoints/(.data$maxRT - .data$minRT)/60, digits = 1),
                     score = round(energy/.data$dataPoints, digits = 1))
     
   })|>

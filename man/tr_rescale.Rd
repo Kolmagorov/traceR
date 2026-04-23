@@ -4,7 +4,7 @@
 \alias{tr_rescale}
 \title{Re-scale Response of a trace}
 \usage{
-tr_rescale(x, type = "minmax", new_obj = FALSE, ...)
+tr_rescale(x, type = "minmax", new_obj = TRUE, ...)
 }
 \arguments{
 \item{x}{an object of class tracer}

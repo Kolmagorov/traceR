@@ -11,7 +11,7 @@ plt_gg(
   force_raw = FALSE,
   x_lab = "Retention Time [min]",
   facet_lab = "SampleName",
-  xlim = c(5, 120),
+  xlim = NULL,
   ylim = c(-0.05, 1),
   gr_col = "SampleName",
   breaks = 5,

@@ -66,7 +66,7 @@ trace_info <- function(x, force_raw = FALSE, ...){
 #' greatest value.
 #' @param ... an additional argument to specify range for minmax_scale rescale.
 #' @export
-tr_rescale <- function(x, type = "minmax", new_obj = FALSE, ...){
+tr_rescale <- function(x, type = "minmax", new_obj = TRUE, ...){
 
   if(methods::is(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
 
@@ -100,7 +100,7 @@ tr_rescale <- function(x, type = "minmax", new_obj = FALSE, ...){
 #' @param new_obj logical, if TRUE returns a modified object, 
 #' otherwise - processed data
 #' @export
-tr_crop <- function(x, crop_to, new_obj = FALSE){
+tr_crop <- function(x, crop_to, new_obj = TRUE){
 
   if(methods::is(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
 
@@ -141,7 +141,7 @@ tr_crop <- function(x, crop_to, new_obj = FALSE){
 #' @param new_obj logical, if TRUE returns a modified object, 
 #' otherwise - processed data
 #' @export
-tr_resample <- function(x, pts, new_obj = FALSE){
+tr_resample <- function(x, pts, new_obj = TRUE){
 
   if(methods::is(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
 
@@ -205,7 +205,7 @@ tr_resample <- function(x, pts, new_obj = FALSE){
 #' @param ... an additional argument to to be passed 'ptw::ptw'.
 #' @export
 tr_align <- function(x
-                     , new_obj = FALSE
+                     , new_obj = TRUE
                      , ref = 1L
                      , rm_na = TRUE
                      , return_mat = FALSE
@@ -311,11 +311,12 @@ plot.tracer <- function(x, ...){
 }
 
 
-#' Operator sum overloading
+#' Operator `+` overloading
 #' @param a,b objects of class tracer
+#' @details a wrapper for `merge_trace`, where keep_history and re_active are TRUE.
 #' @export
 `+.tracer` <- function(a, b){
-  print("HA-HA")
+  merge_trace(a = a, b = b, keep_history = T)
 }
 
 
@@ -336,8 +337,8 @@ plot.tracer <- function(x, ...){
 #' @param breaks an integer controlling major breaks on the x-axis
 #' @param minor_breaks an integer controlling minor breaks on the x-axis
 #' @param expd expands plot beyond limits set on x-axis
-#' @param what either numeric indexes or string of UID. If some Numeric indexes out of range
-#' an error will be thrown. Unmatched UID's will be ignored with warning.
+#' @param what either numeric indexes or string of UID. If some Numeric indexes are 
+#' out of range, an error will be thrown. Unmatched UID's will be ignored with warning.
 #' @export
 #' @importFrom rlang .data
 plt_gg <- function(x
@@ -345,10 +346,10 @@ plt_gg <- function(x
                    , stacked = TRUE
                    , force_raw = FALSE
                    , x_lab = "Retention Time [min]"
-                   , facet_lab = "SampleName"
-                   , xlim = c(5, 120)
-                   , ylim = c(-0.05, 1.0)
-                   , gr_col = "SampleName"
+                   , facet_lab = "ID"
+                   , xlim = NULL
+                   , ylim = NULL
+                   , gr_col = "ID"
                    , breaks = 5
                    , minor_breaks = 1
                    , expd = 2){
@@ -366,8 +367,8 @@ plt_gg <- function(x
   # VALIDATOR
   what <- what_validator(lst = x$DATA[[data_]], what = what)
   
-  # Create a table to plot
-  df <- x$DATA[[data_]] |> 
+  # Create a table to plot the WHAT is MISSING
+  df <- x$DATA[[data_]][what] |> #[what]
     do.call("rbind", args=_)
   
   df$ID <- row.names(df)|> gsub(pattern = "\\..*", replacement ="")
@@ -375,6 +376,25 @@ plt_gg <- function(x
   
   df <- trace_info(x, force_raw = force_raw) |>
     merge(x = df, y=_, by = "ID")
+  
+  if(is.null(xlim)){
+    
+    tr_lims <- expand_meta_data(lst = x$DATA[[data_]][what])|> # [what]
+      dplyr::select(minSig, maxSig, minRT, maxRT)
+    
+    # SET RT limits
+    xlim = c(min(tr_lims$minRT), max(tr_lims$maxRT))
+  }
+  
+  if(is.null(ylim)){
+    
+    if(!exists("tr_lims")){
+      tr_lims <- expand_meta_data(lst = x$DATA[[data_]][what])|> # [what]
+        dplyr::select(minSig, maxSig)
+    }
+    
+    ylim = c(min(tr_lims$minSig), max(tr_lims$maxSig))
+  }
   
   # Construct plot
   plt <- 
@@ -385,7 +405,7 @@ plt_gg <- function(x
                                             , cap = "both")) +
     ggplot2::scale_x_continuous(limits = xlim
                                 , expand = ggplot2::expansion(add = expd)
-                                , breaks = seq(0, xlim[2], breaks)
+                                , breaks = seq(xlim[1], xlim[2], breaks)
                                 , name = x_lab
                                 , minor_breaks = scales::breaks_width(minor_breaks)
     ) +

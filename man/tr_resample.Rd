@@ -4,7 +4,7 @@
 \alias{tr_resample}
 \title{Trace re-sampling}
 \usage{
-tr_resample(x, pts, new_obj = FALSE)
+tr_resample(x, pts, new_obj = TRUE)
 }
 \arguments{
 \item{x}{an object of class tracer}

@@ -4,7 +4,7 @@
 \alias{tr_crop}
 \title{Cropping a trace}
 \usage{
-tr_crop(x, crop_to, new_obj = FALSE)
+tr_crop(x, crop_to, new_obj = TRUE)
 }
 \arguments{
 \item{x}{an object of class tracer}
