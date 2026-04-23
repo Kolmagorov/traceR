@@ -10,18 +10,18 @@ plt_gg(
   stacked = TRUE,
   force_raw = FALSE,
   x_lab = "Retention Time [min]",
-  facet_lab = "SampleName",
+  facet_lab = "ID",
   xlim = NULL,
-  ylim = c(-0.05, 1),
-  gr_col = "SampleName",
+  ylim = NULL,
+  gr_col = "ID",
   breaks = 5,
   minor_breaks = 1,
   expd = 2
 )
 }
 \arguments{
-\item{what}{either numeric indexes or string of UID. If some Numeric indexes out of range
-an error will be thrown. Unmatched UID's will be ignored with warning.}
+\item{what}{either numeric indexes or string of UID. If some Numeric indexes are 
+out of range, an error will be thrown. Unmatched UID's will be ignored with warning.}
 
 \item{force_raw}{If TRUE will plot RAW data}
 
