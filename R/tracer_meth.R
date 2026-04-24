@@ -41,9 +41,8 @@ trace_info <- function(x, force_raw = FALSE, ...){
   if(isFALSE(force_raw)){
     if(is.null(x$DATA$PROCESSED)){ d_type <- "RAW"}
   }else{ d_type <- "RAW" }
-
-  hdr <- lapply(x$META, names) |> purrr::reduce(intersect)
   
+  hdr <- lapply(x$META, names) |> purrr::reduce(intersect)
 
   message("Returning info for ", d_type, " data")
 
@@ -52,7 +51,7 @@ trace_info <- function(x, force_raw = FALSE, ...){
   
   common <- expand_meta_data(lst = x$DATA[[d_type]],...)|>
     merge(y = common, by = "ID")
-
+  
   return(common)
 }
 
@@ -112,7 +111,7 @@ tr_crop <- function(x, crop_to, new_obj = TRUE){
     stop("The lower bound of the crooping segment is greater than th Upper one\n")
   }
 
-  if(is.null(x$HISTORY)){data_ <- "RAW"}
+  if(is.null(x$PROCESSED)){data_ <- "RAW"}
   else{data_ <- "PROCESSED"}
 
   out <- lapply(x$DATA[[data_]], function(dt){
@@ -145,9 +144,9 @@ tr_resample <- function(x, pts, new_obj = TRUE){
 
   if(methods::is(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
 
-  if(is.null(x$HISTORY)){data_ <- "RAW"}
+  if(is.null(x$DATA$PROCESSED)){data_ <- "RAW"}
   else{data_ <- "PROCESSED"}
-
+  
   blw_pts <- suppressMessages(trace_info(x = x), classes = "message")|>
 
     dplyr::select(.data$file, .data$dataPoints, .data$SRC)|>
@@ -213,7 +212,7 @@ tr_align <- function(x
 
   if(methods::is(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
 
-  if(is.null(x$HISTORY)){data_ <- "RAW"}
+  if(is.null(x$PROCESSED)){data_ <- "RAW"}
   else{data_ <- "PROCESSED"}
 
   blw_pts <- suppressMessages(trace_info(x = x), classes = "message")|>

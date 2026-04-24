@@ -220,7 +220,7 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
 #' @export
 get_meta_fields <- function(x = NULL){
   
-  if(is.null(x)){ return(fiel_desc) }
+  if(is.null(x)){ return(field_desc) }
   
   else if(methods::is(x) != "tracer"){ 
     stop("\n x must be a an object of type tracer", call. = FALSE)

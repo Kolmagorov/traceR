@@ -164,7 +164,7 @@ expand_meta_data <- function(lst, fac = 1e5){
   exp_meta <- lapply(lst, function(dt){
     
     energy <- fac*sum((dt[["Response"]])**2)**0.5
-    
+
     data.frame(
       minSig = min(dt[["Response"]]),
       maxSig = max(dt[["Response"]]),
@@ -187,23 +187,41 @@ expand_meta_data <- function(lst, fac = 1e5){
 
 #' Keeps track of processing steps taken and records them into a data.frame
 #' @keywords internal
-record_log <- function(what, on_disc = FALSE, f_names = NULL){
-  
-  if(!is.data.frame(what)){ what <- data.frame(what)}
-  if(!is.null(f_names)){ names(what) <- f_names}
-  
-  
-  function(tmp){
+record_log <- function(what = NULL){
+
+  what <- tab_tmplate$LOG_tmpl
+
+  function(lst = NULL){
+
+    if(is.null(lst)){ dt_row <- what[1,] }
     
-    if(!is.data.frame(tmp)){ tmp <- data.frame(tmp)}
-    names(tmp) <- names(what)
+    else if(is.list(lst)){ dt_row <- cbind( what[1,], data.frame(lst) )}
+    else{ stop("In helper: init_log() argument `lst` isn't a type of list") }
     
-    what <<- rbind(what, tmp)
-    return(what[-1,])
+    up_fld <- names(dt_row)
+    bs_fld <- names(what)
+    
+    el <- setdiff(union(up_fld, bs_fld), intersect(up_fld, bs_fld))
+    
+    if(length(el) != 0){
+      
+      for(nms in el){ 
+        
+        if(nms %in% bs_fld){
+          
+          if(nms %in% up_fld){next}
+          else{ dt_row <- dt_row |> dplyr::mutate("{nms}" := NA)}}
+        
+        else{ what <<- what|> dplyr::mutate("{nms}" := NA) }
+      }
+    }
+      
+      what <<- what |> dplyr::select(names(dt_row)) |> 
+        rbind(dt_row)
+      return(what[-1,])
+    }
   }
-  
-  
-}
+
 
 #' Rehashing indexes - a helper for merging objects
 #' @keywords internal
@@ -237,33 +255,35 @@ rehash_id <- function(a, b){
 }
 
 #' Construct Default field for meta data
+#' @param tmpl a string argument to select a template
+#' @param lst a list of fields and values to pass to the selected template, if NULL
+#' all fields will be filed with default values. 
+#' @details if `lst`  contains the same field as in template its default value 
+#' is going to be overwritten.
 #' @keywords internal
- meta_default <- function(x = NULL){
+ meta_default <- function(tmpl = c("LOG", "META"), lst = NULL){
    
-   out <- data.frame(ID = NA,
-              SampleName = NA,
-              dateAcquired = NA,
-              SRC = "Undefined",
-              file = NA,
-              Comments = NA)
+   tmpl <- match.arg(tmpl)
    
-   if(is.null(x)){return(out)}
-   if(!is.list(x)){stop("In helper: meta_default() x must be a list")}
+   out <- switch(tmpl,
+          META = tab_tmplate$META_tmpl,
+          LOG = tab_tmplate$LOG_tmpl)
    
-   fld <- names(x)
+   if(is.null(lst)){return(out)}
+   if(!is.list(lst)){stop("In helper: meta_default() lst must be a list")}
    
-   for(i in fld){ 
+   fld <- names(lst)
+   
+   for(nms in fld){ 
      
-     if(i %in% fld){out[[i]] <- x[[i]]}
+     if(nms %in% names(out)){out[[nms]] <- lst[[nms]]}
      else{
          out <- out|>
-           dplyr::mutate("{i}" := x[[i]])
+           dplyr::mutate("{nms}" := lst[[nms]])
        }
    }
    return(out)
  }
-
-
 
 
 

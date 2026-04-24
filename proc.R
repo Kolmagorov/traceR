@@ -10,12 +10,27 @@ usethis::use_readme_rmd()
 
 devtools::build_readme()
 
-
-fiel_desc <- read.csv("//dc3/OAM/Сотрудники/Podkolzin_IV/PROJECTS_ALL/2026/field_description.csv" ,
+# INTERNAL DATA 
+field_desc <- read.csv("//dc3/OAM/Сотрудники/Podkolzin_IV/PROJECTS_ALL/2026/field_description.csv" ,
          sep = ";" , header = T , fileEncoding = "CP1251")
 
+tab_tmplate <- list(
+  META_tmpl = data.frame(ID = NA,
+                         SampleName = NA,
+                         dateAcquired = NA,
+                         SRC = "Undefined",
+                         file = NA,
+                         Comments = NA),
+  
+  LOG_tmpl = data.frame(ID = NA,
+                        SOURCE = "Undefined",
+                        LOADED = FALSE,
+                        FILE = NA,
+                        FILE_NAME = NA) )
 
-usethis::use_data(fiel_desc, internal = TRUE, overwrite = TRUE)
+usethis::use_data(fiel_desc, tab_tmplate
+                  , internal = TRUE
+                  , overwrite = TRUE)
 
 
 # Imports, dependencies, etc.
@@ -69,7 +84,7 @@ d <-merge_trace(a = zad, b = df, active_re = F)
 
 # TEST MERGE ==========================================
 devtools::load_all()
-df_a <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/A")|>
+df <-load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/A")|>
   tr_crop(crop_to = c(3, 110) ,new_obj = T) |> 
   tr_resample(pts = 2000, new_obj = T) |> 
   tr_rescale(type = "minmax", new_obj = T)
@@ -81,7 +96,7 @@ devtools::load_all()
 d <- merge_trace(df_a, df_a, keep_history = T)
 
 
-plot(d
+plot(df
      , ylim = NULL
      , stacked = F
      , facet_lab = "SampleName + Channel.Description"
@@ -92,11 +107,10 @@ dt <- data.frame(A = 1:50, B = cos(rnorm(50, mean = 9, sd = 2)))
 plot(dt, type = 'l')
 
 devtools::load_all()
-a <- new_trace(x = dt)
-
-
-
-
-
+a <- record_log()
+a()
+a(list(SSA=99))
+a(list(SSD="LOL"))
+a(list(SSD="D"))
 
 
