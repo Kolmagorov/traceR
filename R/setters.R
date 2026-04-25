@@ -193,7 +193,7 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
   
   what <- b$LOG|> dplyr::filter(.data[[id_filed]] %in% what)|> dplyr::pull(.data$ID)
   
-  # APPEND content of the object b to object a
+  # APPEND content of the object b to the object a
   a$META <- append(a$META, b$META[what])
   a$DATA$RAW <- append(a$DATA$RAW, b$DATA$RAW[what])
   
@@ -241,61 +241,88 @@ get_meta_fields <- function(x = NULL){
 #' @description create an obect of type tracer
 #' @param x a data.frame or a list of data.frames
 #' @param len s numeric that defines UID length
-#' @param use_names if TRUE the names of list items wil be used to fill 
+#' @param use_columns if TRUE the names of list items will be used to fill 
 #' SampleName fieled in the meta data table
 #' @details an input data.frame must contain two columns of type numeric. To construct
 #' an object with multiple traces, a list of data.frames must be provided.
 #' 
 #' @export
-new_trace <- function(x, meta = NULL, use_column = NULL, len = 6){
+new_trace <- function(x, meta = NULL, use_columns = NULL, len = 6){
   
-  # Validate use_column
-  if(is.null(use_column)){
-    use_column <- 1:2
-  }else if(length(use_column) != 2){
-    stop("The argument use_column must be either numeric or character vector of length 2")
+  # Validate use_columns
+  if(is.null(use_columns)){
+    use_columns <- 1:2
+  }else if(length(use_columns) != 2){
+    stop("The argument use_columns must be either numeric or character vector of length 2")
     }
   
-  # check and convert to list
+  # check input x and convert to list
   if(is.data.frame(x)){
     x <- list(x)
   }
   
-  # Iterate over the list
+  
   if(is.list(x)){
     
+    # initialize LOG
+    log_rec <- init_log(tmpl = "LOG")
+    
+    # create a list for META data
     meta_d <- vector(mode = "list", length = length(x))
+    
+    # Generate UID
     idx <- gen_uid_pool(n = length(x), len = len, pool = NULL)
     
+    # Transform input x to RAW
     names(x) <- idx
+    
+    # Assign UIDs to items in the META container
     names(meta_d) <- idx
     
+    # Checking type of the list items of input data
+    if(!all(sapply(x, is.data.frame, simplify = TRUE))){
+      
+      stop("new_trace: All items of argument x must be of class data.frame", call. = FALSE)
+    }
+    
+    # Iterate over the input list
     for(i in seq_along(x)){
       
+      # Checking type of columns in input data items
       if(!all(sapply(x[[i]], is.numeric, simplify = TRUE))){
-        stop("All input data must be of type numeric", call. = FALSE)
-        }
-     
-     x[[i]] <- x[[i]][use_column]
-     names(x[[i]]) <- c("RT", "Response")
-     
-     # Select which ID to use, ignore if already supplied
-     if(!("ID" %in% names(meta))){
-       
-       meta <- append(list(ID = idx[i]), meta)
-     }
-     
-     meta_d[[i]] <- meta_default(x = meta)
-     
+        stop("All columns must be of type numeric", call. = FALSE)
+      }
+      
+      # Select a way to treat meta
+      if(is.data.frame(meta[[i]])){
+        
+        meta_tmp <- as.list(meta[[i]])
+        
+      }else(meta_tmp <- meta)
+      
+      # Overrides input x with RAW data
+      x[[i]] <- x[[i]][use_columns]
+      names(x[[i]]) <- c("RT", "Response") # DO NOT CHANGE THAT bc all trace methods are build on IT!
+      
+      # Update LOG with a new record
+      dt_log <- log_rec(list(ID = idx[i], FILE_NAME = NA, SOURCE = "manual"))
+      
+      # Assign UID to meta_tmp
+      meta_tmp[["ID"]] <- idx[i]
+      
+      # Init meta table records
+      meta_rec <- init_log(tmpl = "META")
+      
+      # Update META with a new record
+      meta_d[[i]] <- meta_rec(meta_tmp)
    }
   }
   
-  
-  
+  # Compile and create an object 
   obj <- structure(
     
     list( DATA = list(RAW = x, PROCESSED = NULL),
-          LOG = NULL, #tibble::as_tibble(dt_log),
+          LOG = tibble::as_tibble(dt_log),
           HISTORY = data.frame(type = "created"
                                , proc_time = format(Sys.time(), "%d-%b-%Y %H:%M:%OS3")),
           META = meta_d),
