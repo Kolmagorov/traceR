@@ -1,6 +1,6 @@
 
 # Rbuildignore
-usethis::use_build_ignore(c("proc.R"))
+usethis::use_build_ignore(c("proc.R", "new_trace_proc.R"))
 
 # licensing
 usethis::use_mit_license()
