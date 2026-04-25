@@ -1,4 +1,4 @@
-#' LOREM IPSUM
+#' a Class constructor is not integrated yet
 #' @description reading in trace files exported from Empower or Chromeleon software.
 #' @param path_dir a string specifying path to a directory with trace files to load
 #' @param fls a vector of strings as an alternative to provide file path, overrides
@@ -30,7 +30,7 @@ load_trace <- function(path_dir = NULL
     pattern = ".*(\\.arw)$|.*(\\.csv)$|.*(\\.txt)$"
   }
 
-  # Check fls
+  # Checks fls
   if(is.null(fls)){
 
     fls <- dir(path_dir
@@ -43,61 +43,55 @@ load_trace <- function(path_dir = NULL
   meta <- list()
   id_pool <- NULL
   
-  # Initialize a log record
-  log_tmp <- record_log(what = list(ID = NA, SOURCE = NA, LOADED = NA, FILE = NA))# default tab 
+  # Initialize a LOG record
+  log_rec <- init_log(tmpl = "LOG")
 
   # Scanning and loading files
   for(i in seq_along(fls)){
 
     # tmp can be either FALSE or a list with Meta and TRACE data
     tmp <- parser_selector(fls = fls[i])
-
-     if(isFALSE(tmp)){
-       # Update log
-       dt_log <- log_tmp(list(ID = NA, SOURCE = NA, LOADED = FALSE, FILE = fls[i]))# default tab 
-
+    
+    if(isFALSE(tmp)){
+      # Update log
+      dt_log <- log_rec(list(FILE = fls[i]))
       next}
     
     # if tmp not empty generate new ID
     idx <- gen_uid_pool(n = 1, len = uid_len, pool = id_pool)
-
-    # Adding ID to the meta table
-    tmp$META$ID <- idx
-
+    
     # Update log
-    dt_log <- log_tmp(list(ID = idx
-                           , SOURCE = tmp$META$SRC
+    dt_log <- log_rec(list(ID = idx
+                           , SOURCE = tmp$META$SOURCE
                            , LOADED = TRUE
-                           , FILE = fls[i]))# default tab 
+                           , FILE = fls[i]))
 
 
     # Place data into RAW list
     raw_data[[idx]] <- tmp$TRACE
 
-    # Append Meta list
-    meta[[idx]] <- tmp$META
+    # Insert in the Meta list
+    meta[[i]] <- tmp$META
 
-    # Add ID to a pool
+    # Add an ID to the pool
     id_pool <- c(id_pool, idx)
 
   }
-
-  rm(list = c("log_tmp", "tmp"))
+  
+  cat("\nRAW: ", length(raw_data))
+  cat("\nFLS: ", length(fls),"\n\n")
+  
+  rm(list = c("log_rec", "tmp"))
 
   dt_log$FILE_NAME <- basename(dt_log$FILE)
   
-  # NOTE an isolated Class constructor is needed
-  # NOTE meta helper function as well
-  obj <- structure(
-
-    list( DATA = list(RAW = raw_data, PROCESSED = NULL),
-          LOG = tibble::as_tibble(dt_log),
-          
-          HISTORY = data.frame(type = "created"
-                               , proc_time = format(Sys.time(), "%d-%b-%Y %H:%M:%OS3")),
-          META = meta),
-    class = "tracer"
-    )
+  # Call a constructor and Create trace object
+  obj <- new_trace(x = raw_data
+                   , meta = meta
+                   , use_columns = 1:2
+                   , len = 6)
+  
+  obj$LOG <- tibble::as_tibble(dt_log)
 
   return(obj)
 }
