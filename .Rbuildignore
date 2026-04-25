@@ -3,3 +3,4 @@
 ^proc\.R$
 ^LICENSE\.md$
 ^README\.Rmd$
+^new_trace_proc\.R$
