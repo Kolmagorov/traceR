@@ -186,41 +186,50 @@ expand_meta_data <- function(lst, fac = 1e5){
 }
 
 #' Keeps track of processing steps taken and records them into a data.frame
+#' @param what either NULL or a list with named fields and values
 #' @keywords internal
-record_log <- function(what = NULL){
-
-  what <- tab_tmplate$LOG_tmpl
-
+init_log <- function(what = NULL, tmpl = c("LOG", "META")){
+  
+  tmpl <- match.arg(tmpl)
+  
+  # Initialize table with an internal template
+  what <- switch(tmpl,
+                META = tab_tmplate$META_tmpl,
+                LOG = tab_tmplate$LOG_tmpl)
+  
   function(lst = NULL){
 
     if(is.null(lst)){ dt_row <- what[1,] }
     
-    else if(is.list(lst)){ dt_row <- cbind( what[1,], data.frame(lst) )}
-    else{ stop("In helper: init_log() argument `lst` isn't a type of list") }
-    
-    up_fld <- names(dt_row)
-    bs_fld <- names(what)
-    
-    el <- setdiff(union(up_fld, bs_fld), intersect(up_fld, bs_fld))
-    
-    if(length(el) != 0){
+    else if(is.list(lst)){
       
-      for(nms in el){ 
-        
-        if(nms %in% bs_fld){
-          
-          if(nms %in% up_fld){next}
-          else{ dt_row <- dt_row |> dplyr::mutate("{nms}" := NA)}}
-        
-        else{ what <<- what|> dplyr::mutate("{nms}" := NA) }
+      nms <- names(lst)
+      
+      if(is.null(nms)){stop("In helper: init_log() argument `lst` maus have named items")}
+      
+      if(any(duplicated(nms))){stop("In helper: init_log() argument `lst` must unique item names")}
+      
+      up_fld <- setdiff(nms, names(what))
+      # Adding columns
+      for(itm in up_fld){ what <<- what|> dplyr::mutate("{itm}" := NA)}
+      
+      dt_row <- what[1,]
+      
+      # Writing records
+      for(itm in nms){
+        dt_row <- dt_row |> 
+          dplyr::mutate("{itm}" := lst[[itm]])
       }
-    }
-      
-      what <<- what |> dplyr::select(names(dt_row)) |> 
-        rbind(dt_row)
-      return(what[-1,])
-    }
+      }else{ stop("In helper: init_log() argument `lst` isn't a type of list") }
+    
+    what <<- what |> dplyr::select(names(dt_row)) |> 
+      rbind(dt_row)
+    
+    out <- what[-1,]
+    row.names(out) <- NULL
+    return(out)
   }
+}
 
 
 #' Rehashing indexes - a helper for merging objects
@@ -284,7 +293,5 @@ rehash_id <- function(a, b){
    }
    return(out)
  }
-
-
 
 

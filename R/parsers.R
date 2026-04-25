@@ -10,7 +10,7 @@ parser_selector <- function(fls){
                   EMPOWER = parse_empower(fls = fls, sep = read_par$SEP , skip = read_par$SKIP),
                   CHROMELEON = parse_chromeleon(fls = fls, sep = read_par$SEP),
                   Undefined = parse_empower(fls = fls, sep = read_par$SEP , skip = read_par$SKIP))
-    out$META$SRC <- read_par$SYS } # Assigning source info to the meta data row
+    out$META$SOURCE <- read_par$SYS } # Assigning source info to the meta data row
   
   return(out)
 }
@@ -34,12 +34,11 @@ parse_empower <- function(fls, skip, sep){
                          , header = TRUE
                          , sep = sep
                          , nrow = 1)|>
-    dplyr::mutate(ID = NA
-                  , dateAcquired = time_scan(.data$Date.Acquired))|>
+    dplyr::mutate(dateAcquired = time_scan(.data$Date.Acquired))|>
     dplyr::select(!.data$Date.Acquired)}
   
   # Add file name
-  meta <- meta |> dplyr::mutate(file = basename(fls))
+  meta <- meta |> dplyr::mutate(FILE = basename(fls))
   
   return(list(TRACE = trace_data, META = meta))
 }
@@ -73,7 +72,7 @@ parse_chromeleon <- function(fls, sep){
                    , blank.lines.skip = TRUE
                    , col.names = c("Attribute", "Value")
   )
-  # Removing redudant rows
+  # Removing redundant rows
   meta <- meta[-c(3, 18, 30, 36),]
   meta <- meta|>
     dplyr::mutate(Attribute = gsub(.data$Attribute, pattern = "\\s|\\(.*\\)|\\.", replacement = "")
@@ -85,9 +84,8 @@ parse_chromeleon <- function(fls, sep){
   
   # Expand Meta data
   meta <- data.frame(tmp)|>
-    dplyr::mutate(ID = NA
-                  , InjectTime = time_scan(.data$InjectTime)
-                  , file = basename(fls) )|>
+    dplyr::mutate(InjectTime = time_scan(.data$InjectTime)
+                  , FILE = basename(fls) )|>
     dplyr::rename(SampleName = .data$Name
                   , dateAcquired = .data$InjectTime
                   , Comments = .data$Comment)

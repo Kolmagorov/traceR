@@ -149,7 +149,7 @@ tr_resample <- function(x, pts, new_obj = TRUE){
   
   blw_pts <- suppressMessages(trace_info(x = x), classes = "message")|>
 
-    dplyr::select(.data$file, .data$dataPoints, .data$SRC)|>
+    dplyr::select(.data$FILE, .data$dataPoints, .data$SOURCE)|>
     dplyr::filter(.data$dataPoints < pts)
 
   if(nrow(blw_pts) > 0){
@@ -216,7 +216,7 @@ tr_align <- function(x
   else{data_ <- "PROCESSED"}
 
   blw_pts <- suppressMessages(trace_info(x = x), classes = "message")|>
-    dplyr::select(.data$file, .data$dataPoints, .data$SRC)
+    dplyr::select(.data$FILE, .data$dataPoints, .data$SOURCE)
 
   incomp <- unique(blw_pts$dataPoints)
 

@@ -18,8 +18,8 @@ tab_tmplate <- list(
   META_tmpl = data.frame(ID = NA,
                          SampleName = NA,
                          dateAcquired = NA,
-                         SRC = "Undefined",
-                         file = NA,
+                         SOURCE = "Undefined",
+                         FILE = NA,
                          Comments = NA),
   
   LOG_tmpl = data.frame(ID = NA,
@@ -107,10 +107,46 @@ dt <- data.frame(A = 1:50, B = cos(rnorm(50, mean = 9, sd = 2)))
 plot(dt, type = 'l')
 
 devtools::load_all()
-a <- record_log()
+a <- init_log(tmpl = "META")
+b <- init_log(tmpl = "LOG")
+
 a()
+b()
+
 a(list(SSA=99))
 a(list(SSD="LOL"))
-a(list(SSD="D"))
+a(list(SSD="D",FOO=59))
 
+
+dt <- data.frame(A = 1:15, B = (1:15)*115)
+
+devtools::load_all()
+foo <- new_trace(x = dt)
+
+raw_test <- df$DATA$RAW
+
+foo <- new_trace(x = df$DATA$PROCESSED, 
+                 meta = df$META)
+
+trace_info(foo)
+foo$LOG
+
+devtools::load_all()
+df <-load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/A")
+df <-load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/HETERO")
+
+
+
+
+zad <- list()
+for(i in 1:9){
+  
+  if(i == 4){
+    next
+  }
+  
+  zad[[i]] <- i
+  
+}
+zad
 
