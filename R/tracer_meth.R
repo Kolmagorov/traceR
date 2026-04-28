@@ -327,19 +327,22 @@ plot.tracer <- function(x, ...){
 
 #' Plot traces with ggplot2
 #' @description plots traces using ggplot2 graphics
-#' @param lst a list of data to plot, assumed to originate from a trace object
+#' @param x object of class tracer
+#' @param what either numeric indexes or string of UID. If some Numeric indexes are 
+#' out of range, an error will be thrown. Unmatched UID's will be ignored with warning.
+#' @param stacked a logical, sets plotting mode to stacked or overlaid
 #' @param x_lab a string passing x-axis name to the plot
 #' @param force_raw If TRUE will plot RAW data
 #' @param facet_lab trace grouping factors, default available options are names of
 #' a table returning by trace_info.
 #' @param xlim,ylim numeric vectors defining limits for x and y axis respectively
+#' @param gr_col name of a veritable to be used to colorize groups
 #' @param breaks an integer controlling major breaks on the x-axis
 #' @param minor_breaks an integer controlling minor breaks on the x-axis
 #' @param expd expands plot beyond limits set on x-axis
-#' @param what either numeric indexes or string of UID. If some Numeric indexes are 
-#' out of range, an error will be thrown. Unmatched UID's will be ignored with warning.
 #' @export
 #' @importFrom rlang .data
+#' @import glue
 plt_gg <- function(x
                    , what = NULL
                    , stacked = TRUE
@@ -379,7 +382,7 @@ plt_gg <- function(x
   if(is.null(xlim)){
     
     tr_lims <- expand_meta_data(lst = x$DATA[[data_]][what])|> # [what]
-      dplyr::select(minSig, maxSig, minRT, maxRT)
+      dplyr::select(.data$minSig, .data$maxSig, .data$minRT, .data$maxRT)
     
     # SET RT limits
     xlim = c(min(tr_lims$minRT), max(tr_lims$maxRT))
@@ -389,7 +392,7 @@ plt_gg <- function(x
     
     if(!exists("tr_lims")){
       tr_lims <- expand_meta_data(lst = x$DATA[[data_]][what])|> # [what]
-        dplyr::select(minSig, maxSig)
+        dplyr::select(.data$minSig, .data$maxSig)
     }
     
     ylim = c(min(tr_lims$minSig), max(tr_lims$maxSig))
@@ -436,4 +439,79 @@ plt_gg <- function(x
   
 }
 
-
+#' Angular Similarity
+#' @description pair-wisw angular similarity
+#' @param x object of class tracer
+#' @param pw a numeric, a weighing coefficient for signal intensities
+#' default is 0.
+trace_sim <- function(x
+                  , group
+                  , signal
+                  , pw = 0
+                  , force_raw = FALSE
+                  , fun = "max"){
+  
+  if(methods::is(x) != "tracer"){ 
+    stop("\n x must be a an object of type tracer", call. = FALSE)}
+  
+  d_type <- "PROCESSED"
+  
+  if(isFALSE(force_raw)){
+    if(is.null(x$DATA$PROCESSED)){ d_type <- "RAW"}
+  }else{ d_type <- "RAW" }
+  
+  # OLD CODE HERE
+  fac <- unique(tab[[group]])
+  item <- length(fac)
+  out <- NULL
+  lab <- NULL
+  wgt <- NULL
+  
+  for(i in 1:item){
+    a <- tab |> 
+      dplyr::filter(get({{group}}) == fac[i]) |>
+      dplyr::select({{signal}})|>
+      unlist()
+    
+    
+    for(j in 1:item){
+      b <- tab |> 
+        dplyr::filter(get({{group}}) == fac[j]) |>
+        dplyr::select({{signal}})|>
+        unlist()
+      
+      if(pw == 0){w <- 1}
+      else{
+        mat <- cbind(a,b)
+        trans <- min(mat)
+        w <- (apply(mat - trans, 1, get(fun)))**pw # This is just a abs(a-b) also add full peak weight 
+      }
+      
+      alpha <- round(sum(a*b*w)/sqrt(sum(w*a**2))/sqrt(sum(w*b**2))
+                     , digits = 6)
+      
+      out <- c(out, 1-2*acos(alpha)/pi)
+      
+      if((j-i) > 0){
+        
+        ret <- 
+          tab |>
+          dplyr::filter(get({{group}}) == fac[j]) |>
+          dplyr::select(RT, {{signal}})
+        
+        wgt <- data.frame(W = w/max(w)
+                          , Pair = paste(fac[i],"vs", fac[j], sep = "_")
+                          , RT = ret$RT
+                          , nAbs = ret[[signal]] 
+        ) |>
+          rbind(wgt)
+        
+      }else{next}
+    }
+  }
+  
+  list(SIM = matrix(data = out
+                    , nrow = length(fac)
+                    , dimnames = list(fac, fac))
+       , WM = wgt)
+}
