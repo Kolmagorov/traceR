@@ -65,7 +65,7 @@ df <- load_trace(path_dir = "D:/RWD/Angular_Sim_Exp/GNR_060/TRACES")
 df <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/GNR_045_COSIM/TRACES")
 
 df$LOG
-
+trace_sim(df)
 
 devtools::load_all()
 zad <- tr_crop(df, crop_to = c(5, 120), new_obj = T) |>

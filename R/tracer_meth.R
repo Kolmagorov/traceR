@@ -445,46 +445,49 @@ plt_gg <- function(x
 #' @param pw a numeric, a weighing coefficient for signal intensities
 #' default is 0.
 trace_sim <- function(x
-                  , group
-                  , signal
+                  , lab = NULL
                   , pw = 0
                   , force_raw = FALSE
-                  , fun = "max"){
+                  , fun = c("max", "mean", "min")){
   
   if(methods::is(x) != "tracer"){ 
     stop("\n x must be a an object of type tracer", call. = FALSE)}
   
-  d_type <- "PROCESSED"
+  data_ <- "PROCESSED"
+  
   
   if(isFALSE(force_raw)){
-    if(is.null(x$DATA$PROCESSED)){ d_type <- "RAW"}
-  }else{ d_type <- "RAW" }
+    if(is.null(x$DATA$PROCESSED)){ data_ <- "RAW"}
+  }else{ data_ <- "RAW" }
   
-  # OLD CODE HERE
-  fac <- unique(tab[[group]])
-  item <- length(fac)
+  fun <- match.arg(fun)
+  
+  
+  if(is.null(lab)){ item <- names(x$DATA[[data_]]) }
+  else{ item <- trace_info(x)[[lab]] }
+  
+  if(any(duplicated(item))){
+    stop("Argument lab has non-unique items", call. = FALSE)
+    }
+  
   out <- NULL
-  lab <- NULL
   wgt <- NULL
   
-  for(i in 1:item){
-    a <- tab |> 
-      dplyr::filter(get({{group}}) == fac[i]) |>
-      dplyr::select({{signal}})|>
-      unlist()
+  for(i in seq_along(item)){
     
+    a <- x$DATA[[ item[i] ]][["Response"]]
     
-    for(j in 1:item){
-      b <- tab |> 
-        dplyr::filter(get({{group}}) == fac[j]) |>
-        dplyr::select({{signal}})|>
-        unlist()
+    for(j in 1:seq_along(item)){
+      
+      b <- x$DATA[[ item[j] ]][["Response"]]
       
       if(pw == 0){w <- 1}
       else{
         mat <- cbind(a,b)
         trans <- min(mat)
-        w <- (apply(mat - trans, 1, get(fun)))**pw # This is just a abs(a-b) also add full peak weight 
+        
+        # This is just a abs(a-b) also add full peak weight 
+        w <- (apply(mat - trans, 1, get(fun)))**pw 
       }
       
       alpha <- round(sum(a*b*w)/sqrt(sum(w*a**2))/sqrt(sum(w*b**2))
@@ -494,24 +497,18 @@ trace_sim <- function(x
       
       if((j-i) > 0){
         
-        ret <- 
-          tab |>
-          dplyr::filter(get({{group}}) == fac[j]) |>
-          dplyr::select(RT, {{signal}})
-        
         wgt <- data.frame(W = w/max(w)
-                          , Pair = paste(fac[i],"vs", fac[j], sep = "_")
-                          , RT = ret$RT
-                          , nAbs = ret[[signal]] 
+                          , Pair = paste(item[i],"vs", item[j], sep = "_")
+                          , RT = x$DATA[[data_]][[item[i]]][["RT"]]
+                          , Response = x$DATA[[data_]][[item[i]]][["Response"]] 
         ) |>
           rbind(wgt)
-        
-      }else{next}
+      }
     }
   }
   
   list(SIM = matrix(data = out
-                    , nrow = length(fac)
-                    , dimnames = list(fac, fac))
+                    , nrow = length(item)
+                    , dimnames = list(item, item))
        , WM = wgt)
 }
