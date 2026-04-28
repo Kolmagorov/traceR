@@ -71,15 +71,12 @@ load_trace <- function(path_dir = NULL
     raw_data[[idx]] <- tmp$TRACE
 
     # Insert in the Meta list
-    meta[[i]] <- tmp$META
+    meta[[idx]] <- tmp$META
 
     # Add an ID to the pool
     id_pool <- c(id_pool, idx)
 
   }
-  
-  cat("\nRAW: ", length(raw_data))
-  cat("\nFLS: ", length(fls),"\n\n")
   
   rm(list = c("log_rec", "tmp"))
 
@@ -87,6 +84,7 @@ load_trace <- function(path_dir = NULL
   
   # Call a constructor and Create trace object
   obj <- new_trace(x = raw_data
+                   , use_names = TRUE
                    , meta = meta
                    , use_columns = 1:2
                    , len = 6)

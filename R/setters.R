@@ -42,7 +42,6 @@ set_field_value <- function(x
 #' @description adding a field to the meta data
 #' @param x an object of class tracer
 #' @param new_field a string, i.e. a name of the new field
-#' @param init a value to fill a new field with
 #' @returns object of type tracer with a new field added into the meta data
 #' @export
 add_field <- function(x, new_field){
@@ -176,7 +175,7 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
               , call. = FALSE
               , immediate. = TRUE)
       b$LOG |> 
-        dplyr::filter(ID %in% clashed_id) |> 
+        dplyr::filter(.data$ID %in% clashed_id) |> 
         dplyr::select(.data$ID, .data$FILE_NAME)|>
         print()
       
@@ -229,7 +228,7 @@ get_meta_fields <- function(x = NULL){
     hdr <- lapply(x$META, names)|>
       purrr::reduce(union)|>
       data.frame(FIELD =_)|>
-      merge(y=_, x= fiel_desc, by = "FIELD", all.x = TRUE, all.y = TRUE)
+      merge(y=_, x= field_desc, by = "FIELD", all.x = TRUE, all.y = TRUE)
     
     return(hdr)
   }
@@ -241,13 +240,14 @@ get_meta_fields <- function(x = NULL){
 #' @description create an obect of type tracer
 #' @param x a data.frame or a list of data.frames
 #' @param len s numeric that defines UID length
-#' @param use_columns if TRUE the names of list items will be used to fill 
-#' SampleName fieled in the meta data table
+#' @param use_columns a vector of length 2
+#' @param meta meta data
+#' @param use_names if TRUE than the names of  input list x will be used as ID's
 #' @details an input data.frame must contain two columns of type numeric. To construct
 #' an object with multiple traces, a list of data.frames must be provided.
 #' 
 #' @export
-new_trace <- function(x, meta = NULL, use_columns = NULL, len = 6){
+new_trace <- function(x, meta = NULL, use_columns = NULL, use_names = FALSE,len = 6){
   
   # Validate use_columns
   if(is.null(use_columns)){
@@ -271,7 +271,11 @@ new_trace <- function(x, meta = NULL, use_columns = NULL, len = 6){
     meta_d <- vector(mode = "list", length = length(x))
     
     # Generate UID
-    idx <- gen_uid_pool(n = length(x), len = len, pool = NULL)
+    if(use_names){idx <- names(x)}
+    else{
+      idx <- gen_uid_pool(n = length(x), len = len, pool = NULL)
+    }
+    
     
     # Transform input x to RAW
     names(x) <- idx

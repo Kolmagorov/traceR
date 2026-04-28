@@ -205,11 +205,12 @@ init_log <- function(what = NULL, tmpl = c("LOG", "META")){
       
       nms <- names(lst)
       
-      if(is.null(nms)){stop("In helper: init_log() argument `lst` maus have named items")}
+      if(is.null(nms)){stop("In helper: init_log() argument `lst` mast have named items")}
       
-      if(any(duplicated(nms))){stop("In helper: init_log() argument `lst` must unique item names")}
+      if(any(duplicated(nms))){stop("In helper: init_log() argument `lst` must have unique item names")}
       
       up_fld <- setdiff(nms, names(what))
+      
       # Adding columns
       for(itm in up_fld){ what <<- what|> dplyr::mutate("{itm}" := NA)}
       
@@ -263,35 +264,5 @@ rehash_id <- function(a, b){
   return(out)
 }
 
-#' Construct Default field for meta data
-#' @param tmpl a string argument to select a template
-#' @param lst a list of fields and values to pass to the selected template, if NULL
-#' all fields will be filed with default values. 
-#' @details if `lst`  contains the same field as in template its default value 
-#' is going to be overwritten.
-#' @keywords internal
- meta_default <- function(tmpl = c("LOG", "META"), lst = NULL){
-   
-   tmpl <- match.arg(tmpl)
-   
-   out <- switch(tmpl,
-          META = tab_tmplate$META_tmpl,
-          LOG = tab_tmplate$LOG_tmpl)
-   
-   if(is.null(lst)){return(out)}
-   if(!is.list(lst)){stop("In helper: meta_default() lst must be a list")}
-   
-   fld <- names(lst)
-   
-   for(nms in fld){ 
-     
-     if(nms %in% names(out)){out[[nms]] <- lst[[nms]]}
-     else{
-         out <- out|>
-           dplyr::mutate("{nms}" := lst[[nms]])
-       }
-   }
-   return(out)
- }
 
 
