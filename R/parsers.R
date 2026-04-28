@@ -28,7 +28,7 @@ parse_empower <- function(fls, skip, sep){
                          , col.names = c("RT", "Response"))
   
   # Initialize Meta
-  if(skip == 0){ meta <- meta_default()}
+  if(skip == 0){ meta <- tab_tmplate$META_tmpl} # used to be meta_default()
   
   else{ meta <- utils::read.csv(file = fls
                          , header = TRUE
