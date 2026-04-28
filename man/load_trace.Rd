@@ -2,7 +2,7 @@
 % Please edit documentation in R/new_trace_proc.R
 \name{load_trace}
 \alias{load_trace}
-\title{LOREM IPSUM}
+\title{a Class constructor is not integrated yet}
 \usage{
 load_trace(path_dir = NULL, fls = NULL, pattern = NULL, uid_len = 6L)
 }

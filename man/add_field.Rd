@@ -10,8 +10,6 @@ add_field(x, new_field)
 \item{x}{an object of class tracer}
 
 \item{new_field}{a string, i.e. a name of the new field}
-
-\item{init}{a value to fill a new field with}
 }
 \value{
 object of type tracer with a new field added into the meta data

@@ -20,8 +20,12 @@ plt_gg(
 )
 }
 \arguments{
+\item{x}{object of class tracer}
+
 \item{what}{either numeric indexes or string of UID. If some Numeric indexes are 
 out of range, an error will be thrown. Unmatched UID's will be ignored with warning.}
+
+\item{stacked}{a logical, sets plotting mode to stacked or overlaid}
 
 \item{force_raw}{If TRUE will plot RAW data}
 
@@ -32,13 +36,13 @@ a table returning by trace_info.}
 
 \item{xlim, ylim}{numeric vectors defining limits for x and y axis respectively}
 
+\item{gr_col}{name of a veritable to be used to colorize groups}
+
 \item{breaks}{an integer controlling major breaks on the x-axis}
 
 \item{minor_breaks}{an integer controlling minor breaks on the x-axis}
 
 \item{expd}{expands plot beyond limits set on x-axis}
-
-\item{lst}{a list of data to plot, assumed to originate from a trace object}
 }
 \description{
 plots traces using ggplot2 graphics

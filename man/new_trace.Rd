@@ -4,15 +4,18 @@
 \alias{new_trace}
 \title{object constructor}
 \usage{
-new_trace(x, meta = NULL, use_column = NULL, len = 6)
+new_trace(x, meta = NULL, use_columns = NULL, use_names = FALSE, len = 6)
 }
 \arguments{
 \item{x}{a data.frame or a list of data.frames}
 
-\item{len}{s numeric that defines UID length}
+\item{meta}{meta data}
 
-\item{use_names}{if TRUE the names of list items wil be used to fill 
-SampleName fieled in the meta data table}
+\item{use_columns}{a vector of length 2}
+
+\item{use_names}{if TRUE than the names of  input list x will be used as ID's}
+
+\item{len}{s numeric that defines UID length}
 }
 \description{
 create an obect of type tracer
