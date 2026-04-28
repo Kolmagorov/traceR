@@ -1,6 +1,6 @@
 
 # Rbuildignore
-usethis::use_build_ignore(c("proc.R", "new_trace_proc.R"))
+usethis::use_build_ignore(c("proc.R", "meta_default.R"))
 
 # licensing
 usethis::use_mit_license()
@@ -28,7 +28,7 @@ tab_tmplate <- list(
                         FILE = NA,
                         FILE_NAME = NA) )
 
-usethis::use_data(fiel_desc, tab_tmplate
+usethis::use_data(field_desc, tab_tmplate
                   , internal = TRUE
                   , overwrite = TRUE)
 
@@ -47,7 +47,8 @@ IMPORTS <- c("utils"
              , "rlang"
              , "ggplot2"
              , "scales"
-             , "stats")
+             , "stats"
+             , "glue")
 
 
 purrr::walk(IMPORTS, usethis::use_package)
@@ -98,10 +99,10 @@ d <- merge_trace(df_a, df_a, keep_history = T)
 
 plot(df
      , ylim = NULL
-     , stacked = F
+     , stacked = T
      , facet_lab = "SampleName + Channel.Description"
      , gr_col = "ID"
-     , what = NULL)
+     , what = 1:2)
 
 dt <- data.frame(A = 1:50, B = cos(rnorm(50, mean = 9, sd = 2)))
 plot(dt, type = 'l')
@@ -135,18 +136,4 @@ devtools::load_all()
 df <-load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/A")
 df <-load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/HETERO")
 
-
-
-
-zad <- list()
-for(i in 1:9){
-  
-  if(i == 4){
-    next
-  }
-  
-  zad[[i]] <- i
-  
-}
-zad
 

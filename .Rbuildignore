@@ -3,4 +3,5 @@
 ^proc\.R$
 ^LICENSE\.md$
 ^README\.Rmd$
-^new_trace_proc\.R$
+^new_trace_proc_old\.R$
+^meta_default\.R$
