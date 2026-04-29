@@ -21,6 +21,10 @@ ptw alignment algorithm, with the lowest value in the traces.}
 
 \item{...}{an additional argument to to be passed 'ptw::ptw'.}
 }
+\value{
+an object of class tracer or a matrix or a list of processed data, 
+depending on the arguments return_mat and new_obj, the later overrides return_mat.
+}
 \description{
 Aligns traces to a reference provided
 }
