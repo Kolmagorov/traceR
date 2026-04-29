@@ -7,19 +7,31 @@ print.tracer <- function(x,...){
 
   sys <- names(x$META)
 
-  raw_qty <- table(x$LOG$SOURCE)|> data.frame()
-  names(raw_qty) <- c("SOURCE", "QTY")
-
-
+  raw_qty <- x$LOG|> 
+    dplyr::filter(.data$LOADED == TRUE)|>
+    dplyr::select(.data$SOURCE)|>
+    dplyr::summarise(QTY = dplyr::n(), .by = .data$SOURCE)
+    
   cat("Object of type tracer\n",
       "\nTotal number of traces: ", n_trace_raw, "\n",
       "Number of traces processed: ", n_trace_proc, "\n",
       "\nTrace Distribution by Group:\n", fill = T)
 
-  print(raw_qty, row.names = F, right = F)
+  print(raw_qty,...)
 
-  cat("\nLook up into the LOG table to see the load status of files")
+  cat("\nLook up into the LOG table to see file load status")
 
+}
+
+# Class Tracer length method
+#' @export
+length.tracer <- function(x){
+  len <- length(x$DATA$PROCESSED)
+  if(is.null(len)|is.na(len)){
+    return(length(x$DATA$RAW))
+  }
+  
+  return(len)
 }
 
 #' Gets trace info
@@ -202,6 +214,8 @@ tr_resample <- function(x, pts, new_obj = TRUE){
 #' otherwise - processed data. Also overrides 'return_mat'.
 #' @param return_mat if TRUE, instead of a list returns a matrix of aligned data.
 #' @param ... an additional argument to to be passed 'ptw::ptw'.
+#' @returns an object of class tracer or a matrix or a list of processed data, 
+#' depending on the arguments return_mat and new_obj, the later overrides return_mat.
 #' @export
 tr_align <- function(x
                      , new_obj = TRUE
@@ -214,47 +228,15 @@ tr_align <- function(x
 
   if(is.null(x$PROCESSED)){data_ <- "RAW"}
   else{data_ <- "PROCESSED"}
-
-  blw_pts <- suppressMessages(trace_info(x = x), classes = "message")|>
-    dplyr::select(.data$FILE, .data$dataPoints, .data$SOURCE)
-
-  incomp <- unique(blw_pts$dataPoints)
-
-  if(ref > nrow(blw_pts) | ref <= 0){
-    stop("Argument ref must be within the range 1 -", nrow(blw_pts))
+  
+  # validate number of point in each samples of the input object x
+  x <- data_point_validator(x)
+  
+ 
+  if(ref > length(x) | ref <= 0){
+    stop("Argument ref must be within the range 1 -", length(x$DATA$RAW))
   }
 
-  if(length(incomp) != 1){
-
-    cat("\f")
-    msg <- paste(length(incomp),  "out of", sum(x$LOG$LOADED == TRUE)
-                 , "samples have different data points")
-
-    message(msg)
-
-    ans <- readline(prompt = "Would you like resampling gets done (y/n)? ")
-
-    if(!grepl(ans, pattern = "[Y,y]")){
-
-      print(blw_pts)
-
-      stop("alignment has been stopped by user", call. = F)
-    }
-    pts <- readline(prompt = "Enter a disired number of resampling points (pts): ")
-
-    pts <- stringr::str_extract_all(pts,  pattern = "\\d") |>
-      unlist()|>
-      paste0(collapse = "")|>
-      as.numeric()
-
-    if(is.na(pts)){
-      stop("Number of resampling points must be a number not "
-                              , pts
-                              , call. = FALSE)}
-
-    x <- tr_resample(x = x, pts = pts, new_obj = TRUE)
-    data_ <- "PROCESSED"
-  }
 
   ref <- x$DATA[[data_]][[ref]][["Response"]]
 
@@ -262,18 +244,18 @@ tr_align <- function(x
   x$DATA[[data_]] <- lapply(x$DATA[[data_]], function(dt){
 
     algn <- ptw::ptw(ref = ref
-                                 , samp = dt[["Response"]]
-                                 , ...)
+                     , samp = dt[["Response"]]
+                     , ...)
 
     if(rm_na){
       algn$warped.sample[is.na(algn$warped.sample)] <- min(algn$warped.sample, na.rm = T)
-
     }
 
     dt[["Response"]] <- algn$warped.sample |> c()
     dt
   })
 
+  
   if(new_obj){
     
     x <- history_upd(x = x, event = "alignment")
@@ -292,7 +274,6 @@ tr_align <- function(x
   }
   else{ return(x$DATA$PROCESSED) }
 }
-
 
 # Base Line correction
 
@@ -442,73 +423,113 @@ plt_gg <- function(x
 #' Angular Similarity
 #' @description pair-wisw angular similarity
 #' @param x object of class tracer
+#' @param lab name of a meta data column whose values would be used as labels for the output distance 
+#' or similarity matrix
 #' @param pw a numeric, a weighing coefficient for signal intensities
 #' default is 0.
-trace_sim <- function(x
+#' @param force_raw if TRUE RAW data will be compared regardless of the previous 
+#'  processing steps taken
+#' @param metric a string indicating which similarity or distance metric to compute
+#' @param fun a string defining a function that will be used in getting re-weighting vector. 
+tr_compar <- function(x
                   , lab = NULL
                   , pw = 0
                   , force_raw = FALSE
+                  , metric = c("cosim", "cosdist", "angularsim", "angulardist")
                   , fun = c("max", "mean", "min")){
   
   if(methods::is(x) != "tracer"){ 
-    stop("\n x must be a an object of type tracer", call. = FALSE)}
+    stop("\n Argument x must be an object of type tracer", call. = FALSE)}
+  
+  # Validate number of data points
+  x <- data_point_validator(x)
   
   data_ <- "PROCESSED"
   
-  
+  # Select data for the comparison
   if(isFALSE(force_raw)){
     if(is.null(x$DATA$PROCESSED)){ data_ <- "RAW"}
   }else{ data_ <- "RAW" }
   
+  
   fun <- match.arg(fun)
+  metric <- match.arg(metric)
   
+  # Select a metric to compute
+  metric <- switch(metric,
+                   cosim = bquote(tr_cosine_sim(a, b, w)),
+                   cosdist = bquote(tr_cosine_dist(a, b, w)),
+                   angularsim = bquote(tr_angular_sim(a, b, w)),
+                   angulardist = bquote(tr_angular_dist(a, b, w))
+                   )
   
-  if(is.null(lab)){ item <- names(x$DATA[[data_]]) }
-  else{ item <- trace_info(x)[[lab]] }
+  # Define labels for the similarity/distance matrix
+  if(is.null(lab) ){ 
+    item <- names(x$DATA[[data_]])
+    lab <- item }
+  else if(lab == "ID"){
+    item <- names(x$DATA[[data_]])
+    lab <- item }
+  else{
+    dt <- trace_info(x)|> dplyr::select(.data$ID, .data[[lab]])
+    item <- dt$ID
+    lab <- dt[[lab]]
+    rm(dt)
+    }
   
   if(any(duplicated(item))){
     stop("Argument lab has non-unique items", call. = FALSE)
     }
   
+  # init containers for output and weights, i.e. importance
   out <- NULL
   wgt <- NULL
   
+  # iterate over samples
   for(i in seq_along(item)){
     
-    a <- x$DATA[[ item[i] ]][["Response"]]
+    a <- x$DATA[[ data_ ]][[ item[i] ]][["Response"]]
     
-    for(j in 1:seq_along(item)){
+    for(j in seq_along(item)){
       
-      b <- x$DATA[[ item[j] ]][["Response"]]
+      b <- x$DATA[[ data_ ]][[ item[j] ]][["Response"]]
       
       if(pw == 0){w <- 1}
       else{
-        mat <- cbind(a,b)
-        trans <- min(mat)
         
-        # This is just a abs(a-b) also add full peak weight 
-        w <- (apply(mat - trans, 1, get(fun)))**pw 
+        w <- cbind(a, b) |> apply(2, function(x) x - min(x)) |> 
+          apply(1, get(fun))
+        w <- w**pw
       }
       
-      alpha <- round(sum(a*b*w)/sqrt(sum(w*a**2))/sqrt(sum(w*b**2))
-                     , digits = 6)
-      
-      out <- c(out, 1-2*acos(alpha)/pi)
-      
+      out <- c(out, round(eval(metric), digits = 6))
+
       if((j-i) > 0){
         
         wgt <- data.frame(W = w/max(w)
-                          , Pair = paste(item[i],"vs", item[j], sep = "_")
-                          , RT = x$DATA[[data_]][[item[i]]][["RT"]]
-                          , Response = x$DATA[[data_]][[item[i]]][["Response"]] 
-        ) |>
+                          , Pair = paste(lab[i],"vs", lab[j], sep = "_")
+                          , x$DATA[[data_]][[ item[i] ]]
+                          ) |>
           rbind(wgt)
       }
     }
   }
-  
+  # OUTPUT
   list(SIM = matrix(data = out
                     , nrow = length(item)
-                    , dimnames = list(item, item))
+                    , dimnames = list(lab, lab))
        , WM = wgt)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -12,7 +12,7 @@
 set_field_value <- function(x
                             , what
                             , record
-                            , field = c("SampleName", "SRC", "Comments")){
+                            , field = c("SampleName", "SOURCE", "Comments")){
   
   field <- match.arg(field)
   

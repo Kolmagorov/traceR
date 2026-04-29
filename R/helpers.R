@@ -264,5 +264,92 @@ rehash_id <- function(a, b){
   return(out)
 }
 
+#' Computes cosine similarity between two vectors
+#' @keywords internal
+tr_cosine_sim <- function(a, b, w = 1){
+  
+  sum(a*b*w**2)/sqrt(sum((w*a)**2)*sum((w*b)**2))
+  
+}
+
+#' Computes cosine distance between two vectors
+#' @keywords internal
+tr_cosine_dist <- function(a, b, w = 1){
+  
+  1 - tr_cosine_sim(a, b, w)
+}
+
+#' Computes angular distance between two vectors
+#' @keywords internal
+tr_angular_dist <- function(a, b, w = 1){
+  
+  ad <- tr_cosine_sim(a, b, w) |> acos()
+  
+  return(2*ad/pi)
+}
+
+#' Computes angular similarity between two vectors
+#'@keywords internal
+tr_angular_sim <- function(a, b, w = 1){
+  
+  1 - tr_angular_dist(a, b, w)
+}
+
+
+#' Prompt for re-sampling
+#' depends on `trace_info()`, `tr_resample()`
+#' @keywords internal
+data_point_validator <- function(x){
+  
+  # get meta data info about data points
+  blw_pts <- suppressMessages(trace_info(x = x), classes = "message")|>
+    dplyr::select(.data$FILE, .data$dataPoints, .data$SOURCE)
+  
+  # checks if all samples have the same number of data points
+  incomp <- unique(blw_pts$dataPoints)
+  
+  if(length(incomp) != 1){
+    
+    cat("\f")
+    msg <- paste(length(incomp),  "out of", sum(x$LOG$LOADED == TRUE)
+                 , "samples have different data points")
+    
+    message(msg)
+    
+    ans <- readline(prompt = "Would you like resampling gets done (y/n)? ")
+    
+    if(!grepl(ans, pattern = "[Y,y]")){
+      
+      print(blw_pts)
+      
+      stop("alignment has been stopped by user", call. = F)
+    }
+    pts <- readline(prompt = "Enter a disired number of resampling points (pts): ")
+    
+    pts <- stringr::str_extract_all(pts,  pattern = "\\d") |>
+      unlist()|>
+      paste0(collapse = "")|>
+      as.numeric()
+    
+    if(is.na(pts)){
+      stop("Number of resampling points must be a number not "
+           , pts
+           , call. = FALSE)}
+    
+    x <- tr_resample(x = x, pts = pts, new_obj = TRUE)
+    data_ <- "PROCESSED"
+  }
+  return(x)
+}
+
+
+
+
+
+
+
+
+
+
 
 

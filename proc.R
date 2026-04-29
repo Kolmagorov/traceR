@@ -59,31 +59,8 @@ devtools::document()
 
 devtools::load_all()
 
-# TEST AREA
-df <- load_trace(path_dir = "D:/RWD/Angular_Sim_Exp/GNR_060/TRACES")
 
-df <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/GNR_045_COSIM/TRACES")
-
-df$LOG
-trace_sim(df)
-
-devtools::load_all()
-zad <- tr_crop(df, crop_to = c(5, 120), new_obj = T) |>
-  tr_resample(pts = 2000, new_obj = T) |> 
-  tr_rescale(type = "minmax", new_obj = T)|>
-  del_trace(what = c(1,3))
-trace_info(zad)
-zad$LOG
-
-devtools::load_all()
-zad <- del_trace(x = df, what = c(1,3,6,8:14))
-
-trace_info(zad)
-
-devtools::load_all()
-d <-merge_trace(a = zad, b = df, active_re = F)
-
-# TEST MERGE ==========================================
+# TEST AREA ==========================================
 devtools::load_all()
 df <-load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/A")|>
   tr_crop(crop_to = c(3, 110) ,new_obj = T) |> 
@@ -133,7 +110,23 @@ trace_info(foo)
 foo$LOG
 
 devtools::load_all()
-df <-load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/A")
+df <-load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/A") |> 
+  tr_crop(crop_to = c(3, 110) ,new_obj = T) |> 
+  tr_resample(pts = 2000, new_obj = T) |> 
+  tr_rescale(type = "minmax", new_obj = T)
+
 df <-load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/HETERO")
+devtools::load_all()
+zad <- tr_compar(df, metric = "angulardist", lab = "FILE", pw = 0)
+zad$SIM
+
+
+
+
+
+
+
+
+
 
 
