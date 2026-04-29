@@ -4,7 +4,7 @@
 \alias{set_field_value}
 \title{Set a new records to a selected field of the meta data}
 \usage{
-set_field_value(x, what, record, field = c("SampleName", "SRC", "Comments"))
+set_field_value(x, what, record, field = c("SampleName", "SOURCE", "Comments"))
 }
 \arguments{
 \item{x}{an object of class tracer}

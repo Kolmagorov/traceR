@@ -17,7 +17,7 @@ field_desc <- read.csv("//dc3/OAM/Сотрудники/Podkolzin_IV/PROJECTS_ALL
 tab_tmplate <- list(
   META_tmpl = data.frame(ID = NA,
                          SampleName = NA,
-                         dateAcquired = NA,
+                         dateAcquired = as.POSIXlt(NA),
                          SOURCE = "Undefined",
                          FILE = NA,
                          Comments = NA),
@@ -120,13 +120,15 @@ devtools::load_all()
 zad <- tr_compar(df, metric = "angulardist", lab = "FILE", pw = 0)
 zad$SIM
 
+foo <- readRDS(file = "C:/RWD/zad.RDS")
 
 
 
+foo <- load_trace(path_dir ="C:/RWD/GNR-127/Chromeleon")
 
-
-
-
+devtools::load_all()
+df <-load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/A")
+trace_info(df)
 
 
 

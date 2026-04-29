@@ -203,6 +203,7 @@ init_log <- function(what = NULL, tmpl = c("LOG", "META")){
     
     else if(is.list(lst)){
       
+      
       nms <- names(lst)
       
       if(is.null(nms)){stop("In helper: init_log() argument `lst` mast have named items")}

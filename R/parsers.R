@@ -37,6 +37,7 @@ parse_empower <- function(fls, skip, sep){
     dplyr::mutate(dateAcquired = time_scan(.data$Date.Acquired))|>
     dplyr::select(!.data$Date.Acquired)}
   
+  
   # Add file name
   meta <- meta |> dplyr::mutate(FILE = basename(fls))
   
