@@ -304,6 +304,8 @@ new_trace <- function(x, meta = NULL, use_columns = NULL, use_names = FALSE,len 
         
       }else(meta_tmp <- meta)
       
+      # meta_tmp contains POSIX
+      
       # Overrides input x with RAW data
       x[[i]] <- x[[i]][use_columns]
       names(x[[i]]) <- c("RT", "Response") # DO NOT CHANGE THAT bc all trace methods are build on IT!
@@ -321,6 +323,8 @@ new_trace <- function(x, meta = NULL, use_columns = NULL, use_names = FALSE,len 
       meta_d[[i]] <- meta_rec(meta_tmp)
    }
   }
+  
+  
   
   # Compile and create an object 
   obj <- structure(
