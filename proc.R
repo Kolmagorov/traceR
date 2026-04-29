@@ -128,7 +128,7 @@ foo <- load_trace(path_dir ="C:/RWD/GNR-127/Chromeleon")
 
 devtools::load_all()
 df <-load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/A")
-trace_info(df)
+trace_info(foo)
 
 
 
