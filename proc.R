@@ -110,12 +110,25 @@ trace_info(foo)
 foo$LOG
 
 devtools::load_all()
-df <-load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/A") |> 
-  tr_crop(crop_to = c(3, 110) ,new_obj = T) |> 
-  tr_resample(pts = 2000, new_obj = T) |> 
+df <-load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/A") #|> 
+  tr_crop(crop_to = c(3, 110) ,new_obj = T) #|> 
+  #tr_resample(pts = 2000, new_obj = T) |> 
   tr_rescale(type = "minmax", new_obj = T)
 
-df <-load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/HETERO")
+
+foo <- load_trace(path_dir ="C:/RWD/GNR-127/Chromeleon")
+
+devtools::load_all()
+df <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/A")
+trace_info(foo)
+
+
+devtools::load_all()
+df <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/HETERO")|>
+  tr_crop(crop_to = c(2, 120))|>
+  tr_rescale(type = "minmax")#|>
+  plt_gg(facet_lab = "SampleName")
+
 devtools::load_all()
 zad <- tr_compar(df, metric = "angulardist", lab = "FILE", pw = 0)
 zad$SIM
@@ -124,11 +137,20 @@ foo <- readRDS(file = "C:/RWD/zad.RDS")
 
 
 
-foo <- load_trace(path_dir ="C:/RWD/GNR-127/Chromeleon")
 
-devtools::load_all()
-df <-load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/A")
-trace_info(foo)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

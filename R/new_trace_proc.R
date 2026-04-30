@@ -82,14 +82,22 @@ load_trace <- function(path_dir = NULL
 
   dt_log$FILE_NAME <- basename(dt_log$FILE)
   
+  #meta |> str()|> print()
+  #raw_data |> str()|> print()
+  #dt_log |> str()|> print()
+  
+  
+  
   # Call a constructor and Create trace object
   obj <- new_trace(x = raw_data
                    , use_names = TRUE
                    , meta = meta
                    , use_columns = 1:2
-                   , len = 6)
+                   , len = 6L)
   
-  obj$LOG <- tibble::as_tibble(dt_log)
+  #obj$LOG <- tibble::as_tibble(dt_log)
+  
+  #obj |> names()|> print()
 
   return(obj)
 }

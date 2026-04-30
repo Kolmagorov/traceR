@@ -83,14 +83,18 @@ tr_rescale <- function(x, type = "minmax", new_obj = TRUE, ...){
 
   if(!grepl(type, pattern = "minmax|maxnorm")){
     stop("Scaling type must be either minmax or maxnorm")}
+  
+  is.null(x$PROCESSED)|> print()
 
-  if(is.null(x$HISTORY)){data_ <- "RAW"}
+  if(is.null(x$PROCESSED)){data_ <- "RAW"}
   else{data_ <- "PROCESSED"}
 
   out <- switch (type,
                  minmax = lapply(x$DATA[[data_]], function(x) minmax_scale(x, ...)),
                  maxnorm = lapply(x$DATA[[data_]], function(x){ maxnorm_scale(x, ...) })
                  )
+  
+  print(data_)
 
   if(new_obj){
 
@@ -133,6 +137,8 @@ tr_crop <- function(x, crop_to, new_obj = TRUE){
 
     dplyr::filter(.data = dt, .data$RT >= crop_to[1] & .data$RT <= crop_to[2])
   })
+  
+  print(data_)
 
   if(new_obj){
 
@@ -346,7 +352,6 @@ plt_gg <- function(x
     if(is.null(x$DATA$PROCESSED)){ data_ <- "RAW"}
   }else{ data_ <- "RAW" }
   
-  
   # VALIDATOR
   what <- what_validator(lst = x$DATA[[data_]], what = what)
   
@@ -427,6 +432,7 @@ plt_gg <- function(x
 #' or similarity matrix
 #' @param pw a numeric, a weighing coefficient for signal intensities
 #' default is 0.
+#' @param neg logical, if TRUE allows negative peaks, default is FALSE
 #' @param force_raw if TRUE RAW data will be compared regardless of the previous 
 #'  processing steps taken
 #' @param metric a string indicating which similarity or distance metric to compute
@@ -434,6 +440,7 @@ plt_gg <- function(x
 tr_compar <- function(x
                   , lab = NULL
                   , pw = 0
+                  , neg = FALSE
                   , force_raw = FALSE
                   , metric = c("cosim", "cosdist", "angularsim", "angulardist")
                   , fun = c("max", "mean", "min")){
@@ -460,7 +467,7 @@ tr_compar <- function(x
                    cosim = bquote(tr_cosine_sim(a, b, w)),
                    cosdist = bquote(tr_cosine_dist(a, b, w)),
                    angularsim = bquote(tr_angular_sim(a, b, w)),
-                   angulardist = bquote(tr_angular_dist(a, b, w))
+                   angulardist = bquote(tr_angular_dist(a, b, w, neg))
                    )
   
   # Define labels for the similarity/distance matrix
@@ -499,7 +506,7 @@ tr_compar <- function(x
         
         w <- cbind(a, b) |> apply(2, function(x) x - min(x)) |> 
           apply(1, get(fun))
-        w <- w**pw
+        w <- w**(2*pw)
       }
       
       out <- c(out, round(eval(metric), digits = 6))

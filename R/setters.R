@@ -247,7 +247,11 @@ get_meta_fields <- function(x = NULL){
 #' an object with multiple traces, a list of data.frames must be provided.
 #' 
 #' @export
-new_trace <- function(x, meta = NULL, use_columns = NULL, use_names = FALSE,len = 6){
+new_trace <- function(x
+                      , meta = NULL
+                      , use_columns = NULL
+                      , use_names = FALSE
+                      , len = 6L){
   
   # Validate use_columns
   if(is.null(use_columns)){

@@ -269,7 +269,7 @@ rehash_id <- function(a, b){
 #' @keywords internal
 tr_cosine_sim <- function(a, b, w = 1){
   
-  sum(a*b*w**2)/sqrt(sum((w*a)**2)*sum((w*b)**2))
+  sum(a*b*w)/sqrt( sum(w*a*a)*sum(w*b*b) )
   
 }
 
@@ -282,11 +282,14 @@ tr_cosine_dist <- function(a, b, w = 1){
 
 #' Computes angular distance between two vectors
 #' @keywords internal
-tr_angular_dist <- function(a, b, w = 1){
+tr_angular_dist <- function(a, b, w = 1, neg = FALSE){
   
+  foc <- 2
+  if(neg){foc <- 1}
+
   ad <- tr_cosine_sim(a, b, w) |> acos()
   
-  return(2*ad/pi)
+  return(foc*ad/pi)
 }
 
 #' Computes angular similarity between two vectors
