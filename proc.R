@@ -136,13 +136,31 @@ zad$SIM
 foo <- readRDS(file = "C:/RWD/zad.RDS")
 
 
+df <- load_trace(path_dir = "D:/2026/GNR-122/ARC/GNR-122/TRACES")
+
+df <- tr_crop(x = df, crop_to = c(2, 32))
+df <- tr_rescale(x = df, type = "minmax")
 
 
 
 
+df <- add_field(x = df, new_field = "EQP")
+
+df$META <- lapply(df$META, function(dt){
+  
+  dt|>
+    dplyr::mutate(EQP = dplyr::case_when(
+      grepl(FILE, pattern = "^_GNR060") ~ "Arc Premier",
+      .default = "Alliance")
+      )
+})
 
 
-
+plt_gg(x = df
+       , facet_lab = "EQP + SampleName"
+       , ylim = c(-0.05, 0.7)
+       , stacked = F
+       , what = c(3,4))
 
 
 

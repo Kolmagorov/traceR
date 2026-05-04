@@ -388,9 +388,18 @@ plt_gg <- function(x
   plt <- 
     ggplot2::ggplot(data = df) +
     ggplot2::geom_line(ggplot2::aes(x = .data$RT, y = .data$Response, colour = .data[[gr_col]])) +
-    ggplot2::ylim(ylim) + 
+    #ggplot2::ylim(ylim) + 
     ggplot2::guides(x = ggplot2::guide_axis(minor.ticks = TRUE
                                             , cap = "both")) +
+    ggplot2::coord_cartesian(
+      xlim = xlim,
+      ylim = ylim,
+      expand = TRUE,
+      default = FALSE,
+      clip = "on",
+      reverse = "none",
+      ratio = NULL
+    ) +
     ggplot2::scale_x_continuous(limits = xlim
                                 , expand = ggplot2::expansion(add = expd)
                                 , breaks = seq(xlim[1], xlim[2], breaks)
