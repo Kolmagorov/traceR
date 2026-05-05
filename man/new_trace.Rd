@@ -4,7 +4,7 @@
 \alias{new_trace}
 \title{object constructor}
 \usage{
-new_trace(x, meta = NULL, use_columns = NULL, use_names = FALSE, len = 6)
+new_trace(x, meta = NULL, use_columns = NULL, use_names = FALSE, len = 6L)
 }
 \arguments{
 \item{x}{a data.frame or a list of data.frames}

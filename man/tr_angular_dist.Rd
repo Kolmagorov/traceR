@@ -4,7 +4,7 @@
 \alias{tr_angular_dist}
 \title{Computes angular distance between two vectors}
 \usage{
-tr_angular_dist(a, b, w = 1)
+tr_angular_dist(a, b, w = 1, neg = FALSE)
 }
 \description{
 Computes angular distance between two vectors
