@@ -5,3 +5,4 @@
 ^README\.Rmd$
 ^new_trace_proc_old\.R$
 ^meta_default\.R$
+^methods\.R$
