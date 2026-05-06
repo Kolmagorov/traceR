@@ -203,10 +203,14 @@ tr_align <- function(x
   
  
   if(ref > length(x) | ref <= 0){
-    stop("Argument ref must be within the range 1 -", length(x$DATA$RAW))
+    stop("Argument ref must be within the range 1 -", length(x$RAW))
   }
   
-  message("Aligning against ", names(x$META)[ref])
+  reference <- x$META[[ref]]|>
+    dplyr::select(.data$ID, .data$SampleName)
+  
+  message("Aligning against \n")
+  print(reference)
 
 
   ref <- x[[data_]][[ref]][["Response"]]

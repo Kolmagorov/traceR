@@ -71,8 +71,16 @@ devtools::load_all()
 devtools::load_all()
 df <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/GNR_060/TRACES")|>
   tr_crop(crop_to = c(5, 110))|>
-  tr_resample(pts = 6000)|>
-  tr_rescale(type = "minmax")
+  tr_resample(pts = 800)|>
+  tr_rescale(type = "minmax")|>
+  add_field(new_field = list(Group = "Alteplase"))
+
+df$META <- lapply(df$META, function(dt){
+  
+  dt|> dplyr::mutate(Group = dplyr::if_else(
+    grepl(SampleName, pattern = "060"), "Tenekteplase", "Alteplase"))
+})
+
 
 idx <- trace_info(df)|>
   dplyr::filter(grepl(Channel.Description, pattern = "215"))|>
@@ -82,11 +90,18 @@ idx <- trace_info(df)|>
 df <- copy_trace(df, what = idx)|>
   tr_align(ref = 3)
   
-tr_compar(x = df, metric = "cosdist", lab = "SampleName")[[1]]|>
+tr_compar(x = df
+          , metric = "cosdist"
+          , pw = 0.55
+          , lab = "SampleName")[[1]]|>
   as.dist()|>
   hclust(method = "ward.D2")|>
   plot()
 
 
-plt_gg(df, facet_lab = "SampleName")
+plt_gg(df
+       , facet_lab = "SampleName"
+       , force_raw = F
+       , gr_col = "Group"
+       )
 

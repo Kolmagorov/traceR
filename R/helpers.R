@@ -244,9 +244,9 @@ rehash_id <- function(a, b){
   out <- purrr::map2(list(a = a, b = b), list(new_a, new_b), function(obj, x_name){
     
     names(obj$META) <- x_name
-    names(obj$DATA$RAW) <- x_name
+    names(obj$RAW) <- x_name
     
-    if(!is.null(obj$DATA$PROCESSED)){ names(obj$DATA$PROCESSED) <- x_name } 
+    if(!is.null(obj$PROCESSED)){ names(obj$PROCESSED) <- x_name } 
     
     obj$LOG <- obj$LOG |> 
       dplyr::rename(ID_old = .data$ID) |> 
