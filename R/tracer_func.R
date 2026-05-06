@@ -13,20 +13,20 @@ trace_info <- function(x, force_raw = FALSE, ...){
   if(methods::is(x) != "tracer"){ 
     stop("\n x must be a an object of type tracer", call. = FALSE)}
 
-  d_type <- "PROCESSED"
+  data_ <- "PROCESSED"
 
   if(isFALSE(force_raw)){
-    if(is.null(x$DATA$PROCESSED)){ d_type <- "RAW"}
-  }else{ d_type <- "RAW" }
+    if(is.null(x$PROCESSED)){ data_ <- "RAW"}
+  }else{ data_ <- "RAW" }
   
   hdr <- lapply(x$META, names) |> purrr::reduce(intersect)
 
-  message("Returning info for ", d_type, " data")
+  message("Returning info for ", data_, " data")
 
   common <- lapply(x$META, function(dt) dt[hdr] )|>
     do.call("rbind", args =_)
   
-  common <- expand_meta_data(lst = x$DATA[[d_type]],...)|>
+  common <- expand_meta_data(lst = x[[data_]],...)|>
     merge(y = common, by = "ID")
   
   return(common)
@@ -49,21 +49,18 @@ tr_rescale <- function(x, type = "minmax", new_obj = TRUE, ...){
   if(!grepl(type, pattern = "minmax|maxnorm")){
     stop("Scaling type must be either minmax or maxnorm")}
   
-  is.null(x$PROCESSED)|> print()
 
   if(is.null(x$PROCESSED)){data_ <- "RAW"}
   else{data_ <- "PROCESSED"}
 
   out <- switch (type,
-                 minmax = lapply(x$DATA[[data_]], function(x) minmax_scale(x, ...)),
-                 maxnorm = lapply(x$DATA[[data_]], function(x){ maxnorm_scale(x, ...) })
+                 minmax = lapply(x[[data_]], function(x) minmax_scale(x, ...)),
+                 maxnorm = lapply(x[[data_]], function(x){ maxnorm_scale(x, ...) })
                  )
   
-  print(data_)
-
   if(new_obj){
 
-    x$DATA$PROCESSED <- out
+    x$PROCESSED <- out
     x <- history_upd(x = x, event = "re-scaled")
     return(x)
 
@@ -91,11 +88,12 @@ tr_crop <- function(x, crop_to, new_obj = TRUE){
   if(length(crop_to) == 2 & crop_to[1] > crop_to[2]){
     stop("The lower bound of the crooping segment is greater than th Upper one\n")
   }
-
+  
+  
   if(is.null(x$PROCESSED)){data_ <- "RAW"}
   else{data_ <- "PROCESSED"}
-
-  out <- lapply(x$DATA[[data_]], function(dt){
+  
+  out <- lapply(x[[data_]], function(dt){
 
     if(crop_to[1] <= min(dt$RT)){ crop_to[1] <- min(dt$RT) }
     if(crop_to[2] >= max(dt$RT)){ crop_to[2] <- max(dt$RT) }
@@ -105,9 +103,11 @@ tr_crop <- function(x, crop_to, new_obj = TRUE){
 
   if(new_obj){
 
-    x$DATA$PROCESSED <- out
+    x$PROCESSED <- out
     x <- history_upd(x = x, event = "cropped")
+    
     return(x)
+    
 
   }else{ return(out) }
 
@@ -125,7 +125,7 @@ tr_resample <- function(x, pts, new_obj = TRUE){
 
   if(methods::is(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
 
-  if(is.null(x$DATA$PROCESSED)){data_ <- "RAW"}
+  if(is.null(x$PROCESSED)){data_ <- "RAW"}
   else{data_ <- "PROCESSED"}
   
   blw_pts <- suppressMessages(trace_info(x = x), classes = "message")|>
@@ -149,7 +149,7 @@ tr_resample <- function(x, pts, new_obj = TRUE){
     }
   }
 
-  out <- lapply(x$DATA[[data_]], function(dt){
+  out <- lapply(x[[data_]], function(dt){
 
     new_RT <- seq(min(dt[["RT"]]), max(dt[["RT"]]), length.out = pts)
 
@@ -165,11 +165,11 @@ tr_resample <- function(x, pts, new_obj = TRUE){
 
   if(new_obj){
     
-    x$DATA$PROCESSED <- out
+    x$PROCESSED <- out
     x <- history_upd(x = x, event = "re-sampled")
     return(x) }
   
-  else{ return(out) }
+  else{return(out) }
 
 }
 
@@ -205,12 +205,14 @@ tr_align <- function(x
   if(ref > length(x) | ref <= 0){
     stop("Argument ref must be within the range 1 -", length(x$DATA$RAW))
   }
+  
+  message("Aligning against ", names(x$META)[ref])
 
 
-  ref <- x$DATA[[data_]][[ref]][["Response"]]
+  ref <- x[[data_]][[ref]][["Response"]]
 
   # Aligning and updating PROCESSED DATA
-  x$DATA[[data_]] <- lapply(x$DATA[[data_]], function(dt){
+  x[[data_]] <- lapply(x[[data_]], function(dt){
 
     algn <- ptw::ptw(ref = ref
                      , samp = dt[["Response"]]
@@ -232,16 +234,16 @@ tr_align <- function(x
 
   else if(return_mat){
 
-    mat <- x$DATA$PROCESSED |>
+    mat <- x$PROCESSED |>
 
       lapply(function(r){
         r$Response
     }) |>
       do.call("rbind", args=_)
 
-    return(list(Response = mat, RT = x$DATA$PROCESSED[[1]][["RT"]]))
+    return(list(Response = mat, RT = x$PROCESSED[[1]][["RT"]]))
   }
-  else{ return(x$DATA$PROCESSED) }
+  else{ return(x$PROCESSED) }
 }
 
 # Base Line correction
@@ -286,14 +288,14 @@ plt_gg <- function(x
   data_ <- "PROCESSED"
   
   if(isFALSE(force_raw)){
-    if(is.null(x$DATA$PROCESSED)){ data_ <- "RAW"}
+    if(is.null(x$PROCESSED)){ data_ <- "RAW"}
   }else{ data_ <- "RAW" }
   
   # VALIDATOR
-  what <- what_validator(lst = x$DATA[[data_]], what = what)
+  what <- what_validator(lst = x[[data_]], what = what)
   
   # Create a table to plot the WHAT is MISSING
-  df <- x$DATA[[data_]][what] |> #[what]
+  df <- x[[data_]][what] |> #[what]
     do.call("rbind", args=_)
   
   df$ID <- row.names(df)|> gsub(pattern = "\\..*", replacement ="")
@@ -304,7 +306,7 @@ plt_gg <- function(x
   
   if(is.null(xlim)){
     
-    tr_lims <- expand_meta_data(lst = x$DATA[[data_]][what])|> # [what]
+    tr_lims <- expand_meta_data(lst = x[[data_]][what])|> # [what]
       dplyr::select(.data$minSig, .data$maxSig, .data$minRT, .data$maxRT)
     
     # SET RT limits
@@ -314,7 +316,7 @@ plt_gg <- function(x
   if(is.null(ylim)){
     
     if(!exists("tr_lims")){
-      tr_lims <- expand_meta_data(lst = x$DATA[[data_]][what])|> # [what]
+      tr_lims <- expand_meta_data(lst = x[[data_]][what])|> # [what]
         dplyr::select(.data$minSig, .data$maxSig)
     }
     
@@ -401,7 +403,7 @@ tr_compar <- function(x
   
   # Select data for the comparison
   if(isFALSE(force_raw)){
-    if(is.null(x$DATA$PROCESSED)){ data_ <- "RAW"}
+    if(is.null(x$PROCESSED)){ data_ <- "RAW"}
   }else{ data_ <- "RAW" }
   
   
@@ -418,10 +420,10 @@ tr_compar <- function(x
   
   # Define labels for the similarity/distance matrix
   if(is.null(lab) ){ 
-    item <- names(x$DATA[[data_]])
+    item <- names(x[[data_]])
     lab <- item }
   else if(lab == "ID"){
-    item <- names(x$DATA[[data_]])
+    item <- names(x[[data_]])
     lab <- item }
   else{
     dt <- trace_info(x)|> dplyr::select(.data$ID, .data[[lab]])
@@ -441,11 +443,11 @@ tr_compar <- function(x
   # iterate over samples
   for(i in seq_along(item)){
     
-    a <- x$DATA[[ data_ ]][[ item[i] ]][["Response"]]
+    a <- x[[ data_ ]][[ item[i] ]][["Response"]]
     
     for(j in seq_along(item)){
       
-      b <- x$DATA[[ data_ ]][[ item[j] ]][["Response"]]
+      b <- x[[ data_ ]][[ item[j] ]][["Response"]]
       
       if(pw == 0){w <- 1}
       else{
@@ -461,7 +463,7 @@ tr_compar <- function(x
         
         wgt <- data.frame(W = w/max(w)
                           , Pair = paste(lab[i],"vs", lab[j], sep = "_")
-                          , x$DATA[[data_]][[ item[i] ]]
+                          , x[[data_]][[ item[i] ]]
                           ) |>
           rbind(wgt)
       }

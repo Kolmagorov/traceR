@@ -88,7 +88,7 @@ add_field <- function(x, new_field){
   return(x)
 }
 
-#' Delete an item field
+#' Delete an item
 #' @description delete selected traces from the trace object
 #' @param x an object of class tracer
 #' @param what either numeric indexes or a vector string of UID. 
@@ -104,10 +104,10 @@ del_trace <- function(x, what){
   
   what <- what_validator(x$META, what = what)
   
-  if(is.null(x$HISTORY)){ x$DATA$RAW[what] <- NULL }
+  if(is.null(x$PROCESSED)){ x$RAW[what] <- NULL }
   else{
-    x$DATA$RAW[what] <- NULL
-    x$DATA$PROCESSED[what] <- NULL
+    x$RAW[what] <- NULL
+    x$PROCESSED[what] <- NULL
     }
 
   x$META[what] <- NULL
@@ -116,6 +116,39 @@ del_trace <- function(x, what){
   
   x <- history_upd(x = x, event = "item('s) deleted")
 
+  return(x)
+}
+
+#' Copy an item of tracer object
+#' @description copy selected traces from the tracer object
+#' @param x an object of class tracer
+#' @param what either numeric indexes or a vector string of UID. 
+#' If some numeric indexes out of range an error will be thrown. 
+#' All Unmatched UID's will be ignored with warning.
+#' @returns object of type tracer with selected traces.
+#' @export
+copy_trace <- function(x, what){
+  
+  if(methods::is(x) != "tracer"){ 
+    stop("\n x must be a an object of type tracer", call. = FALSE)
+  }
+  
+  what <- what_validator(x$META, what = what)
+  
+  what <- setdiff(names(x$META), what)
+ 
+  if(is.null(x$PROCESSED)){ x$RAW[what] <- NULL }
+  else{
+    x$RAW[what] <- NULL
+    x$PROCESSED[what] <- NULL
+  }
+  
+  x$META[what] <- NULL
+  x$LOG <- x$LOG |>
+    dplyr::filter(!(.data$ID %in% what))
+  
+  x <- history_upd(x = x, event = "item('s) copied")
+  
   return(x)
 }
 
@@ -194,11 +227,11 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
   
   # APPEND content of the object b to the object a
   a$META <- append(a$META, b$META[what])
-  a$DATA$RAW <- append(a$DATA$RAW, b$DATA$RAW[what])
+  a$RAW <- append(a$RAW, b$RAW[what])
   
-  if(any(!is.null(a$DATA$PROCESSED), !is.null(b$DATA$PROCESSED))){
+  if(any(!is.null(a$PROCESSED), !is.null(b$PROCESSED))){
     
-    a$DATA$PROCESSED <- append(a$DATA$PROCESSED, b$DATA$PROCESSED[what])
+    a$PROCESSED <- append(a$PROCESSED, b$PROCESSED[what])
     
   }
   # Combine LOG data
@@ -333,7 +366,8 @@ new_trace <- function(x
   # Compile and create an object 
   obj <- structure(
     
-    list( DATA = list(RAW = x, PROCESSED = NULL),
+    list( RAW = x,
+          PROCESSED = NULL,
           LOG = tibble::as_tibble(dt_log),
           HISTORY = data.frame(type = "created"
                                , proc_time = format(Sys.time(), "%d-%b-%Y %H:%M:%OS3")),
