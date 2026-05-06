@@ -3,8 +3,8 @@
 #' @export
 print.tracer <- function(x,...){
   
-  n_trace_raw <- length(x$DATA$RAW)
-  n_trace_proc <- length(x$DATA$PROCESSED)
+  n_trace_raw <- length(x$RAW)
+  n_trace_proc <- length(x$PROCESSED)
   
   sys <- names(x$META)
   
@@ -28,9 +28,9 @@ print.tracer <- function(x,...){
 # Class Tracer length method
 #' @export
 length.tracer <- function(x){
-  len <- length(x$DATA$PROCESSED)
+  len <- length(x$PROCESSED)
   if(is.null(len)|is.na(len)){
-    return(length(x$DATA$RAW))
+    return(length(x$RAW))
   }
   
   return(len)
