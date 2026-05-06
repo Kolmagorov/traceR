@@ -2,7 +2,8 @@
 # Rbuildignore
 usethis::use_build_ignore(c("proc.R"
                             , "meta_default.R"
-                            , "methods.R"))
+                            , "methods.R"
+                            , "angular_proc.R"))
 
 # licensing
 usethis::use_mit_license()

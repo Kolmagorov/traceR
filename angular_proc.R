@@ -30,26 +30,24 @@ plt_gg(df
 )
 
 
-compar <- tr_compar(x = df
+compar <- tr_compar(x = b
                     , metric = "cosdist"
                     , pw = 0.55
                     , lab = "SampleName")
 hc <- compar$SIM |>
   as.dist()|>
-  hclust(method = "complete")
+  hclust(method = "ward.D2")
 
-par(mar=c(6,3,3,2))
+par(mar=c(2,2,3,6))
 
-COLS <- c("red", "blue","purple")
+COLS <- c("red", "blue","purple", "magenta")
 
 dend <- hc |>
   as.dendrogram() |>
   dendextend::set("labels_cex", value = 0.8) |>
-  dendextend::set("labels_col", value = COLS, k = 3) |>
-dendextend::set("branches_k_color", value = COLS, k = 3) |>
-plot(horiz = FALSE, axes = T, main = "До выравнивания")
-
-
+  dendextend::set("labels_col", value = COLS, k = 4) |>
+dendextend::set("branches_k_color", value = COLS, k = 4) |>
+plot(horiz = TRUE, axes = F)
 
 
 compar$SIM |> corrplot::corrplot(method = c("square")
@@ -68,6 +66,7 @@ compar$SIM |> corrplot::corrplot(method = c("square")
 # ============================= GNR - 045 =============================
 
 zd <- "C:/RWD/Angular_Sim_Exp/GNR_045_COSIM/TRACES"
+zd <- "I:/Angular_Sim_Exp/GNR_045_COSIM/TRACES"
 
 devtools::load_all()
 
@@ -106,7 +105,7 @@ trace_info(df)|>
 
 
 
-plt_gg(df
+plt_gg(b
        , facet_lab = "SampleName"
        , stacked = T
        , force_raw = F
@@ -115,11 +114,27 @@ plt_gg(df
 
 
 
-a<- df
+a <- df
 
 b <- merge_trace(a, df)
 
 b <- merge_trace(b, df)
 
 trace_info(b)
+
+b$META <- lapply(b$META, function(dt){
+  
+  dt$SampleName <- gsub(dt$SampleName, pattern = "/", replacement = ".")|>
+    gsub(pattern = "_(\\d.*)", replacement = "_[\\1%]")
+  dt
+  
+})
+
+saveRDS(object = b, file = "I:/Angular_Sim_Exp/GNR_045_COSIM/GNR_045vs118.Rds")
+
+
+
+
+
+
 

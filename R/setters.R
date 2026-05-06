@@ -215,7 +215,7 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
     }
     
   }else{
-    id_filed <- "ID_old"
+    id_fieled <- "ID_old"
     rhs <- rehash_id(a = a, b = b)
     a <- rhs$a
     b <- rhs$b
@@ -223,7 +223,7 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
   }
   
   
-  what <- b$LOG|> dplyr::filter(.data[[id_filed]] %in% what)|> dplyr::pull(.data$ID)
+  what <- b$LOG|> dplyr::filter(.data[[id_fieled]] %in% what)|> dplyr::pull(.data$ID)
   
   # APPEND content of the object b to the object a
   a$META <- append(a$META, b$META[what])
@@ -235,10 +235,12 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
     
   }
   # Combine LOG data
+  
   a$LOG <- b$LOG|> 
     dplyr::filter(.data$ID %in% what)|>
     rbind(a$LOG, make.row.names = FALSE)|>
-    dplyr::arrange(.data$Object)
+    dplyr::arrange(.data$Object)|>
+    dplyr::select(!.data[[id_fieled]])
   
   
   return(a)
