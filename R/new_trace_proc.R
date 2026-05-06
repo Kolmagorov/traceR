@@ -23,7 +23,7 @@ load_trace <- function(path_dir = NULL
   if(is.null(path_dir) & is.null(fls)){
     stop("Either path_dir or fls must be privided\n")
   }
-
+  
   # Setting pattern
   if(is.null(pattern)){
 
@@ -37,6 +37,8 @@ load_trace <- function(path_dir = NULL
                , full.names = TRUE
                , pattern = pattern)
   }
+  
+  if(length(fls) == 0){stop("No files found", call. = FALSE)}
 
   # Allocate a list
   raw_data <- list()
@@ -45,9 +47,11 @@ load_trace <- function(path_dir = NULL
   
   # Initialize a LOG record
   log_rec <- init_log(tmpl = "LOG")
-
+  
+  
   # Scanning and loading files
   for(i in seq_along(fls)){
+    
 
     # tmp can be either FALSE or a list with Meta and TRACE data
     tmp <- parser_selector(fls = fls[i])
@@ -82,31 +86,15 @@ load_trace <- function(path_dir = NULL
 
   dt_log$FILE_NAME <- basename(dt_log$FILE)
   
-  #meta |> str()|> print()
-  #raw_data |> str()|> print()
-  #dt_log |> str()|> print()
+  #Call a constructor and Create trace object
+  obj <- new_trace(x = raw_data
+                   , use_names = TRUE
+                   , meta = meta
+                   , use_columns = 1:2
+                   , len = 6L)
   
+  obj$LOG <- tibble::as_tibble(dt_log)
   
-  
-  # Call a constructor and Create trace object
-  #obj <- new_trace(x = raw_data
-                   #, use_names = TRUE
-                   #, meta = meta
-                   #, use_columns = 1:2
-                   #, len = 6L)
-  
-  #obj$LOG <- tibble::as_tibble(dt_log)
-  
-  #obj |> names()|> print()
-  
-  obj <- list(
-    
-    DATA = list(RAW = raw_data, PROCESSED = NULL),
-    META = meta,
-    LOG = dt_log,
-    HISTORY = NULL
-  )
-  class(obj) <- "tracer"
   return(obj)
 }
 
