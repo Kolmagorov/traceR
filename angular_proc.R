@@ -3,7 +3,7 @@ devtools::load_all()
 
 df <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/GNR_060/TRACES")|>
   tr_crop(crop_to = c(5, 110))|>
-  #tr_resample(pts = 800)|>
+  tr_resample(pts = 5000)|>
   tr_rescale(type = "minmax")
 
 
@@ -156,15 +156,45 @@ b$META <- lapply(b$META, function(dt){
 })
 
 saveRDS(object = b, file = "I:/Angular_Sim_Exp/GNR_045_COSIM/GNR_045vs118.Rds")
+
 df <- readRDS(file = "F:/Angular_Sim_Exp/GNR_045_COSIM/GNR_045vs118.Rds")
 
 dat <- compar$WM |>
   dplyr::filter(Pair == "Tenecteplase_2_vs_Alteplase_2")
 
-ggplot2::ggplot(data = dat, ggplot2::aes(x=RT, y = W))+
-  ggplot2::geom_line(col = "#bc42f5")+
-  ggplot2::geom_vline(xintercept = dat$RT)+
+
+cols <- dat|>
+  dplyr::filter(W > 0.3)
+
+vec <- hcl.colors(100, "reds", alpha = 0.08, rev = T)
+zd <- vec[cut(cols$W, breaks = 200)]
+
+ggplot2::ggplot(data = dat, ggplot2::aes(x=RT, y = Response))+
+  
+  ggplot2::geom_line(col = "blue")+
+  ggplot2::geom_vline(ggplot2::aes(xintercept = RT, color = W)
+                      , data = cols
+                      , alpha = 0.15
+                      , linewidth = 0.3) +
+  scale_colour_continuous(palette = c("#599614", "#f0da6e", "#DE2D26")
+                          , name = "Importance")+
+  ggplot2::scale_x_continuous(breaks = seq(0, 130, 10)
+                              , name = "Retention time [min]"
+                              , minor_breaks = scales::breaks_width(2)) +
+  ggplot2::guides(x = ggplot2::guide_axis(minor.ticks = TRUE, cap = "both")) +
   ggplot2::theme_bw()+
-  ggplot2::theme(panel.grid = ggplot2::element_blank())
+  ggplot2::theme(panel.grid = ggplot2::element_blank(),
+                 panel.background = ggplot2::element_rect(fill = "grey95"),
+                 panel.border = ggplot2::element_blank(),
+                 axis.line = ggplot2::element_line(colour = "grey60"),
+                 axis.ticks.length = ggplot2::unit(5, "pt"),
+                 axis.minor.ticks.length = ggplot2::rel(0.5))
+
+
+
+
+
+
+
 
 
