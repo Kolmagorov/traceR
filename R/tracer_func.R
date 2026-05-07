@@ -378,7 +378,7 @@ plt_gg <- function(x
 }
 
 #' Angular Similarity
-#' @description pair-wisw angular similarity
+#' @description pair-wise angular similarity
 #' @param x object of class tracer
 #' @param lab name of a meta data column whose values would be used as labels for the output distance 
 #' or similarity matrix
@@ -391,6 +391,7 @@ plt_gg <- function(x
 #' @param fun a string defining a function that will be used in getting re-weighting vector. 
 tr_compar <- function(x
                   , lab = NULL
+                  , use_diff = FALSE
                   , pw = 0
                   , neg = FALSE
                   , force_raw = FALSE
@@ -453,13 +454,18 @@ tr_compar <- function(x
       
       b <- x[[ data_ ]][[ item[j] ]][["Response"]]
       
-      if(pw == 0){w <- 1}
-      else{
+      # Select a re-weighting algorithm
+      if(use_diff){
         
+        w <- abs(a - b)
+        
+      }else if(pw == 0){w <- 1}
+      else{
         w <- cbind(a, b) |> apply(2, function(x) x - min(x)) |> 
           apply(1, get(fun))
-        w <- w**(2*pw)
       }
+      
+      w <- w**(2*pw)
       
       out <- c(out, round(eval(metric), digits = 6))
 
