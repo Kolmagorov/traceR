@@ -280,6 +280,15 @@ tr_cosine_dist <- function(a, b, w = 1){
   1 - tr_cosine_sim(a, b, w)
 }
 
+#' Computes Euclidian distance
+#' @keywords internal
+tr_cos2euc <- function(a,b,w){
+  
+  sqrt(2*(1-tr_cosine_sim(a, b, w)))
+  
+}
+
+
 #' Computes angular distance between two vectors
 #' @keywords internal
 tr_angular_dist <- function(a, b, w = 1, neg = FALSE){

@@ -395,7 +395,7 @@ tr_compar <- function(x
                   , pw = 0
                   , neg = FALSE
                   , force_raw = FALSE
-                  , metric = c("cosim", "cosdist", "angularsim", "angulardist")
+                  , metric = c("cosim", "cosdist", "angularsim", "angulardist", "euclidian")
                   , fun = c("max", "mean", "min")){
   
   if(methods::is(x) != "tracer"){ 
@@ -420,7 +420,8 @@ tr_compar <- function(x
                    cosim = bquote(tr_cosine_sim(a, b, w)),
                    cosdist = bquote(tr_cosine_dist(a, b, w)),
                    angularsim = bquote(tr_angular_sim(a, b, w)),
-                   angulardist = bquote(tr_angular_dist(a, b, w, neg))
+                   angulardist = bquote(tr_angular_dist(a, b, w, neg)),
+                   euclidian = bquote(tr_cos2euc(a, b, w))
                    )
   
   # Define labels for the similarity/distance matrix

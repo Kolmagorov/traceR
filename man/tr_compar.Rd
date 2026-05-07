@@ -7,6 +7,7 @@
 tr_compar(
   x,
   lab = NULL,
+  use_diff = FALSE,
   pw = 0,
   neg = FALSE,
   force_raw = FALSE,
@@ -33,5 +34,5 @@ processing steps taken}
 \item{fun}{a string defining a function that will be used in getting re-weighting vector.}
 }
 \description{
-pair-wisw angular similarity
+pair-wise angular similarity
 }

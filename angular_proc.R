@@ -38,7 +38,7 @@ plt_gg(df
 
 compar <- tr_compar(x = df
                     , use_diff = T
-                    , metric = "cosdist"
+                    , metric = "eucli"
                     , pw = 1
                     , lab = "SampleName")
 hc <- compar$SIM |>
