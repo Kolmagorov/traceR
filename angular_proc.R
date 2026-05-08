@@ -38,7 +38,7 @@ plt_gg(df
 
 compar <- tr_compar(x = df
                     , use_diff = T
-                    , metric = "eucli"
+                    , metric = "euclid"
                     , pw = 1
                     , lab = "SampleName")
 hc <- compar$SIM |>
@@ -58,15 +58,15 @@ dendextend::set("branches_k_color", value = COLS[1:K], k = K) |>
 plot(horiz = F, axes = F)
 
 
-compar$SIM |> corrplot::corrplot(method = c("square")
+compar$SIM |> corrplot::corrplot(method = c("number")
                                  , type = "lower"
                                  , diag = F
                                  , is.corr = F
                                  , order = "hclust"
                                  , hclust.method = "ward.D2"
-                                 , col = rev(hcl.colors(80, "viridis"))
+                                 , col = rev(hcl.colors(80, "inferno"))
                                  , addCoef.col = "grey45"
-                                 #, bg = "lightblue"
+                                 , bg = "#67bf7c"
                                  )
 
 
@@ -159,35 +159,31 @@ b$META <- lapply(b$META, function(dt){
 
 saveRDS(object = b, file = "I:/Angular_Sim_Exp/GNR_045_COSIM/GNR_045vs118.Rds")
 
-df <- readRDS(file = "F:/Angular_Sim_Exp/GNR_045_COSIM/GNR_045vs118.Rds")
+df <- readRDS(file = "C:/RWD/Angular_Sim_Exp/GNR_045_COSIM/GNR_045vs118.Rds")
 
 dat <- compar$WM |>
-  dplyr::filter(Pair == "Tenecteplase_2_vs_Alteplase_2")
+  dplyr::filter(Pair == "Alteplase_2_vs_Tenecteplase_2")
 
 
 cols <- dat|>
   dplyr::filter(W > 0.1)
 
-vec <- hcl.colors(100, "reds", alpha = 0.08, rev = T)
-zd <- vec[cut(cols$W, breaks = 200)]
+#vec <- hcl.colors(100, "reds", alpha = 0.2, rev = T)
+#zd <- vec[cut(cols$W, breaks = 200)]
 
 ggplot2::ggplot(data = dat, ggplot2::aes(x=RT, y = Response))+
   
   ggplot2::geom_line(col = "blue")+
-  ggplot2::geom_path(ggplot2::aes(x = RT, y = W)
-                      #, size = 0.3
-                      , col = "red"
-                      , alpha = 0.5)+
-  #ggplot2::geom_vline(ggplot2::aes(xintercept = RT, color = W)
-   #                   , data = cols
-    #                  , alpha = 0.15
-    #                  , linewidth = 0.3) +
-  #ggplot2::scale_colour_continuous(palette = c("#599614", "#f0da6e", "#DE2D26")
-  #                        , name = "Importance")+
-  #ggplot2::scale_x_continuous(breaks = seq(0, 130, 10)
-  #                            , name = "Retention time [min]"
-  #                            , minor_breaks = scales::breaks_width(2)) +
-  #ggplot2::guides(x = ggplot2::guide_axis(minor.ticks = TRUE, cap = "both")) +
+  ggplot2::geom_vline(ggplot2::aes(xintercept = RT, color = W)
+                      , data = cols
+                      , alpha = 0.3
+                      , linewidth = 0.3) +
+  ggplot2::scale_colour_continuous(palette = c("#599614", "#f0da6e", "#DE2D26")
+                          , name = "Importance")+
+  ggplot2::scale_x_continuous(breaks = seq(0, 130, 10)
+                              , name = "Retention time [min]"
+                              , minor_breaks = scales::breaks_width(2)) +
+  ggplot2::guides(x = ggplot2::guide_axis(minor.ticks = TRUE, cap = "both")) +
   ggplot2::theme_bw()+
   ggplot2::theme(panel.grid = ggplot2::element_blank(),
                  panel.background = ggplot2::element_rect(fill = "grey95"),
