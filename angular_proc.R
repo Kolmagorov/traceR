@@ -3,7 +3,7 @@ devtools::load_all()
 
 df <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/GNR_060/TRACES")|>
   tr_crop(crop_to = c(5, 110))|>
-  tr_resample(pts = 5000)|>
+  #tr_resample(pts = 5000)|>
   tr_rescale(type = "minmax")
 
 
@@ -38,8 +38,8 @@ plt_gg(df
 
 compar <- tr_compar(x = df
                     , use_diff = T
-                    , metric = "euclid"
-                    , pw = 1
+                    , metric = "cosim"
+                    , pw = 2
                     , lab = "SampleName")
 hc <- compar$SIM |>
   as.dist()|>
@@ -162,11 +162,11 @@ saveRDS(object = b, file = "I:/Angular_Sim_Exp/GNR_045_COSIM/GNR_045vs118.Rds")
 df <- readRDS(file = "C:/RWD/Angular_Sim_Exp/GNR_045_COSIM/GNR_045vs118.Rds")
 
 dat <- compar$WM |>
-  dplyr::filter(Pair == "Alteplase_2_vs_Tenecteplase_2")
+  dplyr::filter(Pair == "Tenecteplase_2_vs_Alteplase_2")
 
 
 cols <- dat|>
-  dplyr::filter(W > 0.1)
+  dplyr::filter(W > 0.25)
 
 #vec <- hcl.colors(100, "reds", alpha = 0.2, rev = T)
 #zd <- vec[cut(cols$W, breaks = 200)]
@@ -176,11 +176,12 @@ ggplot2::ggplot(data = dat, ggplot2::aes(x=RT, y = Response))+
   ggplot2::geom_line(col = "blue")+
   ggplot2::geom_vline(ggplot2::aes(xintercept = RT, color = W)
                       , data = cols
-                      , alpha = 0.3
+                      , alpha = 0.1
                       , linewidth = 0.3) +
   ggplot2::scale_colour_continuous(palette = c("#599614", "#f0da6e", "#DE2D26")
                           , name = "Importance")+
   ggplot2::scale_x_continuous(breaks = seq(0, 130, 10)
+                              , lim =c(25, 80)
                               , name = "Retention time [min]"
                               , minor_breaks = scales::breaks_width(2)) +
   ggplot2::guides(x = ggplot2::guide_axis(minor.ticks = TRUE, cap = "both")) +
@@ -196,6 +197,33 @@ ggplot2::ggplot(data = dat, ggplot2::aes(x=RT, y = Response))+
 head(dat)
 plot(dat$RT, -dat$W, type = 'l')
 
+
+z <- cos(seq(0,3,0.02)*pi)
+plot(z, x =seq(0,3,0.02), type = "l", col = "blue")
+prospectr::savitzkyGolay(X = z, m = 1, p = 3, w = 7)|>length()
+  plot()
+  lines(y=_, x= seq(0,3,0.02),col = "red")
+
+
+
+soo <- seq(0,2,0.002)
+n <- 11
+z <- cos(soo*pi)
+
+foo <- c(rep(0,(n-1)/2), z, rep(0,(n-1)/2))
+foo <- prospectr::savitzkyGolay(X = foo, m = 1, p = 3, w = n)
+#foo<-foo[((n-1)/2 + 1):(length(foo)-(n-1)/2)]
+
+
+plot(y = z, x = soo, type = "l", col = "blue")
+lines(y=foo, x = soo, col = "red")
+
+
+#pracma::savgol(T = z, fl = n, forder = 3, dorder = 1)
+
+#prospectr::savitzkyGolay(X = df$PROCESSED$wsh9oht$Response, m = 1, p = 3, w = n)**2|>
+pracma::savgol(T = df$PROCESSED$wp68zuc$Response, fl = n, forder = 3, dorder = 1)|>length()
+  plot(type="l")
 
 
 

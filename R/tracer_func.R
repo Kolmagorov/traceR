@@ -458,7 +458,7 @@ tr_compar <- function(x
       # Select a re-weighting algorithm
       if(use_diff){
         
-        w <- abs(a - b)
+        w <- abs(a - b)+1
         
       }else if(pw == 0){w <- 1}
       else{
@@ -472,7 +472,7 @@ tr_compar <- function(x
 
       if((j-i) > 0){
         
-        wgt <- data.frame(W = w/max(w)
+        wgt <- data.frame(W = tr_score_vec(a,b, win = 11, f = 3, d = 1) #w/max(w)
                           , Pair = paste(lab[i],"vs", lab[j], sep = "_")
                           , x[[data_]][[ item[i] ]]
                           ) |>

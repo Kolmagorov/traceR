@@ -356,11 +356,35 @@ data_point_validator <- function(x){
 }
 
 
+#' get derivative
+#' depends on `pracma`
+#' @keywords internal
+tr_derivate <- function(x, win, f, d){
+  
+  der <- pracma::savgol(x, fl = win, forder = f, dorder = d )
+  
+  return(
+    #c(rep(0, (win-1)/2), der, rep(0, (win-1)/2))
+    der
+    )
 
+}
 
-
-
-
+#' get score
+#' depends on `tr_derivate`
+#' @keywords internal
+tr_score_vec <- function(a, b, p = 2, ...){
+  
+  sc_a <- tr_derivate(a, ...)**p
+  sc_b <- tr_derivate(b, ...)**p
+  
+  print(length(sc_a))
+  
+  score <- sc_a - sc_b
+  score <- ((score - min(score))/(max(score)-min(score)))**2 + (a - b)**2
+  
+  return(score)
+}
 
 
 
