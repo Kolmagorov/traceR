@@ -32,7 +32,7 @@ plt_gg(df
        , facet_lab = "SampleName"
        , force_raw = F
        , gr_col = "Group"
-       , what = c(1,4)
+       #, what = c(1,4)
 )
 
 
