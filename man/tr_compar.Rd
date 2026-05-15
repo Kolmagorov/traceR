@@ -11,7 +11,7 @@ tr_compar(
   pw = 0,
   neg = FALSE,
   force_raw = FALSE,
-  metric = c("cosim", "cosdist", "angularsim", "angulardist"),
+  metric = c("cosim", "cosdist", "angularsim", "angulardist", "euclidian"),
   fun = c("max", "mean", "min")
 )
 }
