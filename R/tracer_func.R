@@ -382,6 +382,7 @@ plt_gg <- function(x
 #' @param x object of class tracer
 #' @param lab name of a meta data column whose values would be used as labels for the output distance 
 #' or similarity matrix
+#' @param use_diff logical, whether use peak difference or absolute intensity
 #' @param pw a numeric, a weighing coefficient for signal intensities
 #' default is 0.
 #' @param neg logical, if TRUE allows negative peaks, default is FALSE
