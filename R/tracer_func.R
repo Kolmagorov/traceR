@@ -389,7 +389,8 @@ plt_gg <- function(x
 #' @param force_raw if TRUE RAW data will be compared regardless of the previous 
 #'  processing steps taken
 #' @param metric a string indicating which similarity or distance metric to compute
-#' @param fun a string defining a function that will be used in getting re-weighting vector. 
+#' @param fun a string defining a function that will be used in getting re-weighting vector.
+#' @export
 tr_compar <- function(x
                   , lab = NULL
                   , use_diff = FALSE

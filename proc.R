@@ -51,7 +51,8 @@ IMPORTS <- c("utils"
              , "ggplot2"
              , "scales"
              , "stats"
-             , "glue")
+             , "glue"
+             , "pracma")
 
 
 purrr::walk(IMPORTS, usethis::use_package)

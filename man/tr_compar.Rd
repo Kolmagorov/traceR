@@ -21,6 +21,8 @@ tr_compar(
 \item{lab}{name of a meta data column whose values would be used as labels for the output distance 
 or similarity matrix}
 
+\item{use_diff}{logical, whether use peak difference or absolute intensity}
+
 \item{pw}{a numeric, a weighing coefficient for signal intensities
 default is 0.}
 
