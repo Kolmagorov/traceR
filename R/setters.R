@@ -125,18 +125,35 @@ del_trace <- function(x, what){
 #' @param what either numeric indexes or a vector string of UID. 
 #' If some numeric indexes out of range an error will be thrown. 
 #' All Unmatched UID's will be ignored with warning.
+#' @param field either list with a single item or a character of length one, 
+#' containing a regular expression and a field name to search in to select traces. 
 #' @returns object of type tracer with selected traces.
 #' @export
-copy_trace <- function(x, what){
+copy_trace <- function(x, what = NULL, field = NULL){
   
   if(methods::is(x) != "tracer"){ 
     stop("\n x must be a an object of type tracer", call. = FALSE)
   }
   
-  what <- what_validator(x$META, what = what)
+  if(is.null(field)){
+    what <- what_validator(x$META, what = what)
+    
+  }else{
+    
+    fld <- names(field)
+    
+    info <- trace_info(x)
+    
+    what <- info|> 
+      dplyr::filter(grepl(x = .data[[fld]], pattern = field))|>
+      dplyr::pull(ID)
+    
+  }
   
   what <- setdiff(names(x$META), what)
- 
+  
+  
+  
   if(is.null(x$PROCESSED)){ x$RAW[what] <- NULL }
   else{
     x$RAW[what] <- NULL
