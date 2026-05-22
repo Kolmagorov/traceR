@@ -351,7 +351,7 @@ plt_gg <- function(x
     ) +
     ggplot2::theme_bw() +
     
-    ggplot2::theme(legend.position = "none"
+    ggplot2::theme(legend.position = "right" 
                    , panel.border = ggplot2::element_blank()
                    , panel.grid = ggplot2::element_blank()
                    , axis.text.y = ggplot2::element_blank()
@@ -370,7 +370,8 @@ plt_gg <- function(x
     plt <- plt + ggplot2::facet_wrap(fmla
                                      , ncol = 1
                                      , scales = "free_y"
-                                     , strip.position = "left")
+                                     , strip.position = "left") +
+      ggplot2::theme(legend.position = "none")
   }
   
   suppressWarnings(print(plt), classes = "warning") # or use coord_cartesian
@@ -490,7 +491,38 @@ tr_compar <- function(x
 }
 
 
+#' Besline correction
+#' @description flatens besline 
+#' @param x an object of class tracer
+#' @param new_obj logical, if TRUE returns a modified object, 
+#' otherwise - processed data
+#' @export
+tr_baseline <- function(x, new_obj = TRUE){
+  
+  if(methods::is(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
+  
+  if(is.null(x$PROCESSED)){data_ <- "RAW"}
+  else{data_ <- "PROCESSED"}
+  
+  out <- lapply(x[[data_]], function(dt){
 
+    dt$Response <- prospectr::baseline(X = matrix(dt[["Response"]], nrow = 1)
+                        , wav = dt[["RT"]])
+    dt
+
+  })
+
+  if(new_obj){
+    
+    x$PROCESSED <- out
+    x <- history_upd(x = x, event = "baselined")
+    
+    return(x)
+    
+    
+  }else{ return(out) }
+  
+}
 
 
 
