@@ -107,3 +107,24 @@ plt_gg(df
        , gr_col = "Group"
        )
 
+FLS <- "D:/2026/GNR-122/Traces"
+
+df <- load_trace(path_dir = FLS)|>
+  tr_crop(crop_to = c(1, 15))|>
+  #tr_resample(pts = 800)|>
+  tr_rescale(type = "maxnorm")
+
+
+idx <-trace_info(df)|> dplyr::filter(score > 700)|> dplyr::pull(ID)
+
+
+
+
+plt_gg(df
+       , facet_lab = "SampleName"
+       , force_raw = F
+       , gr_col = "SampleName"
+       #, what = idx
+      # , ylim = c(-0.1, 0.4)
+       , stacked = F
+)
