@@ -73,7 +73,7 @@ devtools::load_all()
 devtools::load_all()
 df <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/GNR_060/TRACES")|>
   tr_crop(crop_to = c(5, 110))|>
-  tr_resample(pts = 800)|>
+  tr_resample(pts = 2000)|>
   tr_rescale(type = "minmax")|>
   add_field(new_field = list(Group = "Alteplase"))
 
@@ -126,5 +126,6 @@ plt_gg(df
        , gr_col = "SampleName"
        #, what = idx
       # , ylim = c(-0.1, 0.4)
-       , stacked = F
+       , stacked = T
+      , what = NULL
 )

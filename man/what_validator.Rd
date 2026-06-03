@@ -4,7 +4,7 @@
 \alias{what_validator}
 \title{Index validator}
 \usage{
-what_validator(lst, what)
+what_validator(obj, what)
 }
 \description{
 Index validator

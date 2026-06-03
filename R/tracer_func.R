@@ -305,7 +305,7 @@ plt_gg <- function(x
   df$ID <- row.names(df)|> gsub(pattern = "\\..*", replacement ="")
   row.names(df) <- NULL
   
-  df <- trace_info(x, force_raw = force_raw) |>
+  df <- suppressMessages(trace_info(x, force_raw = force_raw)) |>
     merge(x = df, y=_, by = "ID")
   
   if(is.null(xlim)){
