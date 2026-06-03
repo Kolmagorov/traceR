@@ -32,11 +32,12 @@ what_validator <- function(obj, what){
     
     fld <- what |> names() |> unique()
     
-    if(length(what) != lengt(fld)){
+    if(length(what) != length(fld)){
       stop("\nIf what is a list then names must be unique\n")
     }
     
-    meta <- trace_info(obj)
+    meta <- suppressMessages(trace_info(obj))
+   
     
     for(s in fld){
       
@@ -44,15 +45,20 @@ what_validator <- function(obj, what){
                   , pattern = paste0("^", s)
                   , ignore.case = T
                   , value = T)
-      if(length(tmp == 0)){
+      
+      print(tmp)
+      
+      
+      if(length(tmp) == 0){
         warning("requested field: ", s," is not found")
         next}
       
-      meta <- meta|> dplyr::filter(grepl(x = .data[tmp], pattern = what[[s]]))
-      
+      meta <- meta|> dplyr::filter(grepl(x = .data[[tmp]], pattern = what[[s]]))
+      print(meta)
     }
     
-    what <- meta|> dplyr::pull(.data["ID"])
+    what <- meta|> dplyr::pull(.data[["ID"]])
+    print(what)
     
   }else(stop("\nNot defined indexing method. What should be one of the following: an integer, a character, a list or NULL"))
   
