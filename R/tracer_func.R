@@ -274,7 +274,7 @@ tr_align <- function(x
 #' @importFrom rlang .data
 #' @import glue
 plt_gg <- function(x
-                   , what = NULL # Modify vlidator to get ID by regex on a field
+                   , what = NULL
                    , stacked = TRUE
                    , force_raw = FALSE
                    , x_lab = "Retention Time [min]"
