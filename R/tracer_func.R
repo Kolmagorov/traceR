@@ -296,7 +296,7 @@ plt_gg <- function(x
   }else{ data_ <- "RAW" }
   
   # VALIDATOR
-  what <- what_validator(lst = x[[data_]], what = what)
+  what <- what_validator(x, what = what)
   
   # Create a table to plot the WHAT is MISSING
   df <- x[[data_]][what] |> #[what]

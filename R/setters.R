@@ -20,7 +20,7 @@ set_field_value <- function(x
     stop("\n x must be a an object of type tracer", call. = FALSE)
     }
   
-  what <- what_validator(x$META, what = what)
+  what <- what_validator(x, what = what)
   
   if(length(what) != length(record)){
     stop("Length of arguments must be equal", call. = FALSE)
@@ -102,7 +102,7 @@ del_trace <- function(x, what){
     stop("\n x must be a an object of type tracer", call. = FALSE)
   }
   
-  what <- what_validator(x$META, what = what)
+  what <- what_validator(x, what = what)
   
   if(is.null(x$PROCESSED)){ x$RAW[what] <- NULL }
   else{
@@ -136,7 +136,7 @@ copy_trace <- function(x, what = NULL, field = NULL){
   }
   
   if(is.null(field)){
-    what <- what_validator(x$META, what = what)
+    what <- what_validator(x, what = what)
     
   }else{
     
@@ -208,7 +208,7 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
   
   # Checkin on UID's
   clashed_id <- intersect(a$LOG$ID, b$LOG$ID)
-  what <- what_validator(b$META, what = what)
+  what <- what_validator(b, what = what)
   
   # Checking whether the rehash option is ENABLED
   if(!active_re){

@@ -1,39 +1,60 @@
 
 #' Index validator
 #' @keywords internal
-what_validator <- function(lst, what){
+what_validator <- function(obj, what){
   
-  n_smp <- length(lst)
+  n_smp <- length(obj$RAW) # RAW
   
- if(any(duplicated(what))){
-    stop("Supplied indexes must be unique", call. = FALSE)
-  }
-  
-  if(is.null(what)){ return( names(lst) )}
+  if(is.null(what)){ return( names(obj$RAW) )}
   else if(is.numeric(what)){
     
     if(max(what) > n_smp | any(what <= 0)){
       stop("Supplied indexes are out of range: \nmax(ID) is ", max(what)
            , " but number of samples is ", n_smp
            , call. = FALSE)}
-    else{ return(names(lst)[what]) }
+    else{ return(names(obj$RAW)[what]) }}
+  
+  else if(is.character(what)){ 
     
+    gacha <- intersect(what, names(obj$RAW))
     
-  }else if(is.character(what)){ 
-    
-    gacha <- what %in% names(lst)
-    
-    if(!any(gacha)){
+    if(length(gacha) == 0){
       stop("The supplied indexes are missing in the data", call. = FALSE)}
-    else if(all(gacha)){ return(what) }
-    else{
+    else if(length(gacha) < length(what)){ 
       
       warning("The following item are missing:\n"
-              , paste0(what[!gacha], collapse = ", ")
+              , paste0(setdiff(what, gacha), collapse = ", ")
               , call. = FALSE)
-      what <- what[gacha]
-    }
+      return(gacha) } 
+    
   }
+  else if(is.list(what)){
+    
+    fld <- what |> names() |> unique()
+    
+    if(length(what) != lengt(fld)){
+      stop("\nIf what is a list then names must be unique\n")
+    }
+    
+    meta <- trace_info(obj)
+    
+    for(s in fld){
+      
+      tmp <- grep(x = names(meta)
+                  , pattern = paste0("^", s)
+                  , ignore.case = T
+                  , value = T)
+      if(length(tmp == 0)){
+        warning("requested field: ", s," is not found")
+        next}
+      
+      meta <- meta|> dplyr::filter(grepl(x = .data[tmp], pattern = what[[s]]))
+      
+    }
+    
+    what <- meta|> dplyr::pull(.data["ID"])
+    
+  }else(stop("\nNot defined indexing method. What should be one of the following: an integer, a character, a list or NULL"))
   
   return(what)
 }
@@ -385,6 +406,33 @@ tr_score_vec <- function(a, b, p = 2, ...){
   
   return(score)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
