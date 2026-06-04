@@ -16,16 +16,16 @@ what_validator <- function(obj, what){
   
   else if(is.character(what)){ 
     
-    gacha <- intersect(what, names(obj$RAW))
+    gotcha <- intersect(what, names(obj$RAW))
     
-    if(length(gacha) == 0){
+    if(length(gotcha) == 0){
       stop("The supplied indexes are missing in the data", call. = FALSE)}
-    else if(length(gacha) < length(what)){ 
+    else if(length(gotcha) < length(what)){ 
       
       warning("The following item are missing:\n"
-              , paste0(setdiff(what, gacha), collapse = ", ")
+              , paste0(setdiff(what, gotcha), collapse = ", ")
               , call. = FALSE)
-      return(gacha) } 
+      return(gotcha) } 
     
   }
   else if(is.list(what)){
@@ -46,21 +46,18 @@ what_validator <- function(obj, what){
                   , ignore.case = T
                   , value = T)
       
-      print(tmp)
-      
-      
       if(length(tmp) == 0){
         warning("requested field: ", s," is not found")
         next}
       
       meta <- meta|> dplyr::filter(grepl(x = .data[[tmp]], pattern = what[[s]]))
-      print(meta)
     }
     
     what <- meta|> dplyr::pull(.data[["ID"]])
-    print(what)
     
-  }else(stop("\nNot defined indexing method. What should be one of the following: an integer, a character, a list or NULL"))
+  }else{
+    stop("\nNot defined indexing method. What should be one of the following: an integer, a character, a list or NULL")
+    }
   
   return(what)
 }
@@ -77,6 +74,19 @@ history_upd <- function(x, event){
   x$HISTORY <- rbind(x$HISTORY, his_proc)
   return(x)
 }
+
+#' Update call records
+#' @keywords internal
+workflow_upd <- function(x, m_call){
+  
+  if(!is.call(m_call)){stop("History m_call must be a type of call", call. = FALSE)}
+
+  x$Workflow <- append(x$Workflow, m_call)
+  return(x)
+}
+
+
+
 
 #' a Re-scaling Helper
 #' @description re-scales response variable
