@@ -2,7 +2,7 @@
 % Please edit documentation in R/tracer_func.R
 \name{tr_baseline}
 \alias{tr_baseline}
-\title{Besline correction}
+\title{Baseline correction}
 \usage{
 tr_baseline(x, new_obj = TRUE)
 }
@@ -13,5 +13,5 @@ tr_baseline(x, new_obj = TRUE)
 otherwise - processed data}
 }
 \description{
-flatens besline
+flattens baseline
 }
