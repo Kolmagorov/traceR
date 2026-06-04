@@ -62,6 +62,7 @@ tr_rescale <- function(x, type = "minmax", new_obj = TRUE, ...){
 
     x$PROCESSED <- out
     x <- history_upd(x = x, event = "re-scaled")
+    x <- workflow_upd(x = x, m_call = match.call())
     return(x)
 
   }else{ return(out) }
@@ -78,6 +79,7 @@ tr_rescale <- function(x, type = "minmax", new_obj = TRUE, ...){
 #' otherwise - processed data
 #' @export
 tr_crop <- function(x, crop_to, new_obj = TRUE){
+  
 
   if(methods::is(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
 
@@ -105,7 +107,7 @@ tr_crop <- function(x, crop_to, new_obj = TRUE){
 
     x$PROCESSED <- out
     x <- history_upd(x = x, event = "cropped")
-    
+    x <- workflow_upd(x = x, m_call = match.call())
     return(x)
     
 
@@ -167,6 +169,7 @@ tr_resample <- function(x, pts, new_obj = TRUE){
     
     x$PROCESSED <- out
     x <- history_upd(x = x, event = "re-sampled")
+    x <- workflow_upd(x = x, m_call = match.call())
     return(x) }
   
   else{return(out) }
@@ -234,6 +237,7 @@ tr_align <- function(x
   if(new_obj){
     
     x <- history_upd(x = x, event = "alignment")
+    x <- workflow_upd(x = x, m_call = match.call())
     return(x) }
 
   else if(return_mat){
@@ -491,8 +495,8 @@ tr_compar <- function(x
 }
 
 
-#' Besline correction
-#' @description flatens besline 
+#' Baseline correction
+#' @description flattens baseline 
 #' @param x an object of class tracer
 #' @param new_obj logical, if TRUE returns a modified object, 
 #' otherwise - processed data
@@ -516,7 +520,7 @@ tr_baseline <- function(x, new_obj = TRUE){
     
     x$PROCESSED <- out
     x <- history_upd(x = x, event = "baselined")
-    
+    x <- workflow_upd(x = x, m_call = match.call())
     return(x)
     
     
@@ -524,8 +528,24 @@ tr_baseline <- function(x, new_obj = TRUE){
   
 }
 
+#' Creates a workflow object
+#' @description with workflows you can automate routines  applying the same stack 
+#' of operations to a different objects
+#' @param flow an object that will be converted to an expression  
+#' @export
 
-
+tr_workflow <- function(flow){
+  
+  flow <- rlang::enexpr(flow)
+  print(flow)
+  
+  foo <- function(obj){
+    
+    eval(expr = flow, envir = rlang::env(obj = obj))
+    
+  }
+  return(foo)
+}
 
 
 
