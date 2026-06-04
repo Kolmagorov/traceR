@@ -390,7 +390,8 @@ new_trace <- function(x
           LOG = tibble::as_tibble(dt_log),
           HISTORY = data.frame(type = "created"
                                , proc_time = format(Sys.time(), "%d-%b-%Y %H:%M:%OS3")),
-          META = meta_d),
+          META = meta_d,
+          Workflow = NULL),
     class = "tracer"
   )
   
