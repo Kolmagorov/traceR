@@ -129,3 +129,21 @@ plt_gg(df
        , stacked = T
       , what = NULL
 )
+
+
+prc <- tr_workflow(flow = obj|> 
+                     tr_crop(crop_to = c(5, 110))|>
+                     tr_resample(pts = 8000)|>
+                     tr_rescale(type = "minmax")|>
+                     plt_gg(what = list(chan = "280"))
+                   )
+
+spc <- prc(obj = df)
+spc
+
+
+
+
+
+
+
