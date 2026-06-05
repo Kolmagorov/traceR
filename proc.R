@@ -71,7 +71,7 @@ devtools::load_all()
 "C:/RWD/Angular_Sim_Exp/GNR_060/TRACES"
 
 devtools::load_all()
-df <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/GNR_060/TRACES")|>
+dff <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/GNR_060/TRACES")|>
   tr_crop(crop_to = c(5, 110))|>
   tr_resample(pts = 2000)|>
   tr_rescale(type = "minmax")|>
@@ -137,13 +137,5 @@ prc <- tr_workflow(flow = obj|>
                      tr_rescale(type = "minmax")|>
                      plt_gg(what = list(chan = "280"))
                    )
-
-spc <- prc(obj = df)
-spc
-
-
-
-
-
 
 
