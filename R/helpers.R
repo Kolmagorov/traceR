@@ -79,13 +79,15 @@ history_upd <- function(x, event){
 #' @keywords internal
 workflow_upd <- function(x, m_call){
   
-  if(!is.call(m_call)){stop("History m_call must be a type of call", call. = FALSE)}
-
+  if(!is.call(m_call)){
+    stop("History m_call must be a type of call", call. = FALSE)
+  }
+  
+  m_call[[2]] <- quote(obj)
   x$Workflow <- append(x$Workflow, m_call)
+  
   return(x)
 }
-
-
 
 
 #' a Re-scaling Helper
