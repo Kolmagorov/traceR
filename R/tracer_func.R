@@ -186,8 +186,8 @@ tr_resample <- function(x, pts, new_obj = TRUE){
 #' otherwise - processed data. Also overrides 'return_mat'.
 #' @param return_mat if TRUE, instead of a list returns a matrix of aligned data.
 #' @param ... an additional argument to to be passed 'ptw::ptw'.
-#' @returns an object of class tracer or a matrix or a list of processed data, 
-#' depending on the arguments return_mat and new_obj, the later overrides return_mat.
+#' @returns either an object of class tracer, or a matrix, or a list of processed data, 
+#' depending on the arguments `return_mat` and `new_obj`, the later overrides `return_mat`.
 #' @export
 tr_align <- function(x
                      , new_obj = TRUE
@@ -253,8 +253,6 @@ tr_align <- function(x
   }
   else{ return(x$PROCESSED) }
 }
-
-# Base Line correction
 
 # PERSPECTIVE -- `trace_info` change to `get_meta` to show output 
 # either by group or all, or selected items
@@ -529,9 +527,9 @@ tr_baseline <- function(x, new_obj = TRUE){
 }
 
 #' Creates a workflow object
-#' @description with workflows you can automate routines  applying the same stack 
+#' @description with workflows you can automate routines  applying the same processing chain 
 #' of operations to a different objects
-#' @param flow an object that will be converted to an expression  
+#' @param flow an expression representing a chain of sequential processing steps 
 #' @export
 
 tr_workflow <- function(flow){
@@ -547,9 +545,69 @@ tr_workflow <- function(flow){
   return(foo)
 }
 
+#' Set object to default state
+#' @description erases Processed data, History and Workflow
+#' @param x an object of class tracer 
+#' @export
+
+tr_default <- function(x){
+  
+  if(methods::is(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
+  
+  x["PROCESSED"] <- list(NULL)
+  x$HISTORY <- x$HISTORY[1,]
+  x["Workflow"] <- list(NULL)
+  
+  return(x)
+}
 
 
-
+#' Reprocessing data
+#' @description allows to reprocess Raw data using an existing object as a reference or on its own workflow 
+#' @param x an object of class tracer to reprocess
+#' @param ref an object of class tracer whose workflow will be used to reprocess data. 
+#' If omitted, a workflow of the object x is going to be used.
+#' @param level an integer or a vector of integers to specify on which steps 
+#' to perform reprocessing. If a single value is supplied the reprocessing 
+#' will be done for whole chain from the very beginning up to this step included.
+#' @param skip logical. If TRUE every step will be treated as a separate processing step.
+#' @export
+tr_reprocess <- function(x, ref = NULL, level = NULL, skip = FALSE){
+  
+  # Check object
+  if(methods::is(x) != "tracer"){ stop("\n x must be a an object of class tracer")}
+  
+  # Check reference object
+  if(!is.null(ref)){
+    
+    if(methods::is(ref) != "tracer"){ stop("\n x must be a an object of class tracer")}
+    if(is.null(ref$Workflow)){stop("\nObject ref contains no workflow records")}
+    
+    wflw <- ref$Workflow
+    
+  }else{ 
+    if(is.null(x$Workflow)){stop("\nObject x contains no workflow records")}
+    wflw <- x$Workflow }
+  
+  # Check levels
+  if(is.null(level)){level <- 1:length(wflw)}
+  else if(length(level) > 1){
+    
+    if(any(level > length(wflw)) || any(level < 1 )){
+    stop("\nLevels must be in consistance with number of workflow steps")}}
+  
+  else{ level <- 1:level }
+  
+  obj <- tr_default(x)
+  
+  # Iterate over steps
+  for(stp in level){
+    print(stp)
+    obj <- eval(expr = wflw[[stp]], envir = rlang::env(obj = obj))
+    
+  }
+  return(obj)
+}
 
 
 
