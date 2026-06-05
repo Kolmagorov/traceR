@@ -7,9 +7,9 @@
 tr_workflow(flow)
 }
 \arguments{
-\item{flow}{an object that will be converted to an expression}
+\item{flow}{an expression representing a chain of sequential processing steps}
 }
 \description{
-with workflows you can automate routines  applying the same stack 
+with workflows you can automate routines  applying the same processing chain 
 of operations to a different objects
 }
