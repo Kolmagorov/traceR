@@ -142,11 +142,11 @@ copy_trace <- function(x, what = NULL, field = NULL){
     
     fld <- names(field)
     
-    info <- trace_info(x)
+    info <- suppressMessages(trace_info(x))
     
     what <- info|> 
       dplyr::filter(grepl(x = .data[[fld]], pattern = field))|>
-      dplyr::pull(ID)
+      dplyr::pull(.data$ID)
     
   }
   
