@@ -1,16 +1,17 @@
 Package: traceR
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
+Title: Functions for simple operations to analyse 1D chromatographic data
+Version: 0.2.0
 Authors@R: c(
-    person(
-      "Jane", "Doe",
-      email = "jane@example.com",
-      role = c("aut", "cre")
-    )
+    person("Ivan", "Podkolzin", , "nizlokdop@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-0851-747X"))
   )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
+Description: The traceR package provides functionality to load, handle, 
+    process and compare single-channeled chromatographic traces. The processing
+    includes resampling of data points, trace alignment, signal normalization,
+    and cropping. Computing similarity and distance metrics allows to get an objective
+    comparision of traces. Every processing step and can be visulised using 
+    a dedicated plotting function. 
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
