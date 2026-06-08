@@ -33,7 +33,7 @@ what_validator <- function(obj, what){
     fld <- what |> names() |> unique()
     
     if(length(what) != length(fld)){
-      stop("\nIf what is a list then names must be unique\n")
+      stop("\nIf what is a list then the names must be unique\n")
     }
     
     meta <- suppressMessages(trace_info(obj))
