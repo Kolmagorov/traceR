@@ -205,7 +205,7 @@ tr_align <- function(x
   x <- data_point_validator(x)
   
  
-  if(ref > length(x) | ref <= 0){
+  if(ref > length(x$RAW) | ref <= 0){
     stop("Argument ref must be within the range 1 -", length(x$RAW))
   }
   
