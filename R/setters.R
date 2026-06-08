@@ -1,39 +1,56 @@
 #' Set a new records to a selected field of the meta data
-#' @description setting new sample name to a trace
+#' @description adding new meta data to the selected samples
 #' @param x an object of class tracer
-#' @param what either numeric indexes or vector string of UID. 
-#' If some Numeric indexes out of range an error will be thrown. 
-#' All Unmatched UID's will be ignored with warning.
-#' @param record a vector of entities
-#' @param field a string representing the name of the field into which 
-#' the record should be placed
-#' @returns object of type tracer with field records updated 
+#' @param what a smart row selector see `plt_gg` for details.
+#' @param field a named list of fields and corresponding records
+#' @param full_match logical, if set TRUE a field name if exists will be searched 
+#' for exact match.
+#' @details depending on what is passed to `what`, meta data update can be 
+#' done to a single sample or group of samples. If `what` is set to NULL then 
+#' to all samples the same fields and records will be added.
+#' 
+#' @returns an object of type tracer with new fields and records updated 
 #' @export
 set_field_value <- function(x
                             , what
-                            , record
-                            , field = c("SampleName", "SOURCE", "Comments")){
-  
-  field <- match.arg(field)
+                            , field
+                            , full_match = FALSE){
   
   if(methods::is(x) != "tracer"){ 
-    stop("\n x must be a an object of type tracer", call. = FALSE)
+    stop("\n x must be an object of type tracer", call. = FALSE)
     }
+  
+  if(is.list(field)){
+    stop("The argument field must be a type of list", call. = FALSE)
+    }
+  
+  if(full_match){ ptrn <- rlang::enexpr(paste0("\\b", fld[s],"\\b")) }
+  else{ ptrn <- rlang::enexpr(paste0("^", fld[s])) }
   
   what <- what_validator(x, what = what)
+  fld <- names(field)
   
-  if(length(what) != length(record)){
-    stop("Length of arguments must be equal", call. = FALSE)
-    }
+  if(length(fld) != length(unique(fld))){
+    stop("Field names must be unique\n")
+  }
   
-  #x$META[what]
-  
-  purrr::walk2(.x = what, .y = record, .f = function(idx, rec){
+  for(s in 1:length(what)){
     
-    x$META[[idx]][[field]] <<- rec
+    tmp <- grep(x = names( x$META[[ what[s] ]] )
+                , pattern = eval(expr = ptrn)
+                , ignore.case = !full_match
+                , value = T)
     
-    })
-  x
+    if(length(tmp) > 1){
+      warning("The field ", fld[s], " is not unique so it was skipped\n")
+      next}
+    
+    x$META[[ what[s] ]][ fld[s] ] <- field[[ fld[s] ]]
+
+  }
+  rm(tmp, s)
+
+  return(x)
 }
 
 
@@ -47,7 +64,7 @@ set_field_value <- function(x
 add_field <- function(x, new_field){
   
   if(methods::is(x) != "tracer"){ 
-    stop("\n x must be a an object of type tracer", call. = FALSE)
+    stop("\n x must be an object of type tracer", call. = FALSE)
   }
   
   hdr <- lapply(x$META, names) |> purrr::reduce(union)
@@ -99,7 +116,7 @@ add_field <- function(x, new_field){
 del_trace <- function(x, what){
   
   if(methods::is(x) != "tracer"){ 
-    stop("\n x must be a an object of type tracer", call. = FALSE)
+    stop("\n x must be an object of type tracer", call. = FALSE)
   }
   
   what <- what_validator(x, what = what)
@@ -132,7 +149,7 @@ del_trace <- function(x, what){
 copy_trace <- function(x, what = NULL, field = NULL){
   
   if(methods::is(x) != "tracer"){ 
-    stop("\n x must be a an object of type tracer", call. = FALSE)
+    stop("\n x must be an object of type tracer", call. = FALSE)
   }
   
   if(is.null(field)){
@@ -274,7 +291,7 @@ get_meta_fields <- function(x = NULL){
   if(is.null(x)){ return(field_desc) }
   
   else if(methods::is(x) != "tracer"){ 
-    stop("\n x must be a an object of type tracer", call. = FALSE)
+    stop("\n x must be an object of type tracer", call. = FALSE)
   }else{
     
     hdr <- lapply(x$META, names)|>
