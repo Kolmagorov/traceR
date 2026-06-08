@@ -63,6 +63,15 @@ devtools::document()
 
 devtools::load_all()
 
+usethis::use_author(
+  given = "Ivan",
+  family = "Podkolzin",
+  email = "nizlokdop@gmail.com",
+  role = c("aut", "cre"),
+  comment = c(ORCID = "0000-0003-0851-747X")
+)
+
+
 
 # TEST AREA ==========================================
 "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/A"
