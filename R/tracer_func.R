@@ -11,7 +11,7 @@
 trace_info <- function(x, force_raw = FALSE, ...){
 
   if(methods::is(x) != "tracer"){ 
-    stop("\n x must be a an object of type tracer", call. = FALSE)}
+    stop("\n x must be an object of type tracer", call. = FALSE)}
 
   data_ <- "PROCESSED"
 
@@ -44,7 +44,7 @@ trace_info <- function(x, force_raw = FALSE, ...){
 #' @export
 tr_rescale <- function(x, type = "minmax", new_obj = TRUE, ...){
 
-  if(methods::is(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
+  if(methods::is(x) != "tracer"){ stop("\n x must be an object of type tracer")}
 
   if(!grepl(type, pattern = "minmax|maxnorm")){
     stop("Scaling type must be either minmax or maxnorm")}
@@ -125,7 +125,7 @@ tr_crop <- function(x, crop_to, new_obj = TRUE){
 #' @export
 tr_resample <- function(x, pts, new_obj = TRUE){
 
-  if(methods::is(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
+  if(methods::is(x) != "tracer"){ stop("\n x must be an object of type tracer")}
 
   if(is.null(x$PROCESSED)){data_ <- "RAW"}
   else{data_ <- "PROCESSED"}
@@ -196,7 +196,7 @@ tr_align <- function(x
                      , return_mat = FALSE
                      , ...){
 
-  if(methods::is(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
+  if(methods::is(x) != "tracer"){ stop("\n x must be an object of type tracer")}
 
   if(is.null(x$PROCESSED)){data_ <- "RAW"}
   else{data_ <- "PROCESSED"}
@@ -501,7 +501,7 @@ tr_compar <- function(x
 #' @export
 tr_baseline <- function(x, new_obj = TRUE){
   
-  if(methods::is(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
+  if(methods::is(x) != "tracer"){ stop("\n x must be an object of type tracer")}
   
   if(is.null(x$PROCESSED)){data_ <- "RAW"}
   else{data_ <- "PROCESSED"}
@@ -552,7 +552,7 @@ tr_workflow <- function(flow){
 
 tr_default <- function(x){
   
-  if(methods::is(x) != "tracer"){ stop("\n x must be a an object of type tracer")}
+  if(methods::is(x) != "tracer"){ stop("\n x must be an object of type tracer")}
   
   x["PROCESSED"] <- list(NULL)
   x$HISTORY <- x$HISTORY[1,]
@@ -575,12 +575,12 @@ tr_default <- function(x){
 tr_reprocess <- function(x, ref = NULL, level = NULL, skip = FALSE){
   
   # Check object
-  if(methods::is(x) != "tracer"){ stop("\n x must be a an object of class tracer")}
+  if(methods::is(x) != "tracer"){ stop("\n x must be an object of class tracer")}
   
   # Check reference object
   if(!is.null(ref)){
     
-    if(methods::is(ref) != "tracer"){ stop("\n x must be a an object of class tracer")}
+    if(methods::is(ref) != "tracer"){ stop("\n x must be an object of class tracer")}
     if(is.null(ref$Workflow)){stop("\nObject ref contains no workflow records")}
     
     wflw <- ref$Workflow
