@@ -11,10 +11,11 @@
 #' 
 #' @returns an object of type tracer with new fields and records updated 
 #' @export
-set_field_value <- function(x
-                            , what
-                            , field
-                            , full_match = FALSE){
+set_field <- function(x
+                      , what
+                      , field
+                      , global = TRUE
+                      , full_match = FALSE){
   
   if(methods::is(x) != "tracer"){ 
     stop("\n x must be an object of type tracer", call. = FALSE)
@@ -34,29 +35,27 @@ set_field_value <- function(x
     stop("Field names must be unique\n")
   }
   
-  # Iterate over traces 
-  for(s in 1:length(what)){
+  x$META <- lapply(x$META, function(dt){
     
-    # Iterate over fields
     for(f in fld){
-  
-      tmp <- grep(x = names( x$META[[ what[s] ]] )
+      
+      tmp <- grep(x = names(dt)
                   , pattern = eval(expr = ptrn)
                   , ignore.case = !full_match
                   , value = T)
-      print(tmp)
       
       if(length(tmp) > 1){
         warning("The field ", f, " is not unique so it was skipped\n")
         next}
       if(length(tmp) == 0){ tmp <- f }
       
-      x$META[[ what[s] ]][ tmp ] <- field[[ f ]]
       
-    }
-    
-  }
-  rm(tmp, s, f)
+      if(dt$ID %in% what){ dt[tmp] <- field[f] }
+      else if(global){ dt[tmp] <- NA }
+      else{next}
+      }
+    dt
+    })
 
   return(x)
 }
@@ -69,58 +68,7 @@ set_field_value <- function(x
 #' @param new_field a string, i.e. a name of the new field
 #' @returns object of type tracer with a new field added into the meta data
 #' @export
-add_field <- function(x, new_field){
-  
-  if(methods::is(x) != "tracer"){ 
-    stop("\n x must be an object of type tracer", call. = FALSE)
-  }
-  
-  hdr <- lapply(x$META, names) |> purrr::reduce(union)
-  
-  
-  if(is.list(new_field)){
-    
-    init <- new_field
-    new_field <- names(new_field)
-    
-  }else{
-    
-    init <- replicate(length(new_field), NA, simplify = FALSE)
-    names(init) <- new_field
 
-    }
-  
-  chk_names <- any(grepl(new_field, pattern = "^[^A-Za-z]"))
-  
-  if(chk_names){
-    
-    stop("A field name must start with a letter", call. = FALSE)
-  }
-  
-  in_tab <- hdr %in% new_field
-  
-  if(any(in_tab)){stop("Fieled name", hdr[in_tab], " is alredy taken", call. = FALSE)}
-  
-    x$META <- lapply(x$META, function(dt){
-      
-      for(item in new_field){ dt[item] <- init[[item]] }
-      
-      dt})
-    
-  # Updating history records
-   x <- history_upd(x = x, event = "field(s) added")
-  
-  return(x)
-}
-
-#' Delete an item
-#' @description delete selected traces from the trace object
-#' @param x an object of class tracer
-#' @param what either numeric indexes or a vector string of UID. 
-#' If some numeric indexes out of range an error will be thrown. 
-#' All Unmatched UID's will be ignored with warning.
-#' @returns object of type tracer with selected traces removed.
-#' @export
 del_trace <- function(x, what){
   
   if(methods::is(x) != "tracer"){ 
