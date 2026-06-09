@@ -42,7 +42,7 @@ set_field_value <- function(x
   
       tmp <- grep(x = names( x$META[[ what[s] ]] )
                   , pattern = eval(expr = ptrn)
-                  +, ignore.case = !full_match
+                  , ignore.case = !full_match
                   , value = T)
       print(tmp)
       
