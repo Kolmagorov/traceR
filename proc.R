@@ -150,5 +150,6 @@ prc <- tr_workflow(flow = obj|>
 devtools::load_all()
 set_field_value(x = dff
                 , what = 1
-                , field = list(Za = 8))|>
+                , global = F
+                , field = list(gro = 8))|>
   trace_info()
