@@ -9,13 +9,14 @@ new_trace(x, meta = NULL, use_columns = NULL, use_names = FALSE, len = 6L)
 \arguments{
 \item{x}{a data.frame or a list of data.frames}
 
-\item{meta}{meta data}
+\item{meta}{meta data, can be a data.frame or a list}
 
-\item{use_columns}{a vector of length 2}
+\item{use_columns}{a vector of length 2, defining wich columns will be used 
+as time and response variables. By default first is Time, second - Response.}
 
 \item{use_names}{if TRUE than the names of  input list x will be used as ID's}
 
-\item{len}{s numeric that defines UID length}
+\item{len}{a numeric that defines UID length}
 }
 \description{
 create an obect of type tracer

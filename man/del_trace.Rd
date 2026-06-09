@@ -2,20 +2,18 @@
 % Please edit documentation in R/setters.R
 \name{del_trace}
 \alias{del_trace}
-\title{Delete an item}
+\title{Add a new custom field}
 \usage{
 del_trace(x, what)
 }
 \arguments{
 \item{x}{an object of class tracer}
 
-\item{what}{either numeric indexes or a vector string of UID. 
-If some numeric indexes out of range an error will be thrown. 
-All Unmatched UID's will be ignored with warning.}
+\item{new_field}{a string, i.e. a name of the new field}
 }
 \value{
-object of type tracer with selected traces removed.
+object of type tracer with a new field added into the meta data
 }
 \description{
-delete selected traces from the trace object
+adding a field to the meta data
 }
