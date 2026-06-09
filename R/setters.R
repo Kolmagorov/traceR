@@ -3,6 +3,7 @@
 #' @param x an object of class tracer
 #' @param what a smart row selector see `plt_gg` for details.
 #' @param field a named list of fields and corresponding records
+#' @param global if TRUE, new field is added to all items in the object.
 #' @param full_match logical, if set TRUE a field name if exists will be searched 
 #' for exact match.
 #' @details depending on what is passed to `what`, meta data update can be 
@@ -62,13 +63,12 @@ set_field <- function(x
 
 
 
-#' Add a new custom field
-#' @description adding a field to the meta data
+#' Deletes selected traces
+#' @description removes all selected traces
 #' @param x an object of class tracer
-#' @param new_field a string, i.e. a name of the new field
+#' @param what a smart row selector, see `plt_gg` for details.
 #' @returns object of type tracer with a new field added into the meta data
 #' @export
-
 del_trace <- function(x, what){
   
   if(methods::is(x) != "tracer"){ 

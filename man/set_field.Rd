@@ -13,6 +13,8 @@ set_field(x, what, field, global = TRUE, full_match = FALSE)
 
 \item{field}{a named list of fields and corresponding records}
 
+\item{global}{if TRUE, new field is added to all items in the object.}
+
 \item{full_match}{logical, if set TRUE a field name if exists will be searched 
 for exact match.}
 }

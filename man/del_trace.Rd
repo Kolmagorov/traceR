@@ -2,18 +2,18 @@
 % Please edit documentation in R/setters.R
 \name{del_trace}
 \alias{del_trace}
-\title{Add a new custom field}
+\title{Deletes selected traces}
 \usage{
 del_trace(x, what)
 }
 \arguments{
 \item{x}{an object of class tracer}
 
-\item{new_field}{a string, i.e. a name of the new field}
+\item{what}{a smart row selector, see `plt_gg` for details.}
 }
 \value{
 object of type tracer with a new field added into the meta data
 }
 \description{
-adding a field to the meta data
+removes all selected traces
 }
