@@ -147,4 +147,8 @@ prc <- tr_workflow(flow = obj|>
                      plt_gg(what = list(chan = "280"))
                    )
 
-
+devtools::load_all()
+set_field_value(x = dff
+                , what = 1
+                , field = list(Za = 8))|>
+  trace_info()

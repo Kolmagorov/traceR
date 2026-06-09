@@ -4,23 +4,26 @@
 \alias{set_field_value}
 \title{Set a new records to a selected field of the meta data}
 \usage{
-set_field_value(x, what, record, field = c("SampleName", "SOURCE", "Comments"))
+set_field_value(x, what, field, full_match = FALSE)
 }
 \arguments{
 \item{x}{an object of class tracer}
 
-\item{what}{either numeric indexes or vector string of UID. 
-If some Numeric indexes out of range an error will be thrown. 
-All Unmatched UID's will be ignored with warning.}
+\item{what}{a smart row selector see `plt_gg` for details.}
 
-\item{record}{a vector of entities}
+\item{field}{a named list of fields and corresponding records}
 
-\item{field}{a string representing the name of the field into which 
-the record should be placed}
+\item{full_match}{logical, if set TRUE a field name if exists will be searched 
+for exact match.}
 }
 \value{
-object of type tracer with field records updated
+an object of type tracer with new fields and records updated
 }
 \description{
-setting new sample name to a trace
+adding new meta data to the selected samples
+}
+\details{
+depending on what is passed to `what`, meta data update can be 
+done to a single sample or group of samples. If `what` is set to NULL then 
+to all samples the same fields and records will be added.
 }

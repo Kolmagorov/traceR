@@ -10,7 +10,7 @@ Description: The traceR package provides functionality to load, handle,
     process and compare single-channeled chromatographic traces. The processing
     includes resampling of data points, trace alignment, signal normalization,
     and cropping. Computing similarity and distance metrics allows to get an objective
-    comparision of traces. Every processing step and can be visulised using 
+    comparision of traces. Every processing step can be visulised using 
     a dedicated plotting function. 
 License: MIT + file LICENSE
 Encoding: UTF-8

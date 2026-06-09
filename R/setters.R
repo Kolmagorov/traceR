@@ -20,12 +20,12 @@ set_field_value <- function(x
     stop("\n x must be an object of type tracer", call. = FALSE)
     }
   
-  if(is.list(field)){
+  if(!is.list(field)){
     stop("The argument field must be a type of list", call. = FALSE)
     }
   
-  if(full_match){ ptrn <- rlang::enexpr(paste0("\\b", fld[s],"\\b")) }
-  else{ ptrn <- rlang::enexpr(paste0("^", fld[s])) }
+  if(full_match){ ptrn <- rlang::enexpr(paste0("\\b", f,"\\b")) }
+  else{ ptrn <- rlang::expr(paste0("^", f)) }
   
   what <- what_validator(x, what = what)
   fld <- names(field)
@@ -34,21 +34,29 @@ set_field_value <- function(x
     stop("Field names must be unique\n")
   }
   
+  # Iterate over traces 
   for(s in 1:length(what)){
     
-    tmp <- grep(x = names( x$META[[ what[s] ]] )
-                , pattern = eval(expr = ptrn)
-                , ignore.case = !full_match
-                , value = T)
+    # Iterate over fields
+    for(f in fld){
+  
+      tmp <- grep(x = names( x$META[[ what[s] ]] )
+                  , pattern = eval(expr = ptrn)
+                  +, ignore.case = !full_match
+                  , value = T)
+      print(tmp)
+      
+      if(length(tmp) > 1){
+        warning("The field ", f, " is not unique so it was skipped\n")
+        next}
+      if(length(tmp) == 0){ tmp <- f }
+      
+      x$META[[ what[s] ]][ tmp ] <- field[[ f ]]
+      
+    }
     
-    if(length(tmp) > 1){
-      warning("The field ", fld[s], " is not unique so it was skipped\n")
-      next}
-    
-    x$META[[ what[s] ]][ fld[s] ] <- field[[ fld[s] ]]
-
   }
-  rm(tmp, s)
+  rm(tmp, s, f)
 
   return(x)
 }
@@ -308,9 +316,10 @@ get_meta_fields <- function(x = NULL){
 #' object constructor
 #' @description create an obect of type tracer
 #' @param x a data.frame or a list of data.frames
-#' @param len s numeric that defines UID length
-#' @param use_columns a vector of length 2
-#' @param meta meta data
+#' @param len a numeric that defines UID length
+#' @param use_columns a vector of length 2, defining wich columns will be used 
+#' as time and response variables. By default first is Time, second - Response.
+#' @param meta meta data, can be a data.frame or a list
 #' @param use_names if TRUE than the names of  input list x will be used as ID's
 #' @details an input data.frame must contain two columns of type numeric. To construct
 #' an object with multiple traces, a list of data.frames must be provided.
