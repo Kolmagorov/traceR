@@ -4,7 +4,7 @@
 \alias{set_field}
 \title{Set a new records to a selected field of the meta data}
 \usage{
-set_field(x, what, field, global = TRUE, full_match = FALSE)
+set_field(x, what, field, full_match = FALSE)
 }
 \arguments{
 \item{x}{an object of class tracer}
@@ -12,8 +12,6 @@ set_field(x, what, field, global = TRUE, full_match = FALSE)
 \item{what}{a smart row selector see `plt_gg` for details.}
 
 \item{field}{a named list of fields and corresponding records}
-
-\item{global}{if TRUE, new field is added to all items in the object.}
 
 \item{full_match}{logical, if set TRUE a field name if exists will be searched 
 for exact match.}
