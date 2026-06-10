@@ -88,8 +88,7 @@ devtools::load_all()
 dff <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/GNR_060/TRACES")|>
   tr_crop(crop_to = c(5, 110))|>
   tr_resample(pts = 2000)|>
-  tr_rescale(type = "minmax")|>
-  add_field(new_field = list(Group = "Alteplase"))
+  tr_rescale(type = "minmax")
 
 df$META <- lapply(df$META, function(dt){
   
