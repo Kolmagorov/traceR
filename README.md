@@ -28,7 +28,7 @@ This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(traceR)
-## basic example code comming soon...
+## basic example code is coming soon...
 ```
 
 ## Getting help and Bug report

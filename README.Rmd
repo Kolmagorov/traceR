@@ -19,8 +19,8 @@ knitr::opts_chunk$set(
 <!-- badges: end -->
 
 ## Overview
-The goal of traceR is to provide tools for signal processing of chromatographic traces
-Currently supports only single channel data
+The goal of traceR is to provide tools for signal processing of chromatographic traces.
+Currently supports only single-channeled data
 
 ## Installation
 
@@ -31,18 +31,13 @@ You can install the development version of traceR from [GitHub](https://github.c
 pak::pak("Kolmagorov/traceR")
 ```
 
-``` r
-# install.packages("devtools")
-devtools::install_github("Kolmagorov/traceR")
-```
-
 ## Example
 
 This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
 library(traceR)
-## basic example code
+## basic example code is coming soon...
 ```
 
 
