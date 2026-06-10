@@ -10,7 +10,7 @@
 ## Overview
 
 The goal of traceR is to provide tools for signal processing of
-chromatographic traces. Currently supports only single-channeled data.
+chromatographic traces. Currently supports only single-channeled data
 
 ## Installation
 
@@ -28,7 +28,7 @@ This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(traceR)
-## basic example code
+## basic example code comming soon...
 ```
 
 ## Getting help and Bug report
