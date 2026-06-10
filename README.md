@@ -10,7 +10,7 @@
 ## Overview
 
 The goal of traceR is to provide tools for signal processing of
-chromatographic traces Currently supports only single channel data
+chromatographic traces. Currently supports only single-channeled data.
 
 ## Installation
 
@@ -20,11 +20,6 @@ You can install the development version of traceR from
 ``` r
 # install.packages("pak")
 pak::pak("Kolmagorov/traceR")
-```
-
-``` r
-# install.packages("devtools")
-devtools::install_github("Kolmagorov/traceR")
 ```
 
 ## Example
