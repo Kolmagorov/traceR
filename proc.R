@@ -13,6 +13,11 @@ usethis::use_readme_rmd()
 
 devtools::build_readme()
 
+usethis::use_news_md()
+
+
+
+
 # INTERNAL DATA 
 field_desc <- read.csv("//dc3/OAM/Сотрудники/Podkolzin_IV/PROJECTS_ALL/2026/field_description.csv" ,
          sep = ";" , header = T , fileEncoding = "CP1251")
