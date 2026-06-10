@@ -36,7 +36,7 @@ what_validator <- function(obj, what){
       stop("\nIf what is a list then the names must be unique\n")
     }
     
-    meta <- suppressMessages(trace_info(obj))
+    meta <- dplyr::bind_rows(obj$META)
    
     
     for(s in fld){
@@ -207,14 +207,14 @@ expand_meta_data <- function(lst, fac = 1e5){
     data.frame(
       minSig = min(dt[["Response"]]),
       maxSig = max(dt[["Response"]]),
-      dataPoints = nrow(dt),
+      pts = nrow(dt),
       apexRT = dplyr::filter(.data$Response == max(.data$Response), .data = dt)|>
         dplyr::pull(.data$RT)|> mean(),
       minRT = min(dt[["RT"]]),
       maxRT = max(dt[["RT"]])
     )|>
-      dplyr::mutate(samplingRate = round(.data$dataPoints/(.data$maxRT - .data$minRT)/60, digits = 1),
-                    score = round(energy/.data$dataPoints, digits = 1))
+      dplyr::mutate(samplingRate = round(.data$pts/(.data$maxRT - .data$minRT)/60, digits = 1),
+                    score = round(energy/.data$pts, digits = 1))
     
   })|>
     do.call("rbind", args=_)|>
@@ -355,10 +355,10 @@ data_point_validator <- function(x){
   
   # get meta data info about data points
   blw_pts <- suppressMessages(trace_info(x = x), classes = "message")|>
-    dplyr::select(.data$FILE, .data$dataPoints, .data$SOURCE)
+    dplyr::select(.data$FILE, .data$pts, .data$SOURCE)
   
   # checks if all samples have the same number of data points
-  incomp <- unique(blw_pts$dataPoints)
+  incomp <- unique(blw_pts$pts)
   
   if(length(incomp) != 1){
     

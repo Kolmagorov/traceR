@@ -4,17 +4,12 @@
 \alias{copy_trace}
 \title{Copy an item of tracer object}
 \usage{
-copy_trace(x, what = NULL, field = NULL)
+copy_trace(x, what = NULL)
 }
 \arguments{
 \item{x}{an object of class tracer}
 
-\item{what}{either numeric indexes or a vector string of UID. 
-If some numeric indexes out of range an error will be thrown. 
-All Unmatched UID's will be ignored with warning.}
-
-\item{field}{either list with a single item or a character of length one, 
-containing a regular expression and a field name to search in to select traces.}
+\item{what}{see `plt_gg` for details}
 }
 \value{
 object of type tracer with selected traces.

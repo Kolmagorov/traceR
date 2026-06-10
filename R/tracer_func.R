@@ -3,12 +3,15 @@
 #' @description Provides a compact table with descriptive information
 #' about traces
 #' @param x an object of class tracer
+#' @param common logical. If TRUE returns only common field across all samples
+#' @param extra logical. If TRUE computes and returns additional metrics 
+#' based on meta data
 #' @param force_raw logical if TRUE returns info for 
 #' the Unprocessed data
-#' @param ... an argument to pass to 'expand_meta_data' function
+#' @param ... an argument `frac` to pass to `expand_meta_data` function
 #' @returns a list with descriptive parameters of traces
 #' @export
-trace_info <- function(x, force_raw = FALSE, ...){
+trace_info <- function(x, common = FALSE, extra = TRUE, force_raw = FALSE, ...){
 
   if(methods::is(x) != "tracer"){ 
     stop("\n x must be an object of type tracer", call. = FALSE)}
@@ -19,18 +22,26 @@ trace_info <- function(x, force_raw = FALSE, ...){
     if(is.null(x$PROCESSED)){ data_ <- "RAW"}
   }else{ data_ <- "RAW" }
   
-  hdr <- lapply(x$META, names) |> purrr::reduce(intersect)
-
   message("Returning info for ", data_, " data")
+  
+  if(common){
+    
+    hdr <- lapply(x$META, names) |> purrr::reduce(intersect)
+    tab <- lapply(x$META, function(dt) dt[hdr] )|>
+      do.call("rbind", args =_)
+    
+  }else{ tab <- dplyr::bind_rows(x$META) }
+  
+  if(extra){
+    
+    tab <- expand_meta_data(lst = x[[data_]],...)|>
+      merge(y = tab, by = "ID")
+    
+  }
 
-  common <- lapply(x$META, function(dt) dt[hdr] )|>
-    do.call("rbind", args =_)
-  
-  common <- expand_meta_data(lst = x[[data_]],...)|>
-    merge(y = common, by = "ID")
-  
-  return(common)
+  return(tab)
 }
+
 
 #' Re-scale Response of a trace
 #' @description Transforms Response to a new designated scale.
@@ -132,8 +143,8 @@ tr_resample <- function(x, pts, new_obj = TRUE){
   
   blw_pts <- suppressMessages(trace_info(x = x), classes = "message")|>
 
-    dplyr::select(.data$FILE, .data$dataPoints, .data$SOURCE)|>
-    dplyr::filter(.data$dataPoints < pts)
+    dplyr::select(.data$FILE, .data$pts, .data$SOURCE)|>
+    dplyr::filter(.data$pts < pts)
 
   if(nrow(blw_pts) > 0){
 
@@ -206,7 +217,7 @@ tr_align <- function(x
   
  
   if(ref > length(x$RAW) | ref <= 0){
-    stop("Argument ref must be within the range 1 -", length(x$RAW))
+    stop("Argument ref must be within the range 1 - ", length(x$RAW))
   }
   
   reference <- x$META[[ref]]|>
@@ -254,8 +265,6 @@ tr_align <- function(x
   else{ return(x$PROCESSED) }
 }
 
-# PERSPECTIVE -- `trace_info` change to `get_meta` to show output 
-# either by group or all, or selected items
 
 #' Plot traces with ggplot2
 #' @description plots traces using ggplot2 graphics

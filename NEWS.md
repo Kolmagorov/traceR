@@ -14,11 +14,17 @@ superseded by `set_field()`.
 3. Added new function `tr_default()` that keeps RAW and META data and deletes
 everything else from the object. 
 4. Argument `what` is now supports regular expressions on meta data content.
+5. Function `tr_copy()` is now supporting `what`.
+6. Function `trace_info()` by default returns all metadata. Also it can be called 
+to return common fields only with or without additional computed data.
 
 ## BUG FIXES
 
--   When setting `ref` in `tr_align()` , the function no longer crashes
+1. When setting `ref` in `tr_align()` , the function no longer crashes
     if value exceeds 5.
+2. In extended meta data that is returning by `trace_info()`, the field `dataPoints`
+has been changed to `pts` in order to avoid collision and ambiguity with 
+field name `DataPoints` which is a part of CHROMELEON meta data.
 
 ## EXPERIMENTAL
 

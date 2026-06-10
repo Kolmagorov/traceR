@@ -3,7 +3,6 @@
 #' @param x an object of class tracer
 #' @param what a smart row selector see `plt_gg` for details.
 #' @param field a named list of fields and corresponding records
-#' @param global if TRUE, new field is added to all items in the object.
 #' @param full_match logical, if set TRUE a field name if exists will be searched 
 #' for exact match.
 #' @details depending on what is passed to `what`, meta data update can be 
@@ -15,7 +14,6 @@
 set_field <- function(x
                       , what
                       , field
-                      , global = TRUE
                       , full_match = FALSE){
   
   if(methods::is(x) != "tracer"){ 
@@ -52,15 +50,15 @@ set_field <- function(x
       
       
       if(dt$ID %in% what){ dt[tmp] <- field[f] }
-      else if(global){ dt[tmp] <- NA }
       else{next}
       }
     dt
     })
+  
+  x <- history_upd(x = x, event = "set_field")
 
   return(x)
 }
-
 
 
 #' Deletes selected traces
@@ -77,17 +75,14 @@ del_trace <- function(x, what){
   
   what <- what_validator(x, what = what)
   
-  if(is.null(x$PROCESSED)){ x$RAW[what] <- NULL }
-  else{
-    x$RAW[what] <- NULL
-    x$PROCESSED[what] <- NULL
-    }
-
+  # Deletion
+  x$RAW[what] <- NULL
   x$META[what] <- NULL
   x$LOG <- x$LOG |>
     dplyr::filter(!(.data$ID %in% what))
+  if(!is.null(x$PROCESSED)){ x$PROCESSED[what] <- NULL }
   
-  x <- history_upd(x = x, event = "item('s) deleted")
+  x <- history_upd(x = x, event = "delete")
 
   return(x)
 }
@@ -95,49 +90,20 @@ del_trace <- function(x, what){
 #' Copy an item of tracer object
 #' @description copy selected traces from the tracer object
 #' @param x an object of class tracer
-#' @param what either numeric indexes or a vector string of UID. 
-#' If some numeric indexes out of range an error will be thrown. 
-#' All Unmatched UID's will be ignored with warning.
-#' @param field either list with a single item or a character of length one, 
-#' containing a regular expression and a field name to search in to select traces. 
+#' @param what see `plt_gg` for details
 #' @returns object of type tracer with selected traces.
 #' @export
-copy_trace <- function(x, what = NULL, field = NULL){
+copy_trace <- function(x, what = NULL){
   
   if(methods::is(x) != "tracer"){ 
     stop("\n x must be an object of type tracer", call. = FALSE)
   }
   
-  if(is.null(field)){
-    what <- what_validator(x, what = what)
-    
-  }else{
-    
-    fld <- names(field)
-    
-    info <- suppressMessages(trace_info(x))
-    
-    what <- info|> 
-      dplyr::filter(grepl(x = .data[[fld]], pattern = field))|>
-      dplyr::pull(.data$ID)
-    
-  }
-  
   what <- setdiff(names(x$META), what)
-  
-  
-  
-  if(is.null(x$PROCESSED)){ x$RAW[what] <- NULL }
-  else{
-    x$RAW[what] <- NULL
-    x$PROCESSED[what] <- NULL
-  }
-  
-  x$META[what] <- NULL
-  x$LOG <- x$LOG |>
-    dplyr::filter(!(.data$ID %in% what))
-  
-  x <- history_upd(x = x, event = "item('s) copied")
+
+  x <- del_trace(x, what)
+
+  x <- history_upd(x = x, event = "copied")
   
   return(x)
 }

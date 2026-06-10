@@ -4,15 +4,20 @@
 \alias{trace_info}
 \title{Gets trace info}
 \usage{
-trace_info(x, force_raw = FALSE, ...)
+trace_info(x, common = FALSE, extra = TRUE, force_raw = FALSE, ...)
 }
 \arguments{
 \item{x}{an object of class tracer}
 
+\item{common}{logical. If TRUE returns only common field across all samples}
+
+\item{extra}{logical. If TRUE computes and returns additional metrics 
+based on meta data}
+
 \item{force_raw}{logical if TRUE returns info for 
 the Unprocessed data}
 
-\item{...}{an argument to pass to 'expand_meta_data' function}
+\item{...}{an argument `frac` to pass to `expand_meta_data` function}
 }
 \value{
 a list with descriptive parameters of traces

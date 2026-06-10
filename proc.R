@@ -83,9 +83,12 @@ usethis::use_author(
 "C:/RWD/Angular_Sim_Exp/TEST_AREA/Merging/B"
 "C:/RWD/Angular_Sim_Exp/TEST_AREA/HETERO"
 "C:/RWD/Angular_Sim_Exp/GNR_060/TRACES"
+"I:/Angular_Sim_Exp/GNR_060/TRACES"
 
 devtools::load_all()
-dff <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/GNR_060/TRACES")|>
+df <- load_trace(path_dir = "I:/Angular_Sim_Exp/GNR_060/TRACES"
+                  #"C:/RWD/Angular_Sim_Exp/GNR_060/TRACES"
+                  )|>
   tr_crop(crop_to = c(5, 110))|>
   tr_resample(pts = 2000)|>
   tr_rescale(type = "minmax")
@@ -151,9 +154,26 @@ prc <- tr_workflow(flow = obj|>
                      plt_gg(what = list(chan = "280"))
                    )
 
+
 devtools::load_all()
-set_field_value(x = dff
-                , what = 1
-                , global = F
-                , field = list(gro = 8))|>
-  trace_info()
+for(g in c("060", "004")){
+  
+ df <- set_field(x = df
+            , what = list(sampleName = g)
+            , field = list(Group = g))
+  
+}
+rm(g)
+
+trace_info(df)
+
+dplyr::bind_rows(df$META)
+
+
+
+
+
+
+
+
+
