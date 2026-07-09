@@ -99,11 +99,14 @@ copy_trace <- function(x, what = NULL){
     stop("\n x must be an object of type tracer", call. = FALSE)
   }
   
-  what <- setdiff(names(x$META), what)
-
-  x <- del_trace(x, what)
-
-  x <- history_upd(x = x, event = "copied")
+  if(is.null(what)){
+    return(x)
+  }else{
+    
+    what <- setdiff(names(x$META), what)
+    x <- del_trace(x, what)
+    x <- history_upd(x = x, event = "copied")
+  }
   
   return(x)
 }

@@ -19,9 +19,9 @@ ui <- fluidPage(
     actionButton(inputId = "submit_btn"
                  , label = "Submit"
                  , icon = icon("stats", lib = "glyphicon")),
-    hr(),
+    br(),
+    tableOutput("tbl"),
     h2("Traces"),
-    
     selectInput(
       inputId = "Scaling",
       label = "Select a func.:",
@@ -37,9 +37,6 @@ ui <- fluidPage(
                 , width = "100%"
                 , step = 1
                 , post = "min"),
-    
-    textOutput("txt")
-    
   )
     
 
@@ -48,36 +45,24 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   
   # Get preview data
-  prev_dt <- reactive({
+  spc <- reactive({
     
     req(input$upload)
     obj <- traceR::load_trace(fls = input$upload$datapath)
     obj$LOG$FILE_NAME <- input$upload$name
-    
-    obj$LOG |>
-      dplyr::select(!c(FILE, SOURCE))|>
-      merge(traceR::trace_info(obj, force_raw = TRUE), by ="ID")
-
+    obj
+   
   })
+  
   
   observeEvent(input$submit_btn, {
     
-    obj <- traceR::load_trace(fls = input$upload$datapath) # indexes are changed
-    what <- NULL
+    if(is.null(input$preview_rows_selected)){what <- NULL}
+    else{what <- spc()[["LOG"]][["ID"]][input$preview_rows_selected]}
     
-    if(!is.null(input$preview_rows_selected)){
-      
-      what <- prev_dt()[["ID"]][input$preview_rows_selected]
-      
-      obj <- traceR::copy_trace(x = obj, what = what)
-    }
-    
-    output$txt <- renderPrint(what)
-    
+    obj <- traceR::copy_trace(spc(), what = what)
+    output$tbl <- renderTable({obj$LOG})
   })
-  
-  
-  
   
   
   # Update sliderInput with uploaded data
@@ -101,15 +86,23 @@ server <- function(input, output, session) {
   # Render Preview Data
   output$preview <- DT::renderDT({
     
-    DT::datatable(prev_dt()
-                  , filter = "none"
-                  , rownames = TRUE
-                  , selection = "multiple"
-                  , options = list( 
-                    scrollY = "200px",
-                    scrollX = TRUE,
-                    paging = FALSE)
-                  )
+    traceR::trace_info(spc()
+                       , extra = TRUE
+                       , force_raw = TRUE)|>
+      dplyr::select(!c(FILE, SOURCE))|>
+      merge(spc()[["LOG"]], by = "ID")|>
+      dplyr::select(!FILE)|>
+      
+      DT::datatable(filter = "none"
+                    , rownames = TRUE
+                    , extensions = "ColReorder"
+                    , selection = "multiple"
+                    , options = list(
+                      colReorder = TRUE,
+                      scrollY = "200px",
+                      scrollX = TRUE,
+                      paging = FALSE)
+                    )
     
     })
   # Render Chromatograms
