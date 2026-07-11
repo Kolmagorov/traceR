@@ -1,18 +1,18 @@
 
-#submit_btn:disabled {
+button:disabled {
   background-color: #cccccc;
   color: #666666;
   cursor: not-allowed; /* Shows a blocked cursor icon */
   opacity: 0.6;
 }
 
-#submit_btn {
+button:enabled {
   background-color: #0297c4;
   color: #ffffff;
   
 }
 
-#submit_btn:enabled:hover {
+button:enabled:hover {
   background-color: #50c41a;
   color: white;
   border-color: #02c415:

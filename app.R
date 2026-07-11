@@ -31,8 +31,7 @@ ui <- fluidPage(
     label = "display options",         
     choices = c(Common = "com", Computed = "extra"),       
     selected = c("com", "extra"),      
-    inline = TRUE
-  ),
+    inline = TRUE),
   
   DT::DTOutput("preview"),
   
@@ -64,32 +63,38 @@ ui <- fluidPage(
   
   # Alignment button
   actionButton(inputId = "align_btn"
-               , label = "Aligne"
+               , label = "Align"
+               , disabled = TRUE
                , icon = icon(name = "object-align-vertical",
                              lib = "glyphicon")),
+  # Alignment Info
+  verbatimTextOutput("align_info", placeholder = TRUE),
   
   # PLOT AREA
   plotOutput("plot"),
   
   # RETENTION Time cropping
-  sliderInput("time_rng", "Retention Time"
+  sliderInput("time_rng", "Adjust sliders to crop out Retention time segment"
               , value = c(0, 100)
               , min = 0
               , max = 100
               , width = "100%"
               , step = 1
-              , post = "min"),
+              , post = " min"),
   
-  # NEW Obj meta info --------------------------------------------------
-  tableOutput("tbl")
+  # Editable Object meta info --------------------------------------------------
+  DT::DTOutput("obj_ed")
+
   )
 
 # Define server logic
 server <- function(input, output, session) {
   
-  # Create container to store an object
-  
+  # Create container to store an object 
   act_obj <- reactiveVal(NULL)
+  
+  # Reactive values to track the previously selected row
+  row_sel_ed <- reactiveValues(selected_row = 1)
   
   # Get loaded data reactive
   spc <- reactive({
@@ -141,11 +146,23 @@ server <- function(input, output, session) {
   # Alignment on click <------ CHANGE TO TOGGLE OR SWITCH
   observeEvent(input$align_btn, {
     
-    obj <- traceR::tr_align(act_obj(), ref = 1)
+    obj <- traceR::tr_align(act_obj(), ref = row_sel_ed$selected_row)
     act_obj(obj)
     
   })
-
+  
+  # Selecting a reference from table
+  observeEvent(input$obj_ed_rows_selected, {
+    
+    if(length(input$obj_ed_rows_selected) > 0) {
+      # Save the newly selected row
+      row_sel_ed$selected_row <- input$obj_ed_rows_selected
+    }else{
+      # If user deselects, force the previously selected row to remain active
+      DT::selectRows(DT::dataTableProxy("obj_ed"), row_sel_ed$selected_row)
+    }
+  }, ignoreNULL = FALSE)
+  
   # Submission on Click
   observeEvent(input$submit_btn, {
     
@@ -160,7 +177,7 @@ server <- function(input, output, session) {
     dt_meta <- traceR::trace_info(obj
                                   , extra = TRUE
                                   , common = TRUE
-                                  , force_raw = TRUE) # ? Processed ?
+                                  , force_raw = TRUE) # ? add a Switch to Processed ?
     
     # Keep character fields only
     facet_labs <- dt_meta |> dplyr::select(dplyr::where(is.character))
@@ -182,6 +199,13 @@ server <- function(input, output, session) {
                          , session = session
                          , data = facet_labs
                          , selected = "ID") 
+    
+    # Update Align btn state 
+    updateActionButton(session = session
+                       , inputId = "align_btn"
+                       , disabled = FALSE)
+    
+    
     # Render Traces
     output$plot <- renderPlot({
       
@@ -204,8 +228,24 @@ server <- function(input, output, session) {
       
     })
     
-    output$tbl <- renderTable({dt_meta})
+    # Render child Object meta data
+    output$obj_ed <- DT::renderDT({
+      
+      DT::datatable(data = dt_meta
+                    , filter = "none"
+                    , rownames = TRUE
+                    , extensions = "ColReorder"
+                    , selection = "single"
+                    , options = list(
+                      colReorder = TRUE,
+                      scrollY = "200px",
+                      scrollX = TRUE,
+                      paging = FALSE)
+      )
+    })
+    
   })
+  
   
   # Render Preview Data
   output$preview <- DT::renderDT({
@@ -222,7 +262,15 @@ server <- function(input, output, session) {
                     paging = FALSE)
                   )
     })
-
+  
+  # Render alignment info
+  output$align_info <- renderPrint({
+    
+    act_obj()$HISTORY
+    
+  })
+  
+  
 }
 
 # Run the application 
