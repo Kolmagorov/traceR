@@ -477,12 +477,12 @@ tr_compar <- function(x
       
       b$warped.sample[is.na(b$warped.sample)] <- min(b$warped.sample, na.rm = T)
       
-      b <- b$warped.sample
+      b <- c(b$warped.sample)
 
       # Select a re-weighting algorithm
       if(use_diff){
         
-        w <- abs(a - b)+1
+        w <- abs(a - b)/min(a+1, b+1) + 1
         
       }else if(pw == 0){w <- 1}
       else{
