@@ -476,6 +476,8 @@ tr_compar <- function(x
                        , samp = x[[ data_ ]][[ item[j] ]][["Response"]])
       
       b$warped.sample[is.na(b$warped.sample)] <- min(b$warped.sample, na.rm = T)
+      
+      b <- b$warped.sample
 
       # Select a re-weighting algorithm
       if(use_diff){
