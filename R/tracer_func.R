@@ -397,6 +397,7 @@ plt_gg <- function(x
 #' @param use_diff logical, whether use peak difference or absolute intensity
 #' @param pw a numeric, a weighing coefficient for signal intensities
 #' default is 0.
+#' @param align logical. If TRUE a pairwise alignment will be applied.
 #' @param neg logical, if TRUE allows negative peaks, default is FALSE
 #' @param force_raw if TRUE RAW data will be compared regardless of the previous 
 #'  processing steps taken
@@ -407,6 +408,7 @@ tr_compar <- function(x
                   , lab = NULL
                   , use_diff = FALSE
                   , pw = 0
+                  , align = FALSE
                   , neg = FALSE
                   , force_raw = FALSE
                   , metric = c("cosim", "cosdist", "angularsim", "angulardist", "euclidian")
@@ -467,8 +469,14 @@ tr_compar <- function(x
     
     for(j in seq_along(item)){
       
-      b <- x[[ data_ ]][[ item[j] ]][["Response"]]
+      #b <- x[[ data_ ]][[ item[j] ]][["Response"]]
       
+      # Pair-wise alignment
+      b <- ptw::ptw(ref = a
+                       , samp = x[[ data_ ]][[ item[j] ]][["Response"]])
+      
+      b$warped.sample[is.na(b$warped.sample)] <- min(b$warped.sample, na.rm = T)
+
       # Select a re-weighting algorithm
       if(use_diff){
         
