@@ -502,6 +502,7 @@ tr_compar <- function(x
                           ) |>
           rbind(wgt)
       }
+      rm(b)
     }
   }
   # OUTPUT
