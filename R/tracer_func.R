@@ -469,20 +469,19 @@ tr_compar <- function(x
     
     for(j in seq_along(item)){
       
-      #b <- x[[ data_ ]][[ item[j] ]][["Response"]]
+      b <- x[[ data_ ]][[ item[j] ]][["Response"]]
       
       # Pair-wise alignment
-      b <- ptw::ptw(ref = a
-                       , samp = x[[ data_ ]][[ item[j] ]][["Response"]])
-      
-      b$warped.sample[is.na(b$warped.sample)] <- min(b$warped.sample, na.rm = T)
-      
-      b <- c(b$warped.sample)
+      if(align){ 
+        b <- ptw::ptw(ref = a, samp = b) 
+        b$warped.sample[is.na(b$warped.sample)] <- min(b$warped.sample, na.rm = T)
+        b <- c(b$warped.sample)
+        }
 
       # Select a re-weighting algorithm
       if(use_diff){
         
-        w <- abs(a - b)/min(a+1, b+1) + 1
+        w <- abs(a - b) + 1
         
       }else if(pw == 0){w <- 1}
       else{
