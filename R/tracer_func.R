@@ -411,6 +411,7 @@ tr_compar <- function(x
                   , align = FALSE
                   , neg = FALSE
                   , force_raw = FALSE
+                  , dif_base = 2
                   , metric = c("cosim", "cosdist", "angularsim", "angulardist", "euclidian")
                   , fun = c("max", "mean", "min")){
   
@@ -458,6 +459,14 @@ tr_compar <- function(x
     stop("Argument lab has non-unique items", call. = FALSE)
     }
   
+  if(dif_base <= 0){
+    stop("Argument dif_base must be greater than 0", call. = FALSE)
+    }
+  
+  if(pw <= 0){
+    stop("Argument dif_base must be greater than 0", call. = FALSE)
+  }
+  
   # init containers for output and weights, i.e. importance
   out <- NULL
   wgt <- NULL
@@ -481,15 +490,13 @@ tr_compar <- function(x
       # Select a re-weighting algorithm
       if(use_diff){
         
-        w <- abs(a - b)
+        w <- dif_base^( abs(a - b)^pw )
         
-      }else if(pw == 0){w <- 1}
-      else{
-        w <- cbind(a, b) |> apply(2, function(x) x - min(x)) |> 
+        }else{
+          w <- cbind(a, b) |> apply(2, function(x) x - min(x)) |> 
           apply(1, get(fun))
+          w <- w**pw
       }
-      
-      w <- w**(2*pw)
       
       out <- c(out, round(eval(metric), digits = 6))
 
