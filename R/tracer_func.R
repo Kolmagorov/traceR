@@ -399,9 +399,27 @@ plt_gg <- function(x
 #' default is 0.
 #' @param align logical. If TRUE a pairwise alignment will be applied.
 #' @param neg logical, if TRUE allows negative peaks, default is FALSE
-#' @param force_raw if TRUE RAW data will be compared regardless of the previous 
-#'  processing steps taken
-#' @param metric a string indicating which similarity or distance metric to compute
+#' @param force_raw if TRUE RAW data will be compared regardless of the previous processing steps taken
+#' @param dif_base a positive value to compute weighting vector;
+#' @param lamb a positive number, to get similarity score based uclidean distance, on see details.
+#' @param simple  if TRUE computes unweghted Euclidean distance;
+#' @param metric a string indicating which similarity or distance metric to compute, see details.
+#' @details
+#' Available metrics:
+#' \itemize{
+#' \item cosim - cosine similarity: \eqn{S_c(a,b)=\frac{\sum{a_ib_iw_i^2}}{\sqrt{\sum{(a_iw_i)^2}}\sqrt{\sum{(b_iw_i)^2}}} };
+#' \item cosdist - cosine distance: \eqn{D_c=1-S_c(a,b)};
+#' \item euclidean - Euclidean distance:
+#' \eqn{ D_E=\sqrt{2\cdot{D_c}} };
+#' If simple = TRUE, provides unweighted distance between vectors:
+#' \eqn{D_E(a,b)=\sqrt{\sum_{i=1}^{n}{(a_i-b_i)^2}}};
+#' \item angulardist - angular distance, takes on values from 0 to 1:
+#' \eqn{ D_{\theta }={\frac {2\cdot\arccos(S_c(a,b))}{\pi }}={\frac {2\cdot\theta }{\pi }} };
+#' \item angularsim - angular similarity, takes on values from 0 to 1:
+#' \eqn{ S_{\theta }= 1-D_{\theta }};
+#' \item simex - similarity score which is a exponential function of euclidean distance \eqn{S_e=e^{-\gamma\cdot\|x\|^2}};
+#' }
+#' 
 #' @param fun a string defining a function that will be used in getting re-weighting vector.
 #' @export
 tr_compar <- function(x
@@ -412,7 +430,9 @@ tr_compar <- function(x
                   , neg = FALSE
                   , force_raw = FALSE
                   , dif_base = 2
-                  , metric = c("cosim", "cosdist", "angularsim", "angulardist", "euclidian")
+                  , lamb = 1
+                  , simple = FALSE
+                  , metric = c("cosim", "cosdist", "angularsim", "angulardist", "euclidean","simex")
                   , fun = c("max", "mean", "min")){
   
   if(methods::is(x) != "tracer"){ 
@@ -438,7 +458,8 @@ tr_compar <- function(x
                    cosdist = bquote(tr_cosine_dist(a, b, w)),
                    angularsim = bquote(tr_angular_sim(a, b, w)),
                    angulardist = bquote(tr_angular_dist(a, b, w, neg)),
-                   euclidian = bquote(tr_cos2euc(a, b, w))
+                   euclidian = bquote(tr_cos2euc(a, b, w, simple)),
+                   simex = bquote(tr_euc2sim(a, b, w, lamb, simple))
                    )
   
   # Define labels for the similarity/distance matrix

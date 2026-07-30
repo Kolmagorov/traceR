@@ -65,6 +65,7 @@ purrr::walk(IMPORTS, usethis::use_package)
 roxygen2::roxygenise(clean = TRUE)
 
 devtools::document()
+?tr_compar
 
 devtools::load_all()
 

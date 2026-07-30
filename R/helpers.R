@@ -308,7 +308,7 @@ rehash_id <- function(a, b){
 #' @keywords internal
 tr_cosine_sim <- function(a, b, w = 1){
   
-  sum(a*b*w)/sqrt( sum(w*a*a)*sum(w*b*b) )
+  sum(a*b*w**2)/sqrt( sum(w*w*a*a)*sum(w*w*b*b) )
   
 }
 
@@ -321,10 +321,12 @@ tr_cosine_dist <- function(a, b, w = 1){
 
 #' Computes Euclidian distance
 #' @keywords internal
-tr_cos2euc <- function(a,b,w){
+tr_cos2euc <- function(a,b,w, simple = FALSE){
   
-  sqrt(2*(1-tr_cosine_sim(a, b, w)))
+  if(simple){dst <- sqrt(sum((a-b)**2))}
+  else{dst <-sqrt(2*(1-tr_cosine_sim(a, b, w)))}
   
+  return(dst)
 }
 
 
@@ -346,6 +348,25 @@ tr_angular_sim <- function(a, b, w = 1){
   
   1 - tr_angular_dist(a, b, w)
 }
+
+#' Converts euclidian distance into similarity
+#'@keywords internal
+tr_euc2sim <- function(a, b, w = 1, lamb = 1, simple = FALSE){
+  
+  if(lamb <= 0){
+    stop("in Euclidian similarity score parametr lambda must be grater than zero", call. = FALSE)
+    }
+  
+  dst <-  sqrt(2*(1-tr_cosine_sim(a, b, w)))
+  if(simple){
+    dst <- sqrt(sum((a-b)**2))
+  }
+  
+  return(exp(-dst*lamb))
+
+}
+
+
 
 
 #' Prompt for re-sampling

@@ -9,9 +9,13 @@ tr_compar(
   lab = NULL,
   use_diff = FALSE,
   pw = 0,
+  align = FALSE,
   neg = FALSE,
   force_raw = FALSE,
-  metric = c("cosim", "cosdist", "angularsim", "angulardist", "euclidian"),
+  dif_base = 2,
+  lamb = 1,
+  simple = FALSE,
+  metric = c("cosim", "cosdist", "angularsim", "angulardist", "euclidean", "simex"),
   fun = c("max", "mean", "min")
 )
 }
@@ -26,15 +30,38 @@ or similarity matrix}
 \item{pw}{a numeric, a weighing coefficient for signal intensities
 default is 0.}
 
+\item{align}{logical. If TRUE a pairwise alignment will be applied.}
+
 \item{neg}{logical, if TRUE allows negative peaks, default is FALSE}
 
-\item{force_raw}{if TRUE RAW data will be compared regardless of the previous 
-processing steps taken}
+\item{force_raw}{if TRUE RAW data will be compared regardless of the previous processing steps taken}
 
-\item{metric}{a string indicating which similarity or distance metric to compute}
+\item{dif_base}{a positive value to compute weighting vector;}
+
+\item{lamb}{a positive number, to get similarity score based uclidean distance, on see details.}
+
+\item{simple}{if TRUE computes unweghted Euclidean distance;}
+
+\item{metric}{a string indicating which similarity or distance metric to compute, see details.}
 
 \item{fun}{a string defining a function that will be used in getting re-weighting vector.}
 }
 \description{
 pair-wise angular similarity
+}
+\details{
+Available metrics:
+\itemize{
+\item cosim - cosine similarity: \eqn{S_c(a,b)=\frac{\sum{a_ib_iw_i^2}}{\sqrt{\sum{(a_iw_i)^2}}\sqrt{\sum{(b_iw_i)^2}}} };
+\item cosdist - cosine distance: \eqn{D_c=1-S_c(a,b)};
+\item euclidean - Euclidean distance:
+\eqn{ D_E=\sqrt{2\cdot{D_c}} };
+If simple = TRUE, provides unweighted distance between vectors:
+\eqn{D_E(a,b)=\sqrt{\sum_{i=1}^{n}{(a_i-b_i)^2}}};
+\item angulardist - angular distance, takes on values from 0 to 1:
+\eqn{ D_{\theta }={\frac {2\cdot\arccos(S_c(a,b))}{\pi }}={\frac {2\cdot\theta }{\pi }} };
+\item angularsim - angular similarity, takes on values from 0 to 1:
+\eqn{ S_{\theta }= 1-D_{\theta }};
+\item simex - similarity score which is a exponential function of euclidean distance \eqn{S_e=e^{-\gamma\cdot\|x\|^2}};
+}
 }

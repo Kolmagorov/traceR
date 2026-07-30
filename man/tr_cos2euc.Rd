@@ -4,7 +4,7 @@
 \alias{tr_cos2euc}
 \title{Computes Euclidian distance}
 \usage{
-tr_cos2euc(a, b, w)
+tr_cos2euc(a, b, w, simple = FALSE)
 }
 \description{
 Computes Euclidian distance
