@@ -66,8 +66,8 @@ If simple = TRUE, provides unweighted distance between vectors:
 }
 RE-WEIGHING VECTOR\cr\cr
 If we need to emphasize which variations in traces are more imporant then others,\cr
-here comes the re-weighing vector. The weights take on values in the range \eqn{w_i \in [1;\infty]}. \cr
-Also, if all weights are equal, there will be no weighting. Thus, in order to disable\cr
+here comes the re-weighing vector. The weights take on values in the range \eqn{w_i \in [1;\infty)}. \cr
+Observe, if all weights are equal, there will be no weighting. Thus, in order to disable\cr
 weighting set `pw` argument to 0, it will convert all weights to 1.\cr\cr
 
 There are two options to compute the re-weighing vector:\cr\cr
