@@ -2,7 +2,7 @@
 % Please edit documentation in R/tracer_func.R
 \name{tr_compar}
 \alias{tr_compar}
-\title{Angular Similarity}
+\title{Cosine based similarity and distance metrics}
 \usage{
 tr_compar(
   x,
@@ -27,8 +27,7 @@ or similarity matrix.}
 
 \item{use_diff}{logical, whether use peak difference or absolute intensity to get a vector of weights.}
 
-\item{pw}{a numeric, a weighing coefficient for signal intensities
-default is 0.}
+\item{pw}{a numeric, a weighing coefficient for signal intensities default is 0.}
 
 \item{align}{logical. If TRUE a pairwise alignment will be applied.}
 
@@ -47,7 +46,7 @@ default is 0.}
 \item{fun}{a string defining a function that will be used in getting re-weighting vector.}
 }
 \description{
-pair-wise angular similarity
+computing pair-wise distances and similarity
 }
 \details{
 Available metrics:
@@ -62,7 +61,7 @@ If simple = TRUE, provides unweighted distance between vectors:
 \eqn{ D_{\theta }={\frac {2\cdot\arccos(S_c(a,b))}{\pi }}={\frac {2\cdot\theta }{\pi }} };
 \item angularsim - angular similarity, takes on values from 0 to 1:
 \eqn{ S_{\theta }= 1-D_{\theta }};
-\item simex - similarity score which is a exponential function of Euclidean distance \eqn{S_E=e^{-\gamma\cdot\|x\|^2}}.
+\item simex - similarity score which is an exponential function of Euclidean distance \eqn{S_E=e^{-\gamma\cdot\|x\|^2}}.
 }
 RE-WEIGHING VECTOR\cr\cr
 If we need to emphasize which variations in traces are more imporant then others,\cr

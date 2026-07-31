@@ -389,14 +389,13 @@ plt_gg <- function(x
   
 }
 
-#' Angular Similarity
-#' @description pair-wise angular similarity
+#' Cosine based similarity and distance metrics
+#' @description computing pair-wise distances and similarity 
 #' @param x object of class tracer
 #' @param lab name of a meta data column whose values would be used as labels for the output distance 
 #' or similarity matrix.
 #' @param use_diff logical, whether use peak difference or absolute intensity to get a vector of weights.
-#' @param pw a numeric, a weighing coefficient for signal intensities
-#' default is 0.
+#' @param pw a numeric, a weighing coefficient for signal intensities default is 0.
 #' @param align logical. If TRUE a pairwise alignment will be applied.
 #' @param neg logical, if TRUE allows negative peaks, default is FALSE.
 #' @param force_raw if TRUE, RAW data will be compared regardless of the previous processing steps taken.
@@ -418,7 +417,7 @@ plt_gg <- function(x
 #' \eqn{ D_{\theta }={\frac {2\cdot\arccos(S_c(a,b))}{\pi }}={\frac {2\cdot\theta }{\pi }} };
 #' \item angularsim - angular similarity, takes on values from 0 to 1:
 #' \eqn{ S_{\theta }= 1-D_{\theta }};
-#' \item simex - similarity score which is a exponential function of Euclidean distance \eqn{S_E=e^{-\gamma\cdot\|x\|^2}}.
+#' \item simex - similarity score which is an exponential function of Euclidean distance \eqn{S_E=e^{-\gamma\cdot\|x\|^2}}.
 #' }
 #' RE-WEIGHING VECTOR\cr\cr
 #' If we need to emphasize which variations in traces are more imporant then others,\cr
