@@ -23,24 +23,24 @@ tr_compar(
 \item{x}{object of class tracer}
 
 \item{lab}{name of a meta data column whose values would be used as labels for the output distance 
-or similarity matrix}
+or similarity matrix.}
 
-\item{use_diff}{logical, whether use peak difference or absolute intensity}
+\item{use_diff}{logical, whether use peak difference or absolute intensity to get a vector of weights.}
 
 \item{pw}{a numeric, a weighing coefficient for signal intensities
 default is 0.}
 
 \item{align}{logical. If TRUE a pairwise alignment will be applied.}
 
-\item{neg}{logical, if TRUE allows negative peaks, default is FALSE}
+\item{neg}{logical, if TRUE allows negative peaks, default is FALSE.}
 
-\item{force_raw}{if TRUE RAW data will be compared regardless of the previous processing steps taken}
+\item{force_raw}{if TRUE, RAW data will be compared regardless of the previous processing steps taken.}
 
-\item{dif_base}{a positive value to compute weighting vector;}
+\item{dif_base}{a positive value to compute weighting vector.}
 
-\item{lamb}{a positive number, to get similarity score based uclidean distance, on see details.}
+\item{lamb}{a positive number, to get similarity score based Euclidean distance, on see details.}
 
-\item{simple}{if TRUE computes unweghted Euclidean distance;}
+\item{simple}{if TRUE computes unweighted Euclidean distance;}
 
 \item{metric}{a string indicating which similarity or distance metric to compute, see details.}
 
@@ -53,15 +53,32 @@ pair-wise angular similarity
 Available metrics:
 \itemize{
 \item cosim - cosine similarity: \eqn{S_c(a,b)=\frac{\sum{a_ib_iw_i^2}}{\sqrt{\sum{(a_iw_i)^2}}\sqrt{\sum{(b_iw_i)^2}}} };
-\item cosdist - cosine distance: \eqn{D_c=1-S_c(a,b)};
+\item cosdist - cosine distance: \eqn{D_c=1-S_c(a,b)};\cr
 \item euclidean - Euclidean distance:
-\eqn{ D_E=\sqrt{2\cdot{D_c}} };
+\eqn{ D_E=\sqrt{2\cdot{D_c}} };\cr
 If simple = TRUE, provides unweighted distance between vectors:
 \eqn{D_E(a,b)=\sqrt{\sum_{i=1}^{n}{(a_i-b_i)^2}}};
 \item angulardist - angular distance, takes on values from 0 to 1:
 \eqn{ D_{\theta }={\frac {2\cdot\arccos(S_c(a,b))}{\pi }}={\frac {2\cdot\theta }{\pi }} };
 \item angularsim - angular similarity, takes on values from 0 to 1:
 \eqn{ S_{\theta }= 1-D_{\theta }};
-\item simex - similarity score which is a exponential function of euclidean distance \eqn{S_e=e^{-\gamma\cdot\|x\|^2}};
+\item simex - similarity score which is a exponential function of Euclidean distance \eqn{S_E=e^{-\gamma\cdot\|x\|^2}}.
+}
+RE-WEIGHING VECTOR\cr\cr
+If we need to emphasize which variations in traces are more imporant then others,\cr
+here comes the re-weighing vector. The weights take on values in the range \eqn{w_i \in [1;\infty]}. \cr
+Also, if all weights are equal, there will be no weighting. Thus, in order to disable\cr
+weighting set `pw` argument to 0, it will convert all weights to 1.\cr\cr
+
+There are two options to compute the re-weighing vector:\cr\cr
+\enumerate{
+\item When the weights are proportional to the absolute difference between corresponding points,\cr
+i.e., use_dif = TRUE, then the expression takes the form:\cr
+\deqn{ w_i=2^|a_i-b_i|^{pw} }
+where, `pw` determines how much intensity variation influence the corresponding weight.\cr
+And `2` is a default `diff_base` value, which can be changed to any positive number manually.\cr
+\item When the weights are proportional to the value of 
+\deqn{fun(|a_i-b_i|)^{pw}}
+where `fun` is one of  the base functions: "max", "mean" or "min".
 }
 }
