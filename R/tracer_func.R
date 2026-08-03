@@ -399,7 +399,7 @@ plt_gg <- function(x
 #' @param align logical. If TRUE a pairwise alignment will be applied.
 #' @param neg logical, if TRUE allows negative peaks, default is FALSE.
 #' @param force_raw if TRUE, RAW data will be compared regardless of the previous processing steps taken.
-#' @param dif_base a positive value to compute weighting vector.
+#' @param gamma a numeric that defines scale spanning for weights, default 1.
 #' @param lamb a positive number, to get similarity score based Euclidean distance, on see details.
 #' @param simple  if TRUE computes unweighted Euclidean distance;
 #' @param metric a string indicating which similarity or distance metric to compute, see details.
@@ -420,20 +420,20 @@ plt_gg <- function(x
 #' \item simex - similarity score which is an exponential function of Euclidean distance \eqn{S_E=e^{-\gamma\cdot\|x\|^2}}.
 #' }
 #' RE-WEIGHING VECTOR\cr\cr
-#' If we need to emphasize which variations in traces are more imporant then others,\cr
+#' If we need to emphasize which variations in traces are more important then others,\cr
 #' here comes the re-weighing vector. The weights take on values in the range \eqn{w_i \in [1;\infty)}. \cr
 #' Observe, if all weights are equal, there will be no weighting. Thus, in order to disable\cr
-#' weighting set `pw` argument to 0, it will convert all weights to 1.\cr\cr
+#' weighting set `pw` argument to 0, it will convert all weights to 1 or to \emph{e} depending on mode selected.\cr\cr
 #' 
-#' There are two options to compute the re-weighing vector:\cr\cr
+#' There are two modes to compute the re-weighing vector:\cr\cr
 #' \enumerate{
 #' \item When the weights are proportional to the absolute difference between corresponding points,\cr
 #' i.e., use_dif = TRUE, then the expression takes the form:\cr
-#' \deqn{ w_i=2^|a_i-b_i|^{pw} }
-#' where, `pw` determines how much intensity variation influence the corresponding weight.\cr
-#' And `2` is a default `diff_base` value, which can be changed to any positive number manually.\cr
-#' \item When the weights are proportional to the value of 
-#' \deqn{fun(|a_i-b_i|)^{pw}}
+#' \deqn{ w_i=e^{\gamma\cdot|a_i-b_i|^{pw}} }
+#' where \eqn{\gamma} - gamma argument, and `pw` determines how much intensity variation\cr 
+#' influence the corresponding weight.\cr
+#' \item Or the weights are proportional to the value of 
+#' \deqn{fun(a_i,b_i)^{pw}}
 #' where `fun` is one of  the base functions: "max", "mean" or "min".
 #' }
 #' @export
@@ -444,7 +444,7 @@ tr_compar <- function(x
                   , align = FALSE
                   , neg = FALSE
                   , force_raw = FALSE
-                  , dif_base = 2
+                  , gamma = 1
                   , lamb = 1
                   , simple = FALSE
                   , metric = c("cosim", "cosdist", "angularsim", "angulardist", "euclidean","simex")
@@ -526,7 +526,7 @@ tr_compar <- function(x
       # Select a re-weighting algorithm
       if(use_diff){
         
-        w <- dif_base^( abs(a - b)^pw )
+        w <- exp( gamma*abs(a - b)^pw ) # FIX ISOLATE as a helper!!!
         
         }else{
           w <- cbind(a, b) |> apply(2, function(x) x - min(x)) |> 

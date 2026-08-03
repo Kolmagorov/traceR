@@ -12,7 +12,7 @@ tr_compar(
   align = FALSE,
   neg = FALSE,
   force_raw = FALSE,
-  dif_base = 2,
+  gamma = 1,
   lamb = 1,
   simple = FALSE,
   metric = c("cosim", "cosdist", "angularsim", "angulardist", "euclidean", "simex"),
@@ -35,7 +35,7 @@ or similarity matrix.}
 
 \item{force_raw}{if TRUE, RAW data will be compared regardless of the previous processing steps taken.}
 
-\item{dif_base}{a positive value to compute weighting vector.}
+\item{gamma}{a numeric that defines scale spanning for weights, default 1.}
 
 \item{lamb}{a positive number, to get similarity score based Euclidean distance, on see details.}
 
@@ -64,20 +64,20 @@ If simple = TRUE, provides unweighted distance between vectors:
 \item simex - similarity score which is an exponential function of Euclidean distance \eqn{S_E=e^{-\gamma\cdot\|x\|^2}}.
 }
 RE-WEIGHING VECTOR\cr\cr
-If we need to emphasize which variations in traces are more imporant then others,\cr
+If we need to emphasize which variations in traces are more important then others,\cr
 here comes the re-weighing vector. The weights take on values in the range \eqn{w_i \in [1;\infty)}. \cr
 Observe, if all weights are equal, there will be no weighting. Thus, in order to disable\cr
-weighting set `pw` argument to 0, it will convert all weights to 1.\cr\cr
+weighting set `pw` argument to 0, it will convert all weights to 1 or to \emph{e} depending on mode selected.\cr\cr
 
 There are two options to compute the re-weighing vector:\cr\cr
 \enumerate{
-\item When the weights are proportional to the absolute difference between corresponding points,\cr
+\item If the weights are proportional to the absolute difference between corresponding points,\cr
 i.e., use_dif = TRUE, then the expression takes the form:\cr
-\deqn{ w_i=2^|a_i-b_i|^{pw} }
-where, `pw` determines how much intensity variation influence the corresponding weight.\cr
-And `2` is a default `diff_base` value, which can be changed to any positive number manually.\cr
-\item When the weights are proportional to the value of 
-\deqn{fun(|a_i-b_i|)^{pw}}
+\deqn{ w_i=e^{\gamma\cdot|a_i-b_i|^{pw}} }
+where \eqn{\gamma} - gamma argument, and `pw` determines how much intensity variation\cr 
+influence the corresponding weight.\cr
+\item Or the weights are proportional to the value of 
+\deqn{fun(a_i,b_i)^{pw}}
 where `fun` is one of  the base functions: "max", "mean" or "min".
 }
 }
