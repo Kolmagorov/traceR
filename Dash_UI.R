@@ -25,7 +25,7 @@ sb_acc <- accordion(id = "sb_accorion"
                     
                     , accordion_panel(title = "ANALYSIS"
                                       , icon = bsicons::bs_icon("puzzle")))
-
+# NavSet =======================================================================
 nav_set <- navset_tab(
   nav_panel(title = "PREVIEW"
             , plotOutput("p")),
