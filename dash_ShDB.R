@@ -1,83 +1,119 @@
 library(shiny)
 library(shinydashboard)
+library(bslib)
 
-
-
-dbb <- dashboardBody(
-  tabItems(
-    tabItem(tabName = "import", tags$p("IMPORT")),
-    tabItem(tabName = "prc", plotOutput("p")),
-    tabItem(tabName = "anls", "ANALYSIS")))
 
 
 
 # Collapsible Side Bar ====================================
 dbs <- dashboardSidebar(
-  sidebarMenu(
-    
-    menuItem("IMPORT", icon = icon("folder-open"), expandedName = "filters"
-             , fileInput("upload"
-                         , label = "Select a file:"
-                         , buttonLabel = "Upload..."
-                         , multiple = TRUE
-                         , accept = c(".csv", ".arw", ".txt")
-                         , placeholder = "browse a file")),
-    menuItem("DATA PROCESSING", tabName = "prc", icon = icon("mortar-pestle")),
-    menuItem("ANALYSIS", tabName = "anls", icon = icon("brain"))
-  ))
-
-
-
-
-dbs <- dashboardSidebar(
+  #width = 300,
   
   sidebarMenu(
     menuItem("IMPORT"
              , tabName = "import"
-             , icon = icon("filter")
-             , expandedName = "filters"
-             , fileInput("upload"
-                         , label = "Select a file:"
-                         , buttonLabel = "Upload..."
-                         , multiple = TRUE
-                         , accept = c(".csv", ".arw", ".txt")
-                         , placeholder = "browse a file")),
+             , icon = icon("folder-open")),
     
-    menuItem("PROCESSING", tabName = "prc", icon = NULL),
-    menuItem("ANALYSIS", tabName = "anls", icon = NULL)))
+    menuItem("DATA PROCESSING"
+             , tabName = "prc"
+             , icon = icon("sliders")),
+    
+    menuItem("ANALYSIS"
+             , tabName = "anls"
+             , icon = icon("brain"))
+    ))
 
 
 
-
-dbs <- dashboardSidebar(
-  sidebarMenu(id = "tabs", # Unique ID to track the active tab
-              menuItem("Overview", tabName = "overview_tab", icon = icon("home")),
-              menuItem("Detailed Analysis", tabName = "analysis_tab", icon = icon("chart-bar")),
-              
-              # Only displays when the "Detailed Analysis" tab is selected
-              conditionalPanel(
-                condition = "input.tabs == 'analysis_tab'",
-                numericInput("threshold", "Analysis Threshold:", value = 10, min = 1)
-              )
+dbb <- dashboardBody(
+  tabItems(
+    
+    tabItem(tabName = "import"
+            , fileInput("upload"
+                        , label = "Select a file:"
+                        , buttonLabel = "Upload..."
+                        , multiple = TRUE
+                        , accept = c(".csv", ".arw", ".txt")
+                        , placeholder = "browse a file"),
+            
+            actionButton(inputId = "all_btn"
+                         , label = "All"
+                         , icon = NULL
+                         , disabled = FALSE)),
+    
+    tabItem(tabName = "prc"
+            , "PROCESS"
+            , navset_tab(nav_panel("FORGE", "Page A content"),
+                         nav_panel("EDITOR", "Page B content"))),
+    
+    tabItem(tabName = "anls", "ANALYSIS")
+    )
   )
-)
+
+
 
 
 
 ui <- dashboardPage(
   dashboardHeader(title = "UVisor"),
   dbs,
-  dashboardBody())
+  dbb)
 
 server <- function(input, output, session){
-  
-  output$p <- renderPlot({
-    
-    rnorm(n = 500, sd = 2, mean = 0)|>
-      hist()
-
-  })
   
 }
 
 shinyApp(ui, server)
+
+
+library(shiny)
+library(bslib)
+
+library(shiny)
+library(bslib)
+library(bsicons)
+
+ui <- page_sidebar(
+  title = "Global Sidebar Navigation",
+  
+  # 1. Define the shared global sidebar
+  sidebar = sidebar(
+    title = "Controls",
+    # Input buttons acting as sidebar menu items
+    actionButton("go_page1", "Dashboard", icon = icon("dashboard"), class = "w-100 mb-2 btn-primary"),
+    actionButton("go_page2", "Analytics", icon = icon("bar-chart"), class = "w-100 mb-2 btn-secondary"),
+    actionButton("go_page3", "Settings", icon = icon("gear"), class = "w-100 btn-secondary")
+  ),
+  
+  # 2. Define the hidden container for pages in the main body
+  navset_hidden(
+    id = "main_tabs",
+    nav_panel_hidden("page_1", textOutput("text1")),
+    nav_panel_hidden("page_2", textOutput("text2")),
+    nav_panel_hidden("page_3", textOutput("text3"))
+  )
+)
+
+server <- function(input, output, session) {
+  # 3. Handle navigation clicks
+  observeEvent(input$go_page1, {
+    nav_select("main_tabs", "page_1")
+  })
+  
+  observeEvent(input$go_page2, {
+    nav_select("main_tabs", "page_2")
+  })
+  
+  observeEvent(input$go_page3, {
+    nav_select("main_tabs", "page_3")
+  })
+  
+  # Placeholder page content outputs
+  output$text1 <- renderText("Welcome to the Dashboard Page!")
+  output$text2 <- renderText("Welcome to the Analytics Page!")
+  output$text3 <- renderText("Welcome to the Settings Page!")
+}
+
+shinyApp(ui, server)
+
+
