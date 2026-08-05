@@ -11,16 +11,19 @@ dbb <- dashboardBody(
 
 
 
-
+# Collapsible Side Bar ====================================
 dbs <- dashboardSidebar(
   sidebarMenu(
     
-    # This item expands to reveal the nested inputs
-    menuItem("Filter Options", icon = icon("filter"), expandedName = "filters",
-             selectInput("category", "Select Category:", choices = c("A", "B", "C")),
-             dateInput("date", "Select Date:")),
-    
-    menuItem("Main Dashboard", tabName = "dashboard", icon = icon("dashboard"))
+    menuItem("IMPORT", icon = icon("folder-open"), expandedName = "filters"
+             , fileInput("upload"
+                         , label = "Select a file:"
+                         , buttonLabel = "Upload..."
+                         , multiple = TRUE
+                         , accept = c(".csv", ".arw", ".txt")
+                         , placeholder = "browse a file")),
+    menuItem("DATA PROCESSING", tabName = "prc", icon = icon("mortar-pestle")),
+    menuItem("ANALYSIS", tabName = "anls", icon = icon("brain"))
   ))
 
 
