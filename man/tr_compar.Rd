@@ -69,9 +69,9 @@ here comes the re-weighing vector. The weights take on values in the range \eqn{
 Observe, if all weights are equal, there will be no weighting. Thus, in order to disable\cr
 weighting set `pw` argument to 0, it will convert all weights to 1 or to \emph{e} depending on mode selected.\cr\cr
 
-There are two options to compute the re-weighing vector:\cr\cr
+There are two modes to compute the re-weighing vector:\cr\cr
 \enumerate{
-\item If the weights are proportional to the absolute difference between corresponding points,\cr
+\item When the weights are proportional to the absolute difference between corresponding points,\cr
 i.e., use_dif = TRUE, then the expression takes the form:\cr
 \deqn{ w_i=e^{\gamma\cdot|a_i-b_i|^{pw}} }
 where \eqn{\gamma} - gamma argument, and `pw` determines how much intensity variation\cr 
