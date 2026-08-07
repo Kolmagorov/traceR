@@ -1,8 +1,11 @@
 #' Selects parser
 #' @keywords internal
-parser_selector <- function(fls){
+parser_selector <- function(fls, custom = NULL){
   
-  read_par <- file_scan(fls)
+  if(is.null(custom)){
+    read_par <- custom
+  }else{read_par <- file_scan(fls)}
+  
   
   if(isFALSE(read_par)){ return(read_par) }
   else{

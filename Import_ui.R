@@ -29,19 +29,8 @@ st_log <- bslib::card(
     )
   ),
   
-  bslib::card_body( DT::DTOutput("status") ),
+  bslib::card_body( DT::DTOutput("status") )#,
   
-  bslib::card_footer(
-    div(style ="display: flex; gap: 10px; justify-content: flex-end; align-items: center;",
-        shiny::actionButton(inputId = "btn_preview"
-                 , label = "Preview"
-                 , icon = icon("binoculars")
-                 , disabled = TRUE),
-        shiny::actionButton(inputId = "btn_reload"
-                 , label = "Reload"
-                 , icon = icon("refresh")
-                 , disabled = TRUE)
-        ))
 )
 
 
@@ -51,17 +40,27 @@ import_page <- bslib::layout_columns(
   st_log,
   
   navset_card_pill(
+    id = "preview_navpill",
     full_screen = TRUE,
-    #title = "PREVIEW : ",
+    title = "PREVIEW : ",
     nav_panel(
       "Raw",
+      icon = icon("binoculars"),
       shiny::verbatimTextOutput("preview")),
     
     nav_panel(
       "DataTable",
-      DT::DTOutput("data_tab")),
-  ),
-)
+      icon = icon("refresh"),
+      shiny::selectInput(inputId = "fld_time",
+                         label = "Time: ", 
+                         choices = ""),
+      
+      shiny::selectInput(inputId = "fld_response",
+                         label = "Response: ", 
+                         choices = ""),
+      
+      DT::DTOutput("data_tab"))
+))
 
 
 # IMPORT SIDEBAR ===============================================================
@@ -80,28 +79,46 @@ input_sidebar <- bslib::layout_sidebar(
     htmltools::hr(),
     htmltools::h5("Parser controls:"),
     
-    textInput(inputId = "dec",
-              label = "Delim:", 
-              value = ".", 
-              width = "60px"),
-    
-    textInput(inputId = "sep",
-              label = "Sep:", 
-              value = ",", 
-              width = "70px"),
-    
-    numericInput(inputId = "skip",
+    shiny::selectInput(inputId = "dec",
+                label = "Decimal:", 
+                choices = list("Comma" = ",",
+                               "Period" = "."), 
+                selected = "Comma",
+                width = "130px"),
+
+    shiny::selectInput(inputId = "sep",
+                label = "Delim:", 
+                choices = list("Tab" = "\t", 
+                               "Comma" = ",",
+                               "Semicolon" = ";",
+                               "Colon" = ":",
+                               "Newline" = "\n"), 
+                selected = "Tab",
+                width = "130px"),
+
+    shiny::numericInput(inputId = "skip",
               label = "Skip rows:", 
               value = 1,
               min = 0,
               width = "70px"),
     
-    numericInput(inputId = "nrow",
+    shiny::numericInput(inputId = "nrow",
               label = "Rows to show:", 
               value = 25,
               min = 1,
               max = 99,
               width = "70px"),
+    
+    shiny::checkboxInput(inputId = "hdr", 
+                         label = "Include Header",
+                         value = FALSE),
+    
+    shiny::actionButton(inputId = "btn_reload"
+                        , label = "Reload"
+                        , icon = shiny::icon("refresh")
+                        , disabled = FALSE),
+    
+    shiny::verbatimTextOutput("deb")
     ), 
   
   import_page
@@ -158,6 +175,9 @@ server <- function(input, output, session){
     
   })
   
+  # Keep path to the file
+  bfl <- reactiveVal(NULL)
+  
   # Update Preview btn state 
   observeEvent(input$upload,{
     
@@ -166,6 +186,7 @@ server <- function(input, output, session){
                        , disabled = FALSE)
     })
   
+  # Handling numeric input limits 
   observeEvent(input$nrow, {
     # Check if the input is not empty and exceeds 100
     if (!is.na(input$nrow) && input$nrow > 100 && input$nrow < 1) {
@@ -178,38 +199,58 @@ server <- function(input, output, session){
       
       })
   
-  
   # Activate Preview
-  observeEvent(input$btn_preview,{
+  observeEvent(input$status_rows_selected,{
     
     if(!is.null(input$status_rows_selected)){
-      bfl <- spc()$LOG[["FILE"]][input$status_rows_selected]
-      prv_tab <- readLines(con = bfl, n = input$nrow)
-      }else{prv_tab <- "No Data Selected"}
+      
+      # BUG Does NOT Match rows if filtered !!!!
+      spc()$LOG[["FILE"]][input$status_rows_selected] |> 
+        bfl() 
+      prv_tab <- readLines(con = bfl(), n = input$nrow)}
     
-    #prv_tab <- read.csv(file = bfl
-     #                   , header = FALSE
-     #                   , sep = input$sep
-     #                   , dec = input$dec
-      #                  , skip = input$skip
-     #                   , nrows = input$nrow)
+    else{prv_tab <- "No Data Selected"}
     
-    
-    
-    
-    
-    
-    # Render Preview 
+  # Render Preview 
     output$preview <- shiny::renderPrint({
       
       prv_tab
       
     })
     
-    
-    
   })
   
+  # Reloading
+  observeEvent(input$btn_reload,{
+    
+    if(!is.null(bfl())){
+      dt_reload <- read.csv(file = bfl()
+                            , header = input$hdr
+                            , sep = input$sep
+                            , dec = input$dec
+                            , skip = input$skip
+                            , nrows = input$nrow)
+      
+      # Render DataTable Reloaded
+      output$data_tab <- DT::renderDT({
+        
+        DT::datatable(data = dt_reload
+                      , filter = "none"
+                      , rownames = FALSE
+                      , selection = "single"
+                      , options = list(
+                        dom = 't',
+                        scrollY = "400px",
+                        scrollX = TRUE,
+                        paging = FALSE))
+        })
+      
+      # Switch to datatable page
+      nav_select(id = "preview_navpill", selected = "DataTable")
+      }
+
+    })
+
   # Render IMPORT STATUS TABLE
   output$status <- DT::renderDT({
     
@@ -229,9 +270,16 @@ server <- function(input, output, session){
                     dom = 't',
                     scrollY = "400px",
                     scrollX = TRUE,
-                    paging = FALSE))
+                    paging = FALSE))|>
+      
+      DT::formatStyle("LOADED",
+                      color =DT::styleEqual(c(TRUE, FALSE), c('green', 'red')
+                                            ))
     
   })
+  
+  # DEBUGGing
+  output$deb <- renderPrint({input$hdr})
   
 }
 
