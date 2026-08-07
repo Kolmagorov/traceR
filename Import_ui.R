@@ -12,10 +12,10 @@ plot_card <- function(header, ...) {
 }
 
 
-st_log <- card(
+st_log <- bslib::card(
   full_screen = TRUE,
   
-  card_header(
+  bslib::card_header(
     "IMPORT STATUS",
     class = "bg-blue",
     toolbar(
@@ -29,15 +29,15 @@ st_log <- card(
     )
   ),
   
-  card_body( DT::DTOutput("status") ),
+  bslib::card_body( DT::DTOutput("status") ),
   
-  card_footer(
+  bslib::card_footer(
     div(style ="display: flex; gap: 10px; justify-content: flex-end; align-items: center;",
-        actionButton(inputId = "btn_preview"
+        shiny::actionButton(inputId = "btn_preview"
                  , label = "Preview"
                  , icon = icon("binoculars")
                  , disabled = TRUE),
-        actionButton(inputId = "btn_reload"
+        shiny::actionButton(inputId = "btn_reload"
                  , label = "Reload"
                  , icon = icon("refresh")
                  , disabled = TRUE)
@@ -47,10 +47,20 @@ st_log <- card(
 
 # IMPORT PAGE ==================================================================
 import_page <- bslib::layout_columns(
-  col_widths = c(8,4),
+  col_widths = c(6,6),
   st_log,
-  plot_card("PREVIEW", shiny::textOutput("preview"))
   
+  navset_card_pill(
+    full_screen = TRUE,
+    #title = "PREVIEW : ",
+    nav_panel(
+      "Raw",
+      shiny::verbatimTextOutput("preview")),
+    
+    nav_panel(
+      "DataTable",
+      DT::DTOutput("data_tab")),
+  ),
 )
 
 
@@ -70,20 +80,28 @@ input_sidebar <- bslib::layout_sidebar(
     htmltools::hr(),
     htmltools::h5("Parser controls:"),
     
-    textInput(inputId = "del",
+    textInput(inputId = "dec",
               label = "Delim:", 
-              value = ",", 
+              value = ".", 
               width = "60px"),
     
     textInput(inputId = "sep",
               label = "Sep:", 
-              value = ".", 
-              width = "60px"),
+              value = ",", 
+              width = "70px"),
     
-    textInput(inputId = "skip",
+    numericInput(inputId = "skip",
               label = "Skip rows:", 
-              value = 1, 
-              width = "60px"),
+              value = 1,
+              min = 0,
+              width = "70px"),
+    
+    numericInput(inputId = "nrow",
+              label = "Rows to show:", 
+              value = 25,
+              min = 1,
+              max = 99,
+              width = "70px"),
     ), 
   
   import_page
@@ -127,12 +145,12 @@ ui <- bslib::page_navbar(
 
 
 
-
+# Server Logic =================================================================
 server <- function(input, output, session){
   
   # Get loaded data reactive
   spc <- reactive({
-    
+
     req(input$upload)
     obj <- traceR::load_trace(fls = input$upload$datapath)
     obj$LOG$FILE_NAME <- input$upload$name
@@ -140,9 +158,60 @@ server <- function(input, output, session){
     
   })
   
-  
-  output$status <- DT::renderDT({
+  # Update Preview btn state 
+  observeEvent(input$upload,{
     
+    updateActionButton(session = session
+                       , inputId = "btn_preview"
+                       , disabled = FALSE)
+    })
+  
+  observeEvent(input$nrow, {
+    # Check if the input is not empty and exceeds 100
+    if (!is.na(input$nrow) && input$nrow > 100 && input$nrow < 1) {
+      
+      # Force the input back to the maximum allowed value
+      shiny::updateNumericInput(session, "nrow", value = 100)
+      
+      # Optional: Notify the user with a toast or alert
+      shiny::showNotification("Maximum number of rows to preview is 100", type = "warning")}
+      
+      })
+  
+  
+  # Activate Preview
+  observeEvent(input$btn_preview,{
+    
+    if(!is.null(input$status_rows_selected)){
+      bfl <- spc()$LOG[["FILE"]][input$status_rows_selected]
+      prv_tab <- readLines(con = bfl, n = input$nrow)
+      }else{prv_tab <- "No Data Selected"}
+    
+    #prv_tab <- read.csv(file = bfl
+     #                   , header = FALSE
+     #                   , sep = input$sep
+     #                   , dec = input$dec
+      #                  , skip = input$skip
+     #                   , nrows = input$nrow)
+    
+    
+    
+    
+    
+    
+    # Render Preview 
+    output$preview <- shiny::renderPrint({
+      
+      prv_tab
+      
+    })
+    
+    
+    
+  })
+  
+  # Render IMPORT STATUS TABLE
+  output$status <- DT::renderDT({
     
     tab <- spc()$LOG|> dplyr::select(FILE_NAME, SOURCE, LOADED)
     
@@ -150,6 +219,7 @@ server <- function(input, output, session){
 
       tab <- tab|> dplyr::filter(LOADED == FALSE)
     }
+
     
     DT::datatable(data = tab
                   , filter = "none"
@@ -163,14 +233,9 @@ server <- function(input, output, session){
     
   })
   
-  output$preview <- shiny::renderText({
-    
-    input$filter
-    
-  })
-  
-  
 }
+
+# Run App
 shinyApp(ui, server)
 
 

@@ -33,7 +33,7 @@ parse_empower <- function(fls, skip, sep){
   else{ meta <- utils::read.csv(file = fls
                          , header = TRUE
                          , sep = sep
-                         , nrow = 1)|>
+                         , nrows = 1)|>
     dplyr::mutate(dateAcquired = time_scan(.data$Date.Acquired))|>
     dplyr::select(!.data$Date.Acquired)}
   
@@ -69,7 +69,7 @@ parse_chromeleon <- function(fls, sep){
   meta <- utils::read.csv(file = fls
                    , header = FALSE
                    , sep = sep
-                   , nrow = 37
+                   , nrows = 37
                    , blank.lines.skip = TRUE
                    , col.names = c("Attribute", "Value")
   )
@@ -94,6 +94,39 @@ parse_chromeleon <- function(fls, sep){
   rm(tmp)
   return(list(TRACE = trace_data, META = meta))
 }
+
+#' A simple parser , imports .csv, .txt, .arw files
+#' @keywords internal
+#' @importFrom rlang .data
+
+parse_file <- function(fls, sep, skip,...){
+  
+  # Getting trace data
+  trace_data <- utils::read.csv(file = fls
+                                , header = FALSE
+                                , sep = sep
+                                , skip = skip
+                                , ...)
+  
+  # Initialize Meta
+  if(skip == 0){ meta <- tab_tmplate$META_tmpl} # used to be meta_default()
+  
+  else{ meta <- utils::read.csv(file = fls
+                                , header = TRUE
+                                , sep = sep
+                                , nrows = 1)}
+  
+  
+  # Add file name
+  meta <- meta |> dplyr::mutate(FILE = basename(fls))
+  
+  return(list(TRACE = trace_data, META = meta))
+}
+
+
+
+
+
 
 # netcdf parser ....
 # parse_cdf <- function(){}

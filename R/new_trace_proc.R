@@ -56,13 +56,16 @@ load_trace <- function(path_dir = NULL
     # tmp can be either FALSE or a list with Meta and TRACE data
     tmp <- parser_selector(fls = fls[i])
     
-    if(isFALSE(tmp)){
-      # Update log
-      dt_log <- log_rec(list(FILE = fls[i]))
-      next}
-    
     # if tmp not empty generate new ID
     idx <- gen_uid_pool(n = 1, len = uid_len, pool = id_pool)
+    
+    # Add an ID to the pool
+    id_pool <- c(id_pool, idx)
+    
+    if(isFALSE(tmp)){
+      # Update log
+      dt_log <- log_rec(list(ID = idx, FILE = fls[i]))
+      next}
     
     # Update log
     dt_log <- log_rec(list(ID = idx
@@ -76,9 +79,6 @@ load_trace <- function(path_dir = NULL
 
     # Insert in the Meta list
     meta[[idx]] <- tmp$META
-
-    # Add an ID to the pool
-    id_pool <- c(id_pool, idx)
 
   }
   

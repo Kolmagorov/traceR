@@ -87,7 +87,7 @@ usethis::use_author(
 "I:/Angular_Sim_Exp/GNR_060/TRACES"
 
 devtools::load_all()
-df <- load_trace(path_dir = "I:/Angular_Sim_Exp/GNR_060/TRACES"
+df <- load_trace(path_dir = "C:/RWD/Angular_Sim_Exp/TEST_AREA/HETERO"
                   #"C:/RWD/Angular_Sim_Exp/GNR_060/TRACES"
                   )|>
   tr_crop(crop_to = c(5, 110))|>
