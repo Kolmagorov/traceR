@@ -37,7 +37,7 @@ import_page <- layout_columns(
       icon = icon("binoculars"),
       shiny::verbatimTextOutput("preview")),
     
-    # Parsed 
+    # Parsed Data
     nav_panel(
       "DataTable",
       icon = icon("refresh"),
@@ -53,8 +53,9 @@ import_page <- layout_columns(
                            choices = ""),
         
       ),
-      # Data Table
-      DT::DTOutput("data_tab"))
+      # Data Table View
+      DT::DTOutput("data_tab"),
+      actionButton(inputId = "accpt", label = "Accept", icon = icon("check")))
 ))
 
 
@@ -170,8 +171,11 @@ server <- function(input, output, session){
     
   })
   
-  # Keep path to the file
+  # Container to keep path to the file
   bfl <- reactiveVal(NULL)
+  
+  # Container to keep Time and  Response columns
+  fld_choices <- reactiveVal("")
   
   # Update Preview btn state 
   observeEvent(input$upload,{
@@ -219,12 +223,23 @@ server <- function(input, output, session){
   observeEvent(input$btn_reload,{
     
     if(!is.null(bfl())){
+      
       dt_reload <- read.csv(file = bfl()
                             , header = input$hdr
                             , sep = input$sep
                             , dec = input$dec
                             , skip = input$skip
                             , nrows = input$nrow)
+      
+      fld_choices(names(dt_reload))
+      
+      updateSelectInput(session, "fld_time",
+                        choices = c("", fld_choices()),
+                        selected = "")
+      
+      updateSelectInput(session, "fld_response",
+                        choices = c("", fld_choices()),
+                        selected = "")
       
       # Render DataTable Reloaded
       output$data_tab <- DT::renderDT({
@@ -246,14 +261,10 @@ server <- function(input, output, session){
 
     })
   
-  # Populate select inputs to match Columns 
-  observeEvent()
-
-  
   # Update Response choices when Time  changes
   observeEvent(input$fld_time, {
     current_response <- input$fld_response
-    available_response <- setdiff(my_choices, input$fld_time)
+    available_response <- setdiff(fld_choices(), input$fld_time)
     
     updateSelectInput(session, "fld_response",
                       choices = c("", available_response),
@@ -263,7 +274,7 @@ server <- function(input, output, session){
   # Update Time  when Response changes
   observeEvent(input$fld_response, {
     current_time <- input$fld_time
-    available_time <- setdiff(my_choices, input$fld_response)
+    available_time <- setdiff(fld_choices(), input$fld_response)
     
     updateSelectInput(session, "fld_time",
                       choices = c("", available_time),
