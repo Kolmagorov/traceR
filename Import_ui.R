@@ -1,64 +1,59 @@
 library(shiny)
 library(bslib)
-
-
-
-plot_card <- function(header, ...) {
-  bslib::card(
-    full_screen = TRUE,
-    bslib::card_header(header, class = "bg-blue"),
-    bslib::card_body(..., min_height = 150)
-  )
-}
-
-
-st_log <- bslib::card(
-  full_screen = TRUE,
-  
-  bslib::card_header(
-    "IMPORT STATUS",
-    class = "bg-blue",
-    toolbar(
-      align = "right",
-      toolbar_input_select(
-        id = "filter",
-        label = "Filter",
-        choices = c("All", "BAD"),
-        icon = icon("filter")
-      )
-    )
-  ),
-  
-  bslib::card_body( DT::DTOutput("status") )#,
-  
-)
+devtools::load_all()
 
 
 # IMPORT PAGE ==================================================================
-import_page <- bslib::layout_columns(
+import_page <- layout_columns(
   col_widths = c(6,6),
-  st_log,
+  # IMPORT LOG
+  card(
+    full_screen = TRUE,
+    card_header(
+      "IMPORT STATUS",
+      class = "bg-blue",
+      toolbar(
+        align = "right",
+        toolbar_input_select(
+          id = "filter",
+          label = "Filter",
+          choices = c("All", "BAD"),
+          icon = icon("filter")
+        )
+      )
+    ),
+    card_body( DT::DTOutput("status") )
+  ),
   
+  # PREVIEW SECTION
   navset_card_pill(
     id = "preview_navpill",
     full_screen = TRUE,
     title = "PREVIEW : ",
+    
+    # RAW data
     nav_panel(
       "Raw",
       icon = icon("binoculars"),
       shiny::verbatimTextOutput("preview")),
     
+    # Parsed 
     nav_panel(
       "DataTable",
       icon = icon("refresh"),
-      shiny::selectInput(inputId = "fld_time",
-                         label = "Time: ", 
-                         choices = ""),
-      
-      shiny::selectInput(inputId = "fld_response",
-                         label = "Response: ", 
-                         choices = ""),
-      
+      # Column assignment
+      layout_column_wrap(
+        # Retention Time Column
+        shiny::selectInput(inputId = "fld_time",
+                           label = "Time: ", 
+                           choices = ""),
+        # Response column
+        shiny::selectInput(inputId = "fld_response",
+                           label = "Response: ", 
+                           choices = ""),
+        
+      ),
+      # Data Table
       DT::DTOutput("data_tab"))
 ))
 
@@ -220,7 +215,7 @@ server <- function(input, output, session){
     
   })
   
-  # Reloading
+  # Reloading and Render data Table
   observeEvent(input$btn_reload,{
     
     if(!is.null(bfl())){
@@ -240,7 +235,7 @@ server <- function(input, output, session){
                       , selection = "single"
                       , options = list(
                         dom = 't',
-                        scrollY = "400px",
+                        #scrollY = "400px",
                         scrollX = TRUE,
                         paging = FALSE))
         })
@@ -250,7 +245,30 @@ server <- function(input, output, session){
       }
 
     })
+  
+  observeEvent()
 
+  
+  # Update Response choices when Time  changes
+  observeEvent(input$fld_time, {
+    current_response <- input$fld_response
+    available_response <- setdiff(my_choices, input$fld_time)
+    
+    updateSelectInput(session, "fld_response",
+                      choices = c("", available_response),
+                      selected = current_response)
+  })
+  
+  # Update Time  when Response changes
+  observeEvent(input$fld_response, {
+    current_time <- input$fld_time
+    available_time <- setdiff(my_choices, input$fld_response)
+    
+    updateSelectInput(session, "fld_time",
+                      choices = c("", available_time),
+                      selected = current_time)
+  })
+  
   # Render IMPORT STATUS TABLE
   output$status <- DT::renderDT({
     

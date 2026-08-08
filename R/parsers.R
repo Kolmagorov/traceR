@@ -2,7 +2,7 @@
 #' @keywords internal
 parser_selector <- function(fls, custom = NULL){
   
-  if(is.null(custom)){
+  if(!is.null(custom)){
     read_par <- custom
   }else{read_par <- file_scan(fls)}
   
