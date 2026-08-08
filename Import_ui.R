@@ -246,6 +246,7 @@ server <- function(input, output, session){
 
     })
   
+  # Populate select inputs to match Columns 
   observeEvent()
 
   
