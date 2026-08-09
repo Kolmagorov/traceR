@@ -116,11 +116,11 @@ parse_file <- function(fls, read_par){
                                 , dec = read_par$dec)
   
   # Initialize Meta
-  if(read_par$skip == 0 | read_par$meta ){ meta <- tab_tmplate$META_tmpl} # used to be meta_default()
+  if(read_par$skip == 0){ meta <- tab_tmplate$META_tmpl} # used to be meta_default()
   else{meta <- utils::read.csv(file = fls
                                 , header = TRUE
                                 , sep = read_par$sep
-                                , nrows = 1)} # May be torn to dynamic
+                                , nrows = 1)} # Maybe make it dynamic
   
   # Add file name
   meta <- meta |> dplyr::mutate(FILE = basename(fls))

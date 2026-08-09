@@ -152,7 +152,7 @@ proc_sidebar <- bslib::layout_sidebar(
 # MAIN UI ======================================================================
 ui <- bslib::page_navbar(
   title = "UVizor",
-  includeCSS("www/style.css"),
+  #includeCSS("www/style.css"),
   bslib::nav_panel("IMPORT", 
             icon = bsicons::bs_icon("database-up"),
             input_sidebar), 
@@ -177,27 +177,37 @@ server <- function(input, output, session){
   import_status_col <- rlang::syms(c("FILE_NAME", "SOURCE", "LOADED"))
   
   # Get the loaded data reactive
-  spc <- reactive({
-
-    req(input$upload)
-    obj <- traceR::load_trace(fls = input$upload$datapath)
-    obj$LOG$FILE_NAME <- input$upload$name
-    obj
-    
-  })
+  spc <- reactiveVal(NULL)
   
-  tab <- reactive({
-    
-    if(input$filter == "BAD"){ spc()$LOG |> dplyr::filter(LOADED == FALSE) }
-    else{spc()$LOG }
-    
-    })
-
+  # get LOG reactive
+  tab_log <- reactiveVal(NULL)
+  
   # Container to keep path to the file
   bfl <- reactiveVal(NULL)
   
   # Container to keep Time and  Response columns
   fld_choices <- reactiveVal("")
+  
+  dt_reload <- reactiveVal(NULL)
+  
+  
+    #if(input$filter == "BAD"){ spc()$LOG |> dplyr::filter(LOADED == FALSE) }
+    #else{spc()$LOG }
+
+
+  
+  observeEvent(input$upload,{
+    
+    obj <- traceR::load_trace(fls = input$upload$datapath)
+    obj$LOG$FILE_NAME <- input$upload$name
+    
+    spc(obj)
+    tab_log(obj$LOG)
+    
+    
+  })
+  
+  
   
   # Update Preview btn state and Select Input 
   observe({
@@ -227,7 +237,8 @@ server <- function(input, output, session){
                        , inputId = "btn_accpt"
                        , disabled = acpt_disabled)
     
-    
+    # DEBUGGing
+    output$deb <- renderPrint({acpt_disabled})
     })
   
   # Handling numeric input limits 
@@ -249,7 +260,7 @@ server <- function(input, output, session){
     if(!is.null(input$status_rows_selected)){
       
       # Get a Filtered row 
-      tab()[["FILE"]][input$status_rows_selected] |> 
+      tab_log()[["FILE"]][input$status_rows_selected] |> 
         bfl() 
       prv_tab <- readLines(con = bfl(), n = input$nrow)}
     
@@ -269,19 +280,19 @@ server <- function(input, output, session){
     
     if(!is.null(bfl())){
       
-      dt_reload <- read.csv(file = bfl()
-                            , header = input$hdr
-                            , sep = input$sep
-                            , dec = input$dec
-                            , skip = input$skip
-                            , nrows = input$nrow)
+      tmp_dt <- read.csv(file = bfl()
+               , header = input$hdr
+               , sep = input$sep
+               , dec = input$dec
+               , skip = input$skip
+               , nrows = input$nrow)
       
       # Append data type
-      types <- sapply(dt_reload, class)
-      colnames(dt_reload) <- paste0(names(dt_reload), " (", types, ")")
+      types <- sapply(tmp_dt, class)
+      colnames(tmp_dt) <- paste0( names(tmp_dt, " (", types, ")") )
       
       # Update Reactive choices for selectInpit controls
-      fld_choices(names(dt_reload))
+      fld_choices(names( tmp_dt ))
       
       updateSelectInput(session, "fld_time",
                         choices = c("", fld_choices()),
@@ -294,10 +305,7 @@ server <- function(input, output, session){
       # Render DataTable Reloaded
       output$data_tab <- DT::renderDT({
 
-        shinyjs::show("dt_container")
-        shinyjs::hide("table_skeleton")
-        
-        DT::datatable(data = dt_reload
+        DT::datatable(data = tmp_dt
                       , filter = "none"
                       , rownames = FALSE
                       , selection = "single"
@@ -310,6 +318,9 @@ server <- function(input, output, session){
                         scrollX = TRUE,
                         paging = FALSE))
         })
+      
+      # Update data table
+      dt_reload(tmp_dt)
       
       # Switch to datatable page
       nav_select(id = "preview_navpill", selected = "DataTable")
@@ -340,34 +351,35 @@ server <- function(input, output, session){
   # Render IMPORT STATUS TABLE
   output$status <- DT::renderDT({
     
-    DT::datatable(data = tab()|> dplyr::select(!!!import_status_col)
-                  , filter = "none"
-                  , rownames = FALSE
-                  , selection = "single"
-                  , options = list(
-                    dom = 't',
-                    scrollY = "400px",
-                    scrollX = TRUE,
-                    paging = FALSE))|>
+    if(!is.null(tab_log())){
       
-      DT::formatStyle("LOADED",
-                      color =DT::styleEqual(c(TRUE, FALSE), c('green', 'red')
-                                            ))
-    
+      DT::datatable(data = tab_log()|> dplyr::select(!!!import_status_col)
+                    , filter = "none"
+                    , rownames = FALSE
+                    , selection = "single"
+                    , options = list(
+                      dom = 't',
+                      scrollY = "400px",
+                      scrollX = TRUE,
+                      paging = FALSE))|>
+        
+        DT::formatStyle("LOADED",
+                        color =DT::styleEqual(c(TRUE, FALSE), c('green', 'red')
+                        ))
+      }
   })
   
   # on Accept btn clicked
   observeEvent(input$btn_accpt,{
     
-    new_spc <- traceR::load_trace(fls = bfl(), custom_read_par = NULL)
-    # compile custom_read_par, update pool spc, update LOG table....
-    # made custom_read_par reactive ?
+    # Rename Selected columns, How to add meta?
+    
+    new_spc <- traceR::new_trace(x = dt_reload())
+    #spc
+    # update pool spc, update LOG table....
     
   })
   
-  
-  # DEBUGGing
-  output$deb <- renderPrint({bfl()})
   
 }
 
