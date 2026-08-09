@@ -17,7 +17,8 @@
 load_trace <- function(path_dir = NULL
                        , fls = NULL
                        , pattern = NULL
-                       , uid_len = 6L){
+                       , uid_len = 6L
+                       , custom_read_par = NULL){
 
   # Check input args
   if(is.null(path_dir) & is.null(fls)){
@@ -54,7 +55,7 @@ load_trace <- function(path_dir = NULL
     
 
     # tmp can be either FALSE or a list with Meta and TRACE data
-    tmp <- parser_selector(fls = fls[i])
+    tmp <- parser_selector(fls = fls[i], custom_read_par)
     
     # if tmp not empty generate new ID
     idx <- gen_uid_pool(n = 1, len = uid_len, pool = id_pool)

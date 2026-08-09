@@ -22,11 +22,14 @@ import_page <- layout_columns(
         )
       )
     ),
-    card_body( DT::DTOutput("status") )
+    card_body( DT::DTOutput("status")|> 
+                 shinycssloaders::withSpinner(type = 6, color = "#0d6efd") 
+               )
   ),
   
   # PREVIEW SECTION
   navset_card_pill(
+    
     id = "preview_navpill",
     full_screen = TRUE,
     title = "PREVIEW : ",
@@ -42,7 +45,9 @@ import_page <- layout_columns(
       "DataTable",
       icon = icon("refresh"),
       # Column assignment
-      layout_column_wrap(
+      layout_columns(
+        col_widths = c(6,6,12,12),
+        row_heights = c(1,8,1),
         # Retention Time Column
         shiny::selectInput(inputId = "fld_time",
                            label = "Time: ", 
@@ -51,12 +56,15 @@ import_page <- layout_columns(
         shiny::selectInput(inputId = "fld_response",
                            label = "Response: ", 
                            choices = ""),
-        
-      ),
-      # Data Table View
-      DT::DTOutput("data_tab"),
-      actionButton(inputId = "accpt", label = "Accept", icon = icon("check")))
-))
+        # Data Table View
+        DT::DTOutput("data_tab"),
+        actionButton(inputId = "btn_accpt"
+                     , label = "Accept"
+                     , icon = icon("check")
+                     , disabled = TRUE)
+        )
+      )
+  ))
 
 
 # IMPORT SIDEBAR ===============================================================
@@ -72,16 +80,17 @@ input_sidebar <- bslib::layout_sidebar(
                      , multiple = TRUE
                      , accept = c(".csv", ".arw", ".txt")
                      , placeholder = "browse a file"),
-    htmltools::hr(),
     htmltools::h5("Parser controls:"),
     
+    # Select decimal point
     shiny::selectInput(inputId = "dec",
                 label = "Decimal:", 
                 choices = list("Comma" = ",",
                                "Period" = "."), 
-                selected = "Comma",
+                selected = ".",
                 width = "130px"),
-
+    
+    # Select a Delimiter
     shiny::selectInput(inputId = "sep",
                 label = "Delim:", 
                 choices = list("Tab" = "\t", 
@@ -89,26 +98,29 @@ input_sidebar <- bslib::layout_sidebar(
                                "Semicolon" = ";",
                                "Colon" = ":",
                                "Newline" = "\n"), 
-                selected = "Tab",
+                selected = "\t",
                 width = "130px"),
-
+   
+     # Set number of ros to skip
     shiny::numericInput(inputId = "skip",
               label = "Skip rows:", 
               value = 1,
               min = 0,
               width = "70px"),
     
+    # Set number of rows to show
     shiny::numericInput(inputId = "nrow",
               label = "Rows to show:", 
-              value = 25,
+              value = 6,
               min = 1,
               max = 99,
               width = "70px"),
     
+    # Include Header
     shiny::checkboxInput(inputId = "hdr", 
                          label = "Include Header",
                          value = FALSE),
-    
+    # Reload btn
     shiny::actionButton(inputId = "btn_reload"
                         , label = "Reload"
                         , icon = shiny::icon("refresh")
@@ -140,7 +152,7 @@ proc_sidebar <- bslib::layout_sidebar(
 # MAIN UI ======================================================================
 ui <- bslib::page_navbar(
   title = "UVizor",
-  
+  includeCSS("www/style.css"),
   bslib::nav_panel("IMPORT", 
             icon = bsicons::bs_icon("database-up"),
             input_sidebar), 
@@ -161,7 +173,10 @@ ui <- bslib::page_navbar(
 # Server Logic =================================================================
 server <- function(input, output, session){
   
-  # Get loaded data reactive
+  # Import STATUS Columns to Show
+  import_status_col <- rlang::syms(c("FILE_NAME", "SOURCE", "LOADED"))
+  
+  # Get the loaded data reactive
   spc <- reactive({
 
     req(input$upload)
@@ -171,18 +186,48 @@ server <- function(input, output, session){
     
   })
   
+  tab <- reactive({
+    
+    if(input$filter == "BAD"){ spc()$LOG |> dplyr::filter(LOADED == FALSE) }
+    else{spc()$LOG }
+    
+    })
+
   # Container to keep path to the file
   bfl <- reactiveVal(NULL)
   
   # Container to keep Time and  Response columns
   fld_choices <- reactiveVal("")
   
-  # Update Preview btn state 
-  observeEvent(input$upload,{
+  # Update Preview btn state and Select Input 
+  observe({
+    
+    if(grepl(x = input$fld_time, pattern = "numeric")){
+      lab_time <- tags$span(icon("check"), " Time:", style = "color: green;")
+    }else{lab_time <- tags$span(icon("face-frown"), " Time:", style = "color: red;")}
+    
+    
+    
+    if(grepl(x = input$fld_response, pattern = "numeric")){
+      lab_response <- tags$span(icon("check"), " Response:", style = "color: green;")
+    }else{lab_response <- tags$span(icon("face-frown"), " Response:", style = "color: red;")}
+    
+    updateSelectInput(session, "fld_time", label = lab_time)
+    updateSelectInput(session, "fld_response", label = lab_response)
+    
+  
+    acpt_disabled = TRUE
+    
+    if(grepl(x = input$fld_response, pattern = "numeric") && 
+       grepl(x = input$fld_time, pattern = "numeric")){
+      acpt_disabled = FALSE
+    }
     
     updateActionButton(session = session
-                       , inputId = "btn_preview"
-                       , disabled = FALSE)
+                       , inputId = "btn_accpt"
+                       , disabled = acpt_disabled)
+    
+    
     })
   
   # Handling numeric input limits 
@@ -203,8 +248,8 @@ server <- function(input, output, session){
     
     if(!is.null(input$status_rows_selected)){
       
-      # BUG Does NOT Match rows if filtered !!!!
-      spc()$LOG[["FILE"]][input$status_rows_selected] |> 
+      # Get a Filtered row 
+      tab()[["FILE"]][input$status_rows_selected] |> 
         bfl() 
       prv_tab <- readLines(con = bfl(), n = input$nrow)}
     
@@ -231,6 +276,11 @@ server <- function(input, output, session){
                             , skip = input$skip
                             , nrows = input$nrow)
       
+      # Append data type
+      types <- sapply(dt_reload, class)
+      colnames(dt_reload) <- paste0(names(dt_reload), " (", types, ")")
+      
+      # Update Reactive choices for selectInpit controls
       fld_choices(names(dt_reload))
       
       updateSelectInput(session, "fld_time",
@@ -243,14 +293,20 @@ server <- function(input, output, session){
       
       # Render DataTable Reloaded
       output$data_tab <- DT::renderDT({
+
+        shinyjs::show("dt_container")
+        shinyjs::hide("table_skeleton")
         
         DT::datatable(data = dt_reload
                       , filter = "none"
                       , rownames = FALSE
                       , selection = "single"
+                      , extensions = "Scroller"
                       , options = list(
+                        deferRender = TRUE,
                         dom = 't',
-                        #scrollY = "400px",
+                        scrollY = 500,
+                        sroller = TRUE,
                         scrollX = TRUE,
                         paging = FALSE))
         })
@@ -284,15 +340,7 @@ server <- function(input, output, session){
   # Render IMPORT STATUS TABLE
   output$status <- DT::renderDT({
     
-    tab <- spc()$LOG|> dplyr::select(FILE_NAME, SOURCE, LOADED)
-    
-    if(input$filter == "BAD"){
-
-      tab <- tab|> dplyr::filter(LOADED == FALSE)
-    }
-
-    
-    DT::datatable(data = tab
+    DT::datatable(data = tab()|> dplyr::select(!!!import_status_col)
                   , filter = "none"
                   , rownames = FALSE
                   , selection = "single"
@@ -308,8 +356,18 @@ server <- function(input, output, session){
     
   })
   
+  # on Accept btn clicked
+  observeEvent(input$btn_accpt,{
+    
+    new_spc <- traceR::load_trace(fls = bfl(), custom_read_par = NULL)
+    # compile custom_read_par, update pool spc, update LOG table....
+    # made custom_read_par reactive ?
+    
+  })
+  
+  
   # DEBUGGing
-  output$deb <- renderPrint({input$hdr})
+  output$deb <- renderPrint({bfl()})
   
 }
 

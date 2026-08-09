@@ -1,9 +1,10 @@
 #' Selects parser
 #' @keywords internal
-parser_selector <- function(fls, custom = NULL){
+parser_selector <- function(fls, custom_read_par = NULL){
   
-  if(!is.null(custom)){
-    read_par <- custom
+  if(!is.null(custom_read_par)){
+    read_par <- custom_read_par
+    read_par$SYS <- "CUSTOM"
   }else{read_par <- file_scan(fls)}
   
   
@@ -12,7 +13,8 @@ parser_selector <- function(fls, custom = NULL){
     out <- switch(EXPR = read_par$SYS,
                   EMPOWER = parse_empower(fls = fls, sep = read_par$SEP , skip = read_par$SKIP),
                   CHROMELEON = parse_chromeleon(fls = fls, sep = read_par$SEP),
-                  Undefined = parse_empower(fls = fls, sep = read_par$SEP , skip = read_par$SKIP))
+                  Undefined = parse_empower(fls = fls, sep = read_par$SEP , skip = read_par$SKIP),
+                  CUSTOM = parse_file(fls, read_par))
     out$META$SOURCE <- read_par$SYS } # Assigning source info to the meta data row
   
   return(out)
@@ -102,23 +104,23 @@ parse_chromeleon <- function(fls, sep){
 #' @keywords internal
 #' @importFrom rlang .data
 
-parse_file <- function(fls, sep, skip,...){
+parse_file <- function(fls, read_par){
+  
+  
   
   # Getting trace data
   trace_data <- utils::read.csv(file = fls
-                                , header = FALSE
-                                , sep = sep
-                                , skip = skip
-                                , ...)
+                                , header = read_par$header
+                                , sep = read_par$sep
+                                , skip = read_par$skip
+                                , dec = read_par$dec)
   
   # Initialize Meta
-  if(skip == 0){ meta <- tab_tmplate$META_tmpl} # used to be meta_default()
-  
-  else{ meta <- utils::read.csv(file = fls
+  if(read_par$skip == 0 | read_par$meta ){ meta <- tab_tmplate$META_tmpl} # used to be meta_default()
+  else{meta <- utils::read.csv(file = fls
                                 , header = TRUE
-                                , sep = sep
-                                , nrows = 1)}
-  
+                                , sep = read_par$sep
+                                , nrows = 1)} # May be torn to dynamic
   
   # Add file name
   meta <- meta |> dplyr::mutate(FILE = basename(fls))
