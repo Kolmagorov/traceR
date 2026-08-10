@@ -17,3 +17,13 @@ button:enabled:hover {
   color: white;
   border-color: #02c415:
 }
+
+
+.dataTable tbody td {
+    font-size: 12px;
+}
+
+
+.dataTable th {
+    font-size: 13px;
+}

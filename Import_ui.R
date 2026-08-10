@@ -155,7 +155,7 @@ proc_sidebar <- bslib::layout_sidebar(
 # MAIN UI ======================================================================
 ui <- bslib::page_navbar(
   title = "UVizor",
-  #includeCSS("www/style.css"),
+  includeCSS("www/style.css"),
   bslib::nav_panel("IMPORT", 
             icon = bsicons::bs_icon("database-up"),
             input_sidebar), 
@@ -192,14 +192,10 @@ server <- function(input, output, session){
   # Container to keep Time and  Response columns
   fld_choices <- reactiveVal("")
   
+  # Container to reloaded data
   dt_reload <- reactiveVal(NULL)
   
-  
-    #if(input$filter == "BAD"){ spc()$LOG |> dplyr::filter(LOADED == FALSE) }
-    #else{spc()$LOG }
-
-
-  
+  # Loading Files
   observeEvent(input$upload,{
     
     obj <- traceR::load_trace(fls = input$upload$datapath)
@@ -211,36 +207,42 @@ server <- function(input, output, session){
     
   })
   
-  
-  
+  # Filter Activation
+  observeEvent(input$filter, {
+    
+    if(input$filter == "BAD"){ 
+      spc()$LOG |> 
+        dplyr::filter(LOADED == FALSE)|>
+        tab_log() }
+    
+    else{spc()$LOG |> tab_log()}
+    
+  })
+
   # Update Preview btn state and Select Input 
   observe({
     
-    if(grepl(x = input$fld_time, pattern = "numeric")){
+    if(input$fld_time != ""){
       lab_time <- tags$span(icon("check"), " Time:", style = "color: green;")
     }else{lab_time <- tags$span(icon("face-frown"), " Time:", style = "color: red;")}
     
     
-    
-    if(grepl(x = input$fld_response, pattern = "numeric")){
+    if(input$fld_response != ""){
       lab_response <- tags$span(icon("check"), " Response:", style = "color: green;")
     }else{lab_response <- tags$span(icon("face-frown"), " Response:", style = "color: red;")}
     
     updateSelectInput(session, "fld_time", label = lab_time)
     updateSelectInput(session, "fld_response", label = lab_response)
     
-  
-    acpt_disabled = TRUE
+    acpt_disabled = FALSE
     
-    if(grepl(x = input$fld_response, pattern = "numeric") && 
-       grepl(x = input$fld_time, pattern = "numeric")){
-      acpt_disabled = FALSE
+    if(any(c(input$fld_time, input$fld_response) == "")){
+      acpt_disabled = TRUE
     }
     
     updateActionButton(session = session
                        , inputId = "btn_accpt"
                        , disabled = acpt_disabled)
-    
     })
   
   # Handling numeric input limits 
@@ -294,7 +296,8 @@ server <- function(input, output, session){
       colnames(tmp_dt) <- paste0( names(tmp_dt), " (", types, ")")
       
       # Update Reactive choices for selectInpit controls
-      fld_choices(names( tmp_dt ))
+      grep(x = names( tmp_dt ), pattern = "numeric", value = TRUE)|>
+        fld_choices()
       
       updateSelectInput(session, "fld_time",
                         choices = c("", fld_choices()),
@@ -315,13 +318,13 @@ server <- function(input, output, session){
                       , options = list(
                         deferRender = TRUE,
                         dom = 't',
-                        scrollY = 500,
+                        scrollY = 300,
                         sroller = TRUE,
                         scrollX = TRUE,
                         paging = FALSE))
         })
       
-      # Update data table
+      # Update data table column names to pass them to Accept btn observer
       dt_reload(tmp_dt)
       
       # Switch to datatable page
@@ -377,15 +380,18 @@ server <- function(input, output, session){
     # Create tmp dt_reload with new Column Names 
     tmp_dt <- dt_reload() |> 
       dplyr::rename(RT = input$fld_time
-                    , Response = input$fld_response)|>
-      dplyr::select(RT, Response)
+                    , Response = input$fld_response)
     
     # Rename Selected columns, How to add meta - launch parser?
     new_spc <- traceR::new_trace(x = tmp_dt
-                                 , use_columns = c("RT", 'Response')
-                                 )
+                                 , use_columns = c("RT", 'Response'))|>
+      traceR::merge_trace(a = spc()
+                          , b =_
+                          , keep_history = FALSE
+                          , active_re = FALSE)
+    
     # DEBUGGing
-    output$deb <- renderPrint({class(new_spc)})
+    output$deb <- renderPrint({new_spc$LOG})
     
     #spc
     # update pool spc, update LOG table....

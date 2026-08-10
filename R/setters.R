@@ -148,14 +148,14 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
     
   }else{a <- history_upd(x = a, event = "merged")}
   
-  # Checkin on UID's
+  # Checking on UID's
   clashed_id <- intersect(a$LOG$ID, b$LOG$ID)
   what <- what_validator(b, what = what)
   
   # Checking whether the rehash option is ENABLED
   if(!active_re){
     
-    id_filed <- "ID"
+    id_fld <- "ID"
     
     
     if(length(clashed_id) != 0){
@@ -174,7 +174,7 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
     }
     
   }else{
-    id_field <- "ID_old"
+    id_fld <- "ID_old"
     rhs <- rehash_id(a = a, b = b)
     a <- rhs$a
     b <- rhs$b
@@ -182,7 +182,7 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
   }
   
   
-  what <- b$LOG|> dplyr::filter(.data[[id_field]] %in% what)|> dplyr::pull(.data$ID)
+  what <- b$LOG|> dplyr::filter(.data[[id_fld]] %in% what)|> dplyr::pull(.data$ID)
   
   # APPEND content of the object b to the object a
   a$META <- append(a$META, b$META[what])
@@ -199,7 +199,7 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
     dplyr::filter(.data$ID %in% what)|>
     rbind(a$LOG, make.row.names = FALSE)|>
     dplyr::arrange(.data$Object)|>
-    dplyr::select(!.data[[id_field]])
+    dplyr::select(!.data[[id_fld]])
   
   
   return(a)
@@ -291,6 +291,13 @@ new_trace <- function(x
     # Iterate over the input list
     for(i in seq_along(x)){
       
+      # Overrides input x with RAW data
+      x[[i]] <- x[[i]][use_columns]
+      
+      if(!all( use_columns %in% c("RT","Response"))){
+        names(x[[i]]) <- c("RT", "Response")
+      }
+      
       # Checking type of columns in input data items
       if(!all(sapply(x[[i]], is.numeric, simplify = TRUE))){
         stop("All columns must be of type numeric", call. = FALSE)
@@ -305,10 +312,6 @@ new_trace <- function(x
       
       # meta_tmp contains POSIX
       
-      # Overrides input x with RAW data
-      x[[i]] <- x[[i]][use_columns]
-      names(x[[i]]) <- c("RT", "Response") # DO NOT CHANGE THAT bc all trace methods are build on IT!
-      
       # Update LOG with a new record
       dt_log <- log_rec(list(ID = idx[i], FILE_NAME = NA, SOURCE = "manual"))
       
@@ -322,7 +325,6 @@ new_trace <- function(x
       meta_d[[i]] <- meta_rec(meta_tmp)
    }
   }
-  
   
   
   # Compile and create an object 
