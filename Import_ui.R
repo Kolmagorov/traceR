@@ -67,6 +67,7 @@ import_page <- layout_columns(
   ))
 
 
+
 # IMPORT SIDEBAR ===============================================================
 input_sidebar <- bslib::layout_sidebar(
   sidebar = bslib::sidebar(
@@ -133,6 +134,7 @@ input_sidebar <- bslib::layout_sidebar(
   
   )
 
+
 # FORGE SIDEBAR ================================================================
 forge_sidebar <- bslib::layout_sidebar(
   sidebar = bslib::sidebar(
@@ -145,6 +147,7 @@ proc_sidebar <- bslib::layout_sidebar(
     title = "PROCESSING", 
     textInput("txt", "Enter text:", "Hello")
   ))
+
 
 
 
@@ -167,6 +170,7 @@ ui <- bslib::page_navbar(
             forge_sidebar, 
             textOutput("txt_out"))
   )
+
 
 
 
@@ -237,8 +241,6 @@ server <- function(input, output, session){
                        , inputId = "btn_accpt"
                        , disabled = acpt_disabled)
     
-    # DEBUGGing
-    output$deb <- renderPrint({acpt_disabled})
     })
   
   # Handling numeric input limits 
@@ -289,7 +291,7 @@ server <- function(input, output, session){
       
       # Append data type
       types <- sapply(tmp_dt, class)
-      colnames(tmp_dt) <- paste0( names(tmp_dt, " (", types, ")") )
+      colnames(tmp_dt) <- paste0( names(tmp_dt), " (", types, ")")
       
       # Update Reactive choices for selectInpit controls
       fld_choices(names( tmp_dt ))
@@ -372,9 +374,19 @@ server <- function(input, output, session){
   # on Accept btn clicked
   observeEvent(input$btn_accpt,{
     
-    # Rename Selected columns, How to add meta?
+    # Create tmp dt_reload with new Column Names 
+    tmp_dt <- dt_reload() |> 
+      dplyr::rename(RT = input$fld_time
+                    , Response = input$fld_response)|>
+      dplyr::select(RT, Response)
     
-    new_spc <- traceR::new_trace(x = dt_reload())
+    # Rename Selected columns, How to add meta - launch parser?
+    new_spc <- traceR::new_trace(x = tmp_dt
+                                 , use_columns = c("RT", 'Response')
+                                 )
+    # DEBUGGing
+    output$deb <- renderPrint({class(new_spc)})
+    
     #spc
     # update pool spc, update LOG table....
     
