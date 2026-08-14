@@ -275,33 +275,36 @@ init_log <- function(what = NULL, tmpl = c("LOG", "META")){
 
 #' Rehashing indexes - a helper for merging objects
 #' @keywords internal
-rehash_id <- function(a, b){
+rehash_id <- function(obj, pool = NULL){
   
-  new_a <- gen_uid_pool(n = nrow(a$LOG), len = 6)
-  new_b <- gen_uid_pool(n = nrow(b$LOG), len = 6, pool = new_a)
+  new_b <- gen_uid_pool(n = nrow(obj$LOG), len = 6, pool = pool)
 
-  out <- purrr::map2(list(a = a, b = b), list(new_a, new_b), function(obj, x_name){
+  # back Uo old IDs
+  obj$LOG <- obj$LOG|> dplyr::mutate(ID_old = ID, ID = new_b)
+  
+  fac <- obj$LOG|>
+    dplyr::filter(isTRUE(LOADED))|>
+    dplyr::select(ID, ID_old)
+  
+  # Rename META and RAW
+  for(i in 1:nrow(fac)){
     
-    names(obj$META) <- x_name
-    names(obj$RAW) <- x_name
+    names(obj$RAW)[names(obj$RAW) == fac$ID_old[i]] <- fac$ID[i]
+    names(obj$META)[names(obj$META) == fac$ID_old[i]] <- fac$ID[i]
     
-    if(!is.null(obj$PROCESSED)){ names(obj$PROCESSED) <- x_name } 
-    
-    obj$LOG <- obj$LOG |> 
-      dplyr::rename(ID_old = .data$ID) |> 
-      dplyr::mutate(ID = x_name)
-    
-    obj$META <- purrr::map2(obj$META, names(obj$META), function(dt, idx){
+  }
+  # Rename PROCESSED data
+  if(!is.null(obj$PROCESSED)){ names(obj$PROCESSED) <- names(obj$RAW) } 
+
+  
+  # Update ID in META content
+  obj$META <- purrr::map2(obj$META, names(obj$META), function(dt, idx){
       
       dt$ID <- idx
       dt
     })
     
-    obj
-    
-  })
-  
-  return(out)
+  return(obj)
 }
 
 #' Computes cosine similarity between two vectors
@@ -365,8 +368,6 @@ tr_euc2sim <- function(a, b, w = 1, lamb = 1, simple = FALSE){
   return(exp(-dst*lamb))
 
 }
-
-
 
 
 #' Prompt for re-sampling

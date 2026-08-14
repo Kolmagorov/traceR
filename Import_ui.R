@@ -23,7 +23,8 @@ import_page <- layout_columns(
       )
     ),
     card_body( DT::DTOutput("status")|> 
-                 shinycssloaders::withSpinner(type = 6, color = "#0d6efd") 
+                 shinycssloaders::withSpinner(type = 6, color = "#0d6efd"),
+               shiny::verbatimTextOutput("deb")
                )
   ),
   
@@ -83,41 +84,49 @@ input_sidebar <- bslib::layout_sidebar(
                      , placeholder = "browse a file"),
     htmltools::h5("Parser controls:"),
     
+    # Set number of ros to skip
+    tags$div(
+      style = "display: flex; align-items: center; gap: 20px;",
+      tags$p("Skip Row(s):", style = "margin-bottom: 5;"),
+      shiny::numericInput(inputId = "skip",
+                          label = NULL, 
+                          value = 1,
+                          min = 0,
+                          width = "70px")
+      ),
+    
+    # Set number of rows to show
+    tags$div(
+      style = "display: flex; align-items: center; gap: 10px;",
+      tags$p("Show Row(s):", style = "margin-bottom: 5;"),
+      shiny::numericInput(inputId = "nrow",
+                          label = NULL, 
+                          value = 6,
+                          min = 1,
+                          max = 99,
+                          width = "70px")
+      ),
+    
     # Select decimal point
     shiny::selectInput(inputId = "dec",
-                label = "Decimal:", 
-                choices = list("Comma" = ",",
-                               "Period" = "."), 
-                selected = ".",
-                width = "130px"),
+                       label = "Decimal:", 
+                       choices = list("Comma" = ",",
+                                      "Period" = "."), 
+                       selected = ".",
+                       width = "130px"),
     
     # Select a Delimiter
     shiny::selectInput(inputId = "sep",
-                label = "Delim:", 
-                choices = list("Tab" = "\t", 
-                               "Comma" = ",",
-                               "Semicolon" = ";",
-                               "Colon" = ":",
-                               "Newline" = "\n"), 
-                selected = "\t",
-                width = "130px"),
-   
-     # Set number of ros to skip
-    shiny::numericInput(inputId = "skip",
-              label = "Skip rows:", 
-              value = 1,
-              min = 0,
-              width = "70px"),
-    
-    # Set number of rows to show
-    shiny::numericInput(inputId = "nrow",
-              label = "Rows to show:", 
-              value = 6,
-              min = 1,
-              max = 99,
-              width = "70px"),
-    
-    # Include Header
+                       label = "Delim:", 
+                       choices = list("Tab" = "\t", 
+                                      "Comma" = ",",
+                                      "Semicolon" = ";",
+                                      "Colon" = ":",
+                                      "Newline" = "\n"), 
+                       selected = "\t",
+                       width = "130px"),
+
+     # Include Header
     shiny::checkboxInput(inputId = "hdr", 
                          label = "Include Header",
                          value = FALSE),
@@ -125,9 +134,7 @@ input_sidebar <- bslib::layout_sidebar(
     shiny::actionButton(inputId = "btn_reload"
                         , label = "Reload"
                         , icon = shiny::icon("refresh")
-                        , disabled = FALSE),
-    
-    shiny::verbatimTextOutput("deb")
+                        , disabled = FALSE)
     ), 
   
   import_page
@@ -382,16 +389,25 @@ server <- function(input, output, session){
       dplyr::rename(RT = input$fld_time
                     , Response = input$fld_response)
     
+    print(tmp_dt)
+    
     # Rename Selected columns, How to add meta - launch parser?
     new_spc <- traceR::new_trace(x = tmp_dt
-                                 , use_columns = c("RT", 'Response'))|>
+                                 , use_columns = c("RT", "Response"))|>
       traceR::merge_trace(a = spc()
                           , b =_
                           , keep_history = FALSE
-                          , active_re = FALSE)
+                          , active_re = T)
     
     # DEBUGGing
-    output$deb <- renderPrint({new_spc$LOG})
+    output$deb <- renderPrint({
+      
+      #new_spc$LOG
+      
+      str(new_spc)
+      
+      
+      })
     
     #spc
     # update pool spc, update LOG table....
@@ -403,7 +419,4 @@ server <- function(input, output, session){
 
 # Run App
 shinyApp(ui, server)
-
-
-
 

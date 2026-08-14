@@ -131,8 +131,8 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
     return(a)
   }
   
-  a$LOG$Object <- deparse(substitute(a))
-  b$LOG$Object <- deparse(substitute(b))
+  a$LOG$Object <- "A"
+  b$LOG$Object <- "B"
   
   if(methods::is(a) != "tracer" | methods::is(b) != "tracer"){ 
     stop("\n The merging objects must be a type of tracer", call. = FALSE)
@@ -151,7 +151,10 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
   # Checking on UID's
   clashed_id <- intersect(a$LOG$ID, b$LOG$ID)
   what <- what_validator(b, what = what)
-  
+  print("OLD ID")
+  print(what)
+
+
   # Checking whether the rehash option is ENABLED
   if(!active_re){
     
@@ -161,7 +164,6 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
     if(length(clashed_id) != 0){
       # Update what and ignore duplicates
       what <- what[!(what %in% clashed_id)]
-      
       
       warning("\nDUPLICATED traces have been detected and not merged: \n"
               , call. = FALSE
@@ -175,14 +177,14 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
     
   }else{
     id_fld <- "ID_old"
-    rhs <- rehash_id(a = a, b = b)
-    a <- rhs$a
-    b <- rhs$b
-    rm(rhs)
+    b <- rehash_id(b, pool = a$LOG$ID)
   }
   
-  
+
   what <- b$LOG|> dplyr::filter(.data[[id_fld]] %in% what)|> dplyr::pull(.data$ID)
+  
+  print("NEW ID")
+  print(what)
   
   # APPEND content of the object b to the object a
   a$META <- append(a$META, b$META[what])
@@ -196,11 +198,10 @@ merge_trace <- function(a, b, what = NULL, active_re = TRUE, keep_history = FALS
   # Combine LOG data
   
   a$LOG <- b$LOG|> 
+    dplyr::select(!.data[[id_fld]])|>
     dplyr::filter(.data$ID %in% what)|>
     rbind(a$LOG, make.row.names = FALSE)|>
-    dplyr::arrange(.data$Object)|>
-    dplyr::select(!.data[[id_fld]])
-  
+    dplyr::arrange(.data$Object)
   
   return(a)
 }
@@ -313,7 +314,10 @@ new_trace <- function(x
       # meta_tmp contains POSIX
       
       # Update LOG with a new record
-      dt_log <- log_rec(list(ID = idx[i], FILE_NAME = NA, SOURCE = "manual"))
+      dt_log <- log_rec(list(ID = idx[i]
+                             , LOADED = TRUE
+                             , FILE_NAME = NA
+                             , SOURCE = "manual"))
       
       # Assign UID to meta_tmp
       meta_tmp[["ID"]] <- idx[i]
