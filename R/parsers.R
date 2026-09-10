@@ -130,8 +130,36 @@ parse_file <- function(fls, read_par){
 
 
 
+#' Empower parser that imports cdf files
+#' @keywords internal
+#' @importFrom rlang .data
+
+parse_empower_cdf <- function(fls){
+  
+  # Getting trace data
+  fl_nc <- ncdf4::nc_open(filename = fls, write = F)
+  
+  trace_data <- data.frame(
+    RT = seq(0
+             , ncdf4::ncvar_get(fl_nc, varid = "actual_run_time_length")
+             , length.out = fl_nc$dim$point_number),
+    Response = ncdf4::ncvar_get(fl_nc, varid = "ordinate_values")
+  )
+  
+  glb_cdf_att <- ncdf4::ncatt_get(fl_nc, varid = 0)
+  
+  # Initialize Meta
+  meta <- tab_tmplate$META_tmpl|>
+    dplyr::mutate(SampleName = glb_cdf_att$sample_name,
+                  dateAcquired = lubridate::fast_strptime(x = aglb_cdf_att$injection_date_time_stamp, 
+                                                          format = "%Y%m%d%H%M%S%z"),
+                  SOURCE = "EMPOWER",
+                  FILE = basename(fls)
+                  )
+  
+  ncdf4::nc_close(fl_nc) 
+  
+  return(list(TRACE = trace_data, META = meta))
+}
 
 
-
-# netcdf parser ....
-# parse_cdf <- function(){}
