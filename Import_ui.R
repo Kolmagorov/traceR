@@ -80,7 +80,7 @@ input_sidebar <- bslib::layout_sidebar(
                      , label = "Select a file:"
                      , buttonLabel = "Upload..."
                      , multiple = TRUE
-                     , accept = c(".csv", ".arw", ".txt")
+                     , accept = c(".csv", ".arw", ".txt", ".cdf")
                      , placeholder = "browse a file"),
     htmltools::h5("Parser controls:"),
     

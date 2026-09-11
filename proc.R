@@ -57,7 +57,8 @@ IMPORTS <- c("utils"
              , "scales"
              , "stats"
              , "glue"
-             , "pracma")
+             , "pracma"
+             , "ncdf4")
 
 
 purrr::walk(IMPORTS, usethis::use_package)
@@ -169,6 +170,26 @@ rm(g)
 trace_info(df)
 
 dplyr::bind_rows(df$META)
+
+
+devtools::load_all()
+m <-load_trace(fls = "C:/RWD/GNR-039/QC/Alliance VI/PM_Tigerase 20_11_2024/PM_Tigerase 20_11_20242755.cdf")|>
+  tr_crop(crop_to = c(8, 130))|>
+  tr_baseline()
+
+plt_gg(m, stacked = F)
+
+parse_empower_cdf("C:/RWD/GNR-039/QC/Alliance VI/PM_Tigerase 20_11_2024/PM_Tigerase 20_11_20242755.cdf")
+
+
+a <- ncdf4::nc_open("C:/RWD/GNR-039/QC/Alliance VI/PM_Tigerase 20_11_2024/PM_Tigerase 20_11_20242755.cdf")
+
+
+ncdf4::ncvar_get(a, varid = "actual_run_time_length")
+ncdf4::ncatt_get(a, varid = 0)
+
+a$dim$point_number
+
 
 
 

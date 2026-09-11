@@ -570,8 +570,7 @@ tr_baseline <- function(x, new_obj = TRUE){
   
   out <- lapply(x[[data_]], function(dt){
 
-    dt$Response <- prospectr::baseline(X = matrix(dt[["Response"]], nrow = 1)
-                        , wav = dt[["RT"]])
+    dt$Response <- ptw::baseline.corr(y = dt$Response)
     dt
 
   })

@@ -4,7 +4,13 @@
 \alias{load_trace}
 \title{a Class constructor is not integrated yet}
 \usage{
-load_trace(path_dir = NULL, fls = NULL, pattern = NULL, uid_len = 6L)
+load_trace(
+  path_dir = NULL,
+  fls = NULL,
+  pattern = NULL,
+  uid_len = 6L,
+  custom_read_par = NULL
+)
 }
 \arguments{
 \item{path_dir}{a string specifying path to a directory with trace files to load}

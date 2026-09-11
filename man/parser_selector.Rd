@@ -4,7 +4,7 @@
 \alias{parser_selector}
 \title{Selects parser}
 \usage{
-parser_selector(fls)
+parser_selector(fls, custom_read_par = NULL)
 }
 \description{
 Selects parser

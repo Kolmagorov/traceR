@@ -5,15 +5,29 @@ parser_selector <- function(fls, custom_read_par = NULL){
   if(!is.null(custom_read_par)){
     read_par <- custom_read_par
     read_par$SYS <- "CUSTOM"
-  }else{read_par <- file_scan(fls)}
+  }
+  
+  if(grepl(x = fls, pattern = "\\.cdf$", ignore.case = T)){
+    
+    read_par <- list(SEP = NA
+                     , SKIP = NA
+                     , SYS = "EMPOWER"
+                     , EMP_CDF = TRUE)
+    }else{read_par <- file_scan(fls)}
   
   
   if(isFALSE(read_par)){ return(read_par) }
   else{
     out <- switch(EXPR = read_par$SYS,
-                  EMPOWER = parse_empower(fls = fls, sep = read_par$SEP , skip = read_par$SKIP),
-                  CHROMELEON = parse_chromeleon(fls = fls, sep = read_par$SEP),
-                  Undefined = parse_empower(fls = fls, sep = read_par$SEP , skip = read_par$SKIP),
+                  EMPOWER = parse_empower(fls = fls
+                                          , sep = read_par$SEP 
+                                          , skip = read_par$SKIP
+                                          , emp_cdf = read_par$EMP_CDF),
+                  CHROMELEON = parse_chromeleon(fls = fls
+                                                , sep = read_par$SEP),
+                  Undefined = parse_empower(fls = fls
+                                            , sep = read_par$SEP
+                                            , skip = read_par$SKIP),
                   CUSTOM = parse_file(fls, read_par))
     out$META$SOURCE <- read_par$SYS } # Assigning source info to the meta data row
   
@@ -23,7 +37,14 @@ parser_selector <- function(fls, custom_read_par = NULL){
 #' Empower parser, imports .csv, .txt, .arw files
 #' @keywords internal
 #' @importFrom rlang .data
-parse_empower <- function(fls, skip, sep){
+parse_empower <- function(fls, skip, sep, emp_cdf = FALSE){
+  
+  # Read in as a cdf-file
+  if(emp_cdf){
+    
+    return(parse_empower_cdf(fls))
+    
+  }
   
   # Getting trace data
   trace_data <- utils::read.csv(file = fls
@@ -107,7 +128,6 @@ parse_chromeleon <- function(fls, sep){
 parse_file <- function(fls, read_par){
   
   
-  
   # Getting trace data
   trace_data <- utils::read.csv(file = fls
                                 , header = read_par$header
@@ -129,7 +149,6 @@ parse_file <- function(fls, read_par){
 }
 
 
-
 #' Empower parser that imports cdf files
 #' @keywords internal
 #' @importFrom rlang .data
@@ -140,9 +159,7 @@ parse_empower_cdf <- function(fls){
   fl_nc <- ncdf4::nc_open(filename = fls, write = F)
   
   trace_data <- data.frame(
-    RT = seq(0
-             , ncdf4::ncvar_get(fl_nc, varid = "actual_run_time_length")
-             , length.out = fl_nc$dim$point_number),
+    RT = fl_nc$dim$point_number$val/60,
     Response = ncdf4::ncvar_get(fl_nc, varid = "ordinate_values")
   )
   
@@ -151,7 +168,7 @@ parse_empower_cdf <- function(fls){
   # Initialize Meta
   meta <- tab_tmplate$META_tmpl|>
     dplyr::mutate(SampleName = glb_cdf_att$sample_name,
-                  dateAcquired = lubridate::fast_strptime(x = aglb_cdf_att$injection_date_time_stamp, 
+                  dateAcquired = lubridate::fast_strptime(x = glb_cdf_att$injection_date_time_stamp, 
                                                           format = "%Y%m%d%H%M%S%z"),
                   SOURCE = "EMPOWER",
                   FILE = basename(fls)

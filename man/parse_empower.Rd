@@ -4,7 +4,7 @@
 \alias{parse_empower}
 \title{Empower parser, imports .csv, .txt, .arw files}
 \usage{
-parse_empower(fls, skip, sep)
+parse_empower(fls, skip, sep, emp_cdf = FALSE)
 }
 \description{
 Empower parser, imports .csv, .txt, .arw files

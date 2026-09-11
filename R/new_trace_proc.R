@@ -28,7 +28,7 @@ load_trace <- function(path_dir = NULL
   # Setting pattern
   if(is.null(pattern)){
 
-    pattern = ".*(\\.arw)$|.*(\\.csv)$|.*(\\.txt)$"
+    pattern = ".*(\\.arw)$|.*(\\.csv)$|.*(\\.txt)$|.*(\\.cdf)$"
   }
 
   # Checks fls

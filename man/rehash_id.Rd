@@ -4,7 +4,7 @@
 \alias{rehash_id}
 \title{Rehashing indexes - a helper for merging objects}
 \usage{
-rehash_id(a, b)
+rehash_id(obj, pool = NULL)
 }
 \description{
 Rehashing indexes - a helper for merging objects
