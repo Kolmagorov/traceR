@@ -37,10 +37,10 @@ parser_selector <- function(fls, custom_read_par = NULL){
 #' Empower parser, imports .csv, .txt, .arw files
 #' @keywords internal
 #' @importFrom rlang .data
-parse_empower <- function(fls, skip, sep, emp_cdf = FALSE){
+parse_empower <- function(fls, skip, sep, emp_cdf = NULL){
   
   # Read in as a cdf-file
-  if(emp_cdf){
+  if(!is.null(emp_cdf)){
     
     return(parse_empower_cdf(fls))
     
