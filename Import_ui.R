@@ -159,6 +159,33 @@ proc_sidebar <- bslib::layout_sidebar(
 
 
 
+# Processing Page ==============================================================
+processing_page <- layout_columns(
+  col_widths = c(6,6),
+  # IMPORT LOG
+  card(
+    full_screen = TRUE,
+    card_header(
+      "IMPORT STATUS",
+      class = "bg-blue",
+      toolbar(
+        align = "right",
+        toolbar_input_select(
+          id = "filter",
+          label = "Filter",
+          choices = c("All", "BAD"),
+          icon = icon("filter")
+        )
+      )
+    ),
+    card_body( DT::DTOutput("status")|> 
+                 shinycssloaders::withSpinner(type = 6, color = "#0d6efd"),
+               shiny::verbatimTextOutput("deb")
+    )
+  ))
+
+
+
 # MAIN UI ======================================================================
 ui <- bslib::page_navbar(
   title = "UVizor",
