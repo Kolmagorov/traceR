@@ -159,32 +159,123 @@ proc_sidebar <- bslib::layout_sidebar(
 
 
 
+
+# Processing SIDEBAR ===========================================================
+processing_sidebar <- bslib::layout_sidebar(
+  
+  sidebar = bslib::sidebar(
+    title = "Processing Control",
+    width = 300,
+    style = "min-width: 250px; max-width: 400px",
+    
+    # List of Objects 
+    tags$div(
+      style = "height: 150px; overflow-y: auto; border: 1px solid #ccc; padding: 5px;",
+      DT::DTOutput("obj_list")
+      ),
+    
+    htmltools::h5("CROPPING:"),
+    tags$div(
+      style = "display: flex; align-items: center; gap: 20px;",
+      
+      shiny::numericInput(inputId = "min_crop_rt",
+                         label = "", 
+                         value = 1 , 
+                         min = 0, 
+                         max = 100,
+                         width = "130px"),
+      
+      shiny::numericInput(inputId = "max_crop_rt",
+                          label = "", 
+                          value = 1 , 
+                          min = 0, 
+                          max = 100,
+                          width = "130px"),
+
+    ),
+    htmltools::h5("RESAMPLING:"),
+    
+    tags$div(
+      style = "display: flex; align-items: center; gap: 20px;",
+      
+      shiny::selectInput(inputId = "resampl_mode",
+                         label = "", 
+                         choices = list("Auto","Custom"), 
+                         selected = "Auto",
+                         width = "130px"),
+      
+      shiny::numericInput(inputId = "resampl_val",
+                          label = "", 
+                          value = NA , 
+                          min = 100, 
+                          max = 1000,
+                          width = "130px"),
+      
+    ),
+    
+    htmltools::h5("BASELINE:"),
+    
+    bslib::input_switch(id = "baseline_swh",
+                        label = "Enabled", 
+                        value = FALSE), 
+    
+    
+    htmltools::h5("ALIGMENT:"),
+    
+    # Set number of rows to skip
+    tags$div(
+      style = "display: flex; align-items: center; gap: 20px;",
+     
+      shiny::selectInput(inputId = "ref_meta",
+                         label = "", 
+                         choices = list("Auto","Custom"), 
+                         selected = "Auto",
+                         width = "130px"),
+      
+      shiny::selectInput(inputId = "ref_item",
+                         label = "", 
+                         choices = list("Auto","Custom"), 
+                         selected = "Auto",
+                         width = "130px")
+      ),
+    ),
+  processing_page
+)
+
+
+
 # Processing Page ==============================================================
 processing_page <- layout_columns(
-  col_widths = c(6,6),
-  # IMPORT LOG
+  col_widths = c(9,3),
+  # PLOT AREA
   card(
     full_screen = TRUE,
-    card_header(
-      "IMPORT STATUS",
-      class = "bg-blue",
-      toolbar(
-        align = "right",
-        toolbar_input_select(
-          id = "filter",
-          label = "Filter",
-          choices = c("All", "BAD"),
-          icon = icon("filter")
-        )
+    card_header("TRACE", class = "bg-blue"),
+    card_body(
+      
+      # TRACE PLOT
+      plotOutput("plot"),
+      
+      # RETENTION Time cropping
+      sliderInput(inputId = "time_rng"
+                  , ""
+                  , value = c(0, 100)
+                  , min = 0
+                  , max = 100
+                  , width = "80%"
+                  , step = 1
+                  , post = " min")
       )
     ),
-    card_body( DT::DTOutput("status")|> 
-                 shinycssloaders::withSpinner(type = 6, color = "#0d6efd"),
-               shiny::verbatimTextOutput("deb")
+  # Object ITEM
+  card(
+    full_screen = TRUE,
+    card_header("Object Items", class = "bg-blue"),
+    card_body(
+      DT::DTOutput("obj_item")
+      )
     )
-  ))
-
-
+  )
 
 # MAIN UI ======================================================================
 ui <- bslib::page_navbar(
@@ -201,7 +292,7 @@ ui <- bslib::page_navbar(
   
   bslib::nav_panel("PROCESSING", 
             icon = bsicons::bs_icon("plus-slash-minus"), 
-            forge_sidebar, 
+            processing_sidebar, 
             textOutput("txt_out"))
   )
 
