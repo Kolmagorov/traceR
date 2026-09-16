@@ -20,10 +20,21 @@ button:enabled:hover {
 
 
 .dataTable tbody td {
-    font-size: 12px;
+  font-size: 12px;
 }
 
 
 .dataTable th {
-    font-size: 13px;
+  font-size: 13px;
 }
+
+/*Hide a proxi fileInput widget*/
+
+.custom-file-input {
+  display: none;
+}
+      
+      
+      
+      
+      
