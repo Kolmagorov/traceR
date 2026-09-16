@@ -74,17 +74,37 @@ input_sidebar <- bslib::layout_sidebar(
   sidebar = bslib::sidebar(
     title = "Import Control",
     width = 300,
-    style = "min-width: 250px; max-width: 400px",
-    # File IMPORT 
-    shiny::fileInput(inputId = "upload"
-                     , label = "Select a file:"
-                     , buttonLabel = "Upload..."
-                     , multiple = TRUE
-                     , accept = c(".csv", ".arw", ".txt", ".cdf")
-                     , placeholder = "browse a file"),
-    htmltools::h5("Parser controls:"),
+    style = "min-width: 250px; max-width: 300px",
     
-    # Set number of ros to skip
+    tags$div(
+      style = "display: flex; align-items: center; gap: 50px;",
+      
+      # Add a New Object 
+      shiny::actionButton(inputId = "import_new_obj"
+                          , label = "NEW"
+                          , buttonLabel = "NEW"
+                          , width = "100px"),
+      
+      # Add a File Object
+      shiny::actionButton(inputId = "add_file"
+                          , label = tags$span(icon("plus"))
+                          #, buttonLabel = tags$span(icon("plus"))
+                          , width = "100px")
+      ),
+    
+    # List of Objects 
+    tags$div(
+      style = "height: 150px; max-width: 250px; overflow-y: auto; border: 1px solid #ccc; padding: 5px;",
+      DT::DTOutput("obj_list")
+    ),
+    
+    div(
+      class = "custom-file-input",
+      fileInput("upld_btn_proxy", NULL)
+    ),
+    
+    
+    # Set number of rows to skip
     tags$div(
       style = "display: flex; align-items: center; gap: 20px;",
       tags$p("Skip Row(s):", style = "margin-bottom: 5;"),
@@ -171,7 +191,7 @@ processing_sidebar <- bslib::layout_sidebar(
     # List of Objects 
     tags$div(
       style = "height: 150px; overflow-y: auto; border: 1px solid #ccc; padding: 5px;",
-      DT::DTOutput("obj_list")
+      DT::DTOutput("obj_list_imp")
       ),
     
     htmltools::h5("CROPPING:"),
@@ -216,7 +236,8 @@ processing_sidebar <- bslib::layout_sidebar(
     htmltools::h5("BASELINE:"),
     
     bslib::input_switch(id = "baseline_swh",
-                        label = "Enabled", 
+                        label = "Enabled",
+                        width = "100px",
                         value = FALSE), 
     
     
@@ -258,11 +279,11 @@ processing_page <- layout_columns(
       
       # RETENTION Time cropping
       sliderInput(inputId = "time_rng"
-                  , ""
+                  , label = ""
                   , value = c(0, 100)
                   , min = 0
                   , max = 100
-                  , width = "80%"
+                  , width = "90%"
                   , step = 1
                   , post = " min")
       )
@@ -293,8 +314,17 @@ ui <- bslib::page_navbar(
   bslib::nav_panel("PROCESSING", 
             icon = bsicons::bs_icon("plus-slash-minus"), 
             processing_sidebar, 
-            textOutput("txt_out"))
+            textOutput("txt_out")),
+  
+  tags$script(HTML("
+      $(document).ready(function() {
+        $('#add_file').on('click', function() {
+          $('#upld_btn_proxy').click();
+        });
+      });
+    "))
   )
+
 
 
 
@@ -307,6 +337,9 @@ server <- function(input, output, session){
   
   # Get the loaded data reactive
   spc <- reactiveVal(NULL)
+  
+  # List of objects
+  obj_lst <- reactiveValues()
   
   # get LOG reactive
   tab_log <- reactiveVal(NULL)
@@ -321,11 +354,18 @@ server <- function(input, output, session){
   dt_reload <- reactiveVal(NULL)
   
   # Loading Files
-  observeEvent(input$upload,{
+  observeEvent(input$upld_btn_proxy,{
     
-    obj <- traceR::load_trace(fls = input$upload$datapath)
-    obj$LOG$FILE_NAME <- input$upload$name
     
+    n <- length(names(obj_lst)) + 1
+    
+    new_obj_name <- paste("SPC", n, sep = "")
+    
+    
+    obj <- traceR::load_trace(fls = input$upld_btn_proxy$datapath)
+    obj$LOG$FILE_NAME <- input$upld_btn_proxy$name
+    
+    obj_lst[[new_obj_name]] <- obj
     spc(obj)
     tab_log(obj$LOG)
     
@@ -532,7 +572,41 @@ server <- function(input, output, session){
     
   })
   
+  # NEW btn clicked
+  observeEvent(input$import_new_obj, {
+    
+    showModal(modalDialog(
+      title = "Create an object",
+      "This is the body content of your modal dialog window.",
+      size = "m",          # Options: "s" (small), "m" (medium), "l" (large), "xl" (extra-large)
+      easyClose = TRUE,    # Allows closing by clicking outside or pressing Esc
+      footer = modalButton("OK") # Standard close button
+    ))
+  })
   
+
+  
+  # PROC PAGE Object List
+  output$obj_list <- DT::renderDT({
+    
+    obj_lst|>
+      names()|>
+      lapply(function(v){
+        data.frame(Object = v
+                   , Items = length(obj_lst[[v]][["RAW"]])
+                   )
+        })|> 
+      do.call("rbind", args=_)|>
+      DT::datatable(data =_ 
+                    , filter = "none"
+                    , rownames = FALSE
+                    , selection = "single"
+                    , options = list(
+                      dom = 't',
+                      scrollY = "400px",
+                      scrollX = TRUE,
+                      paging = FALSE))
+  })
 }
 
 # Run App
