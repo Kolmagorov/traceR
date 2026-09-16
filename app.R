@@ -276,3 +276,30 @@ server <- function(input, output, session) {
 # Run the application 
 shinyApp(ui = ui, server = server)
 
+
+
+
+tags$div(
+  class = "custom_upld",
+  
+  # Add a New Object 
+  shiny::actionButton(inputId = "import_new_obj"
+                      , label = NULL
+                      , buttonLabel = "NEW"
+                      , width = "60px"),
+  
+  # File IMPORT 
+  shiny::fileInput(inputId = "upload"
+                   , buttonLabel =  tags$span(shiny::icon("plus"), "")    #"Select a file:"bsicons::bs_icon("file-earmark-plus-fill")
+                   , label = NULL
+                   #, buttonLabel = "Upload..."
+                   , multiple = TRUE
+                   , accept = c(".csv", ".arw", ".txt", ".cdf")
+                   #, placeholder = "browse a file"
+  ),
+  #htmltools::h5("Parser controls:")
+  
+),
+
+
+
