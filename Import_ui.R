@@ -88,7 +88,7 @@ input_sidebar <- bslib::layout_sidebar(
       # Add a File Object
       shiny::actionButton(inputId = "add_file"
                           , label = tags$span(icon("plus"))
-                          #, buttonLabel = tags$span(icon("plus"))
+                          , disabled = TRUE
                           , width = "100px")
       ),
     
@@ -100,7 +100,9 @@ input_sidebar <- bslib::layout_sidebar(
     
     div(
       class = "custom-file-input",
-      fileInput("upld_btn_proxy", NULL)
+      fileInput("upld_btn_proxy"
+                , label = NULL
+                , multiple = TRUE)
     ),
     
     
@@ -576,16 +578,36 @@ server <- function(input, output, session){
   observeEvent(input$import_new_obj, {
     
     showModal(modalDialog(
-      title = "Create an object",
-      "This is the body content of your modal dialog window.",
-      size = "m",          # Options: "s" (small), "m" (medium), "l" (large), "xl" (extra-large)
+      title = "Create a new object",
+      size = "s",          # Options: "s" (small), "m" (medium), "l" (large), "xl" (extra-large)
       easyClose = TRUE,    # Allows closing by clicking outside or pressing Esc
-      footer = modalButton("OK") # Standard close button
+      
+      textInput(inputId = "obj_name_import"
+                , label = "Type in a name"
+                , placeholder = "SPC1"),
+      
+      footer = tagList(
+        actionButton(inputId = "submit_obj_name_import"
+                     , label = "Submit"
+                     , class = "btn-primary"),
+        modalButton(label = "Cancel")
+      )
+      
     ))
   })
   
+  # Submit New object btn clicked
+  observeEvent(input$submit_obj_name_import, {
 
-  
+    # Update Align btn state 
+    updateActionButton(session = session
+                       , inputId = "add_file"
+                       , disabled = FALSE)
+    
+    # Close the modal dialog window
+    removeModal()
+  })
+
   # PROC PAGE Object List
   output$obj_list <- DT::renderDT({
     
