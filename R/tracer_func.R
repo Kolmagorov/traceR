@@ -396,6 +396,7 @@ plt_gg <- function(x
 #' or similarity matrix.
 #' @param use_diff logical, whether use peak difference or absolute intensity to get a vector of weights.
 #' @param pw a numeric, a weighing coefficient for signal intensities default is 0.
+#' @param what see `plt_gg`.
 #' @param align logical. If TRUE a pairwise alignment will be applied.
 #' @param neg logical, if TRUE allows negative peaks, default is FALSE.
 #' @param force_raw if TRUE, RAW data will be compared regardless of the previous processing steps taken.
@@ -441,6 +442,7 @@ tr_compar <- function(x
                   , lab = NULL
                   , use_diff = FALSE
                   , pw = 0
+                  , what = NULL
                   , align = FALSE
                   , neg = FALSE
                   , force_raw = FALSE
@@ -455,6 +457,10 @@ tr_compar <- function(x
   
   # Validate number of data points
   x <- data_point_validator(x)
+  
+  # Subset samples
+  what <- what_validator(obj = x, what = what)
+  x <- copy_trace(x = x, what = what)
   
   data_ <- "PROCESSED"
   
@@ -491,13 +497,13 @@ tr_compar <- function(x
     rm(dt)
     }
   
-  if(any(duplicated(item))){
+  if(any(duplicated(lab))){
     stop("Argument lab has non-unique items", call. = FALSE)
     }
   
-  if(dif_base <= 0){
-    stop("Argument dif_base must be greater than 0", call. = FALSE)
-    }
+  #if(dif_base <= 0){
+    #stop("Argument dif_base must be greater than 0", call. = FALSE)
+    #}
   
   if(pw < 0){
     stop("Argument pw must not be less than 0", call. = FALSE)
