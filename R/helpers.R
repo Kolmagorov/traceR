@@ -340,7 +340,13 @@ tr_angular_dist <- function(a, b, w = 1, neg = FALSE){
   foc <- 2
   if(neg){foc <- 1}
 
-  ad <- tr_cosine_sim(a, b, w) |> acos()
+  ad <- tr_cosine_sim(a, b, w)
+  
+  if(ad > 1){
+    ad <- round(x = ad, digits = 6) 
+  }
+  
+  ad <- ad|> acos()
   
   return(foc*ad/pi)
 }

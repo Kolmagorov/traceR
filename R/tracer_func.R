@@ -401,7 +401,7 @@ plt_gg <- function(x
 #' @param neg logical, if TRUE allows negative peaks, default is FALSE.
 #' @param force_raw if TRUE, RAW data will be compared regardless of the previous processing steps taken.
 #' @param gamma a numeric that defines scale spanning for weights, default 1.
-#' @param lamb a positive number, to get similarity score based Euclidean distance, on see details.
+#' @param lamb a positive number, to get similarity score based on Euclidean distance, see details.
 #' @param simple  if TRUE computes unweighted Euclidean distance;
 #' @param metric a string indicating which similarity or distance metric to compute, see details.
 #' @param fun a string defining a function that will be used in getting re-weighting vector.
