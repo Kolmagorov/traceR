@@ -182,6 +182,40 @@ proc_sidebar <- bslib::layout_sidebar(
 
 
 
+# Processing Page ==============================================================
+processing_page <- layout_columns(
+  col_widths = c(9,3),
+  # PLOT AREA
+  card(
+    full_screen = TRUE,
+    card_header("TRACE", class = "bg-blue"),
+    card_body(
+      
+      # TRACE PLOT
+      plotOutput("plot"),
+      
+      # RETENTION Time cropping
+      sliderInput(inputId = "time_rng"
+                  , label = ""
+                  , value = c(0, 100)
+                  , min = 0
+                  , max = 100
+                  , width = "90%"
+                  , step = 1
+                  , post = " min")
+      )
+    ),
+  # Object ITEM
+  card(
+    full_screen = TRUE,
+    card_header("Object Items", class = "bg-blue"),
+    card_body(
+      DT::DTOutput("obj_item")
+      )
+    )
+  )
+
+
 # Processing SIDEBAR ===========================================================
 processing_sidebar <- bslib::layout_sidebar(
   
@@ -267,38 +301,6 @@ processing_sidebar <- bslib::layout_sidebar(
 
 
 
-# Processing Page ==============================================================
-processing_page <- layout_columns(
-  col_widths = c(9,3),
-  # PLOT AREA
-  card(
-    full_screen = TRUE,
-    card_header("TRACE", class = "bg-blue"),
-    card_body(
-      
-      # TRACE PLOT
-      plotOutput("plot"),
-      
-      # RETENTION Time cropping
-      sliderInput(inputId = "time_rng"
-                  , label = ""
-                  , value = c(0, 100)
-                  , min = 0
-                  , max = 100
-                  , width = "90%"
-                  , step = 1
-                  , post = " min")
-      )
-    ),
-  # Object ITEM
-  card(
-    full_screen = TRUE,
-    card_header("Object Items", class = "bg-blue"),
-    card_body(
-      DT::DTOutput("obj_item")
-      )
-    )
-  )
 
 # MAIN UI ======================================================================
 ui <- bslib::page_navbar(
