@@ -540,7 +540,8 @@ tr_compar <- function(x
           w <- w**pw
       }
       
-      out <- c(out, round(eval(metric), digits = 6))
+      out <- c(out, round(eval(metric), digits = 8))
+      #out <- c(out, eval(metric))
 
       if((j-i) > 0){
         
