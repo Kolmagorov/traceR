@@ -295,7 +295,8 @@ plt_gg <- function(x
                    , gr_col = "ID"
                    , breaks = 5
                    , minor_breaks = 1
-                   , expd = 2){
+                   , expd = 2
+                   , ...){
   
   
   if(methods::is(x) != "tracer"){stop("The argument `x` must be a type of tracer")}
@@ -371,7 +372,8 @@ plt_gg <- function(x
                    , strip.background = ggplot2::element_rect(fill = "grey88", linetype = 0)
                    , axis.line.x = ggplot2::element_line()
                    , axis.ticks.length = ggplot2::unit(5, "pt")
-                   , axis.minor.ticks.length = ggplot2::rel(0.5))
+                   , axis.minor.ticks.length = ggplot2::rel(0.5)
+                   ,...)
   
   # Plot config
   if(stacked){
