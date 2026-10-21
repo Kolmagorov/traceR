@@ -278,6 +278,8 @@ tr_align <- function(x
 #' a table returning by trace_info.
 #' @param xlim,ylim numeric vectors defining limits for x and y axis respectively
 #' @param gr_col name of a veritable to be used to colorize groups
+#' @param col_manual a named list or  a named vector containing colors. 
+#' Case insensitive and partial matching for a grouping names is supported.
 #' @param breaks an integer controlling major breaks on the x-axis
 #' @param minor_breaks an integer controlling minor breaks on the x-axis
 #' @param expd expands plot beyond limits set on x-axis
@@ -293,6 +295,7 @@ plt_gg <- function(x
                    , xlim = NULL
                    , ylim = NULL
                    , gr_col = "ID"
+                   , col_manual = NULL
                    , breaks = 5
                    , minor_breaks = 1
                    , expd = 2
@@ -385,6 +388,31 @@ plt_gg <- function(x
                                      , scales = "free_y"
                                      , strip.position = "left") +
       ggplot2::theme(legend.position = "none")
+  }
+  
+  # Setting Manual colors
+  if(!is.null(col_manual)){
+    
+    group_cols <- names(col_manual)
+    
+    if(is.null(group_cols)){stop("\nCan not assign colors: The Manual color list must contain named items\n"
+                                 , call. = F)}
+    
+    actual_group <- unique(df[[gr_col]])
+    
+    foo <- list()
+
+    # Iterate over supplied group of colors
+    for(g in group_cols){
+      
+      item <- grep(x = actual_group, pattern = g, ignore.case = T, value = T)
+      
+      foo[[item]] <- col_manual[[g]]
+    }
+    
+    plt <- plt +
+      ggplot2::scale_color_manual(values = unlist(foo))
+    
   }
   
   suppressWarnings(print(plt), classes = "warning") # or use coord_cartesian
