@@ -343,7 +343,7 @@ plt_gg <- function(x
     ylim = c(min(tr_lims$minSig), max(tr_lims$maxSig))
   }
   
-  # Construct plot
+  # Construct the plot
   plt <- 
     ggplot2::ggplot(data = df) +
     ggplot2::geom_line(ggplot2::aes(x = .data$RT, y = .data$Response, colour = .data[[gr_col]])) +
@@ -416,7 +416,7 @@ plt_gg <- function(x
     
   }
   
-  suppressWarnings(print(plt), classes = "warning") # or use coord_cartesian
+  suppressWarnings(print(plt), classes = "warning")
   
 }
 
