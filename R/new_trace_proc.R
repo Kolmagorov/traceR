@@ -36,7 +36,8 @@ load_trace <- function(path_dir = NULL
 
     fls <- dir(path_dir
                , full.names = TRUE
-               , pattern = pattern)
+               , pattern = pattern
+               , ignore.case = TRUE)
   }
   
   if(length(fls) == 0){stop("No files found", call. = FALSE)}
