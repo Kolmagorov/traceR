@@ -9,6 +9,7 @@ tr_compar(
   lab = NULL,
   use_diff = FALSE,
   pw = 0,
+  what = NULL,
   align = FALSE,
   neg = FALSE,
   force_raw = FALSE,
@@ -29,6 +30,8 @@ or similarity matrix.}
 
 \item{pw}{a numeric, a weighing coefficient for signal intensities default is 0.}
 
+\item{what}{see `plt_gg`.}
+
 \item{align}{logical. If TRUE a pairwise alignment will be applied.}
 
 \item{neg}{logical, if TRUE allows negative peaks, default is FALSE.}
@@ -37,7 +40,7 @@ or similarity matrix.}
 
 \item{gamma}{a numeric that defines scale spanning for weights, default 1.}
 
-\item{lamb}{a positive number, to get similarity score based Euclidean distance, on see details.}
+\item{lamb}{a positive number, to get similarity score based on Euclidean distance, see details.}
 
 \item{simple}{if TRUE computes unweighted Euclidean distance;}
 

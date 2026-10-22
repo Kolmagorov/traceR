@@ -14,9 +14,11 @@ plt_gg(
   xlim = NULL,
   ylim = NULL,
   gr_col = "ID",
+  col_manual = NULL,
   breaks = 5,
   minor_breaks = 1,
-  expd = 2
+  expd = 2,
+  ...
 )
 }
 \arguments{
@@ -38,11 +40,16 @@ a table returning by trace_info.}
 
 \item{gr_col}{name of a veritable to be used to colorize groups}
 
+\item{col_manual}{a named list or  a named vector containing colors. 
+Case insensitive and partial matching for a grouping names is supported.}
+
 \item{breaks}{an integer controlling major breaks on the x-axis}
 
 \item{minor_breaks}{an integer controlling minor breaks on the x-axis}
 
 \item{expd}{expands plot beyond limits set on x-axis}
+
+\item{...}{ggplot2::theme parameters}
 }
 \description{
 plots traces using ggplot2 graphics

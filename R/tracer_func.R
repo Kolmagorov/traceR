@@ -283,6 +283,7 @@ tr_align <- function(x
 #' @param breaks an integer controlling major breaks on the x-axis
 #' @param minor_breaks an integer controlling minor breaks on the x-axis
 #' @param expd expands plot beyond limits set on x-axis
+#' @param ... ggplot2::theme parameters
 #' @export
 #' @importFrom rlang .data
 #' @import glue
