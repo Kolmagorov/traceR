@@ -42,7 +42,7 @@ load_trace <- function(path_dir = NULL
   
   if(length(fls) == 0){stop("No files found", call. = FALSE)}
 
-  # Allocate a list
+  # Allocate containers list
   raw_data <- list()
   meta <- list()
   id_pool <- NULL
@@ -58,7 +58,7 @@ load_trace <- function(path_dir = NULL
     # tmp can be either FALSE or a list with Meta and TRACE data
     tmp <- parser_selector(fls = fls[i], custom_read_par)
     
-    # if tmp not empty generate new ID
+    # generate new ID
     idx <- gen_uid_pool(n = 1, len = uid_len, pool = id_pool)
     
     # Add an ID to the pool
